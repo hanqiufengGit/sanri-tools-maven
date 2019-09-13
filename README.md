@@ -111,7 +111,18 @@ https://github.com/sanri1993/sanri-tools-maven/releases
 * 如需关注项目最新动态，请Watch、Star项目，同时也是对项目最好的支持
 * 微信扫码并关注我，获得项目最新动态及更新提醒
 
-![我的微信](http://m.qpic.cn/psb?/V14Rorzr338mDG/78jM2YnEeTr4k549DS1U3w2UC5R5u.i7mRjj3dnT8m8!/b/dIMAAAAAAAAA&bo=ZABdAAAAAAARBwk!&rf=viewer_4)
+![我的微信](http://pic.yupoo.com/sanri1993/7e6b6fe8/b40d4a8c.jpg)
+
+
+
+### 更新记录
+
+### 2019/09/13 更新
+
+- 优化多表方案生成的时候，选表卡死问题
+- 增加模板代码生成的时候，可以直接复制代码，直接复制高亮的代码会有问题
+- 去掉了旧的 kafka 监控，目前只支持新版本 kafka ,而且配置暂时还没理解透彻对于需要用户密码的，如果需要配置，可以私信我。
+- 站内聊天优化了滚动条
 
 ### 演示效果图
 
@@ -119,8 +130,8 @@ https://github.com/sanri1993/sanri-tools-maven/releases
 
 
 
-![](http://m.qpic.cn/psb?/V14Rorzr338mDG/tKlN8Gz4dXJMvWATg4VCpHxXJ7ahO7SN8C*MuNDK.u4!/b/dMMAAAAAAAAA&bo=VgVgAgAAAAADBxM!&rf=viewer_4)
+![](http://pic.yupoo.com/sanri1993/209d5663/99e29b4b.png)
 
 
 
-![](http://m.qpic.cn/psb?/V14Rorzr338mDG/btFWmDMeCvYOpR.JtSc3xokPTxM52TJbTyt3lXH9c*U!/b/dIMAAAAAAAAA&bo=xQRNAgAAAAADJ4w!&rf=viewer_4)
+![](http://pic.yupoo.com/sanri1993/f3b022dd/22d80483.png)
