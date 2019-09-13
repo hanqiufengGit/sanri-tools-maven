@@ -114,6 +114,11 @@
     </div>
 </div>
 
+<!--数据展示对话框-->
+<div class="open-dialog" id="dataDialog" style="height: 100%;">
+    <textarea style="width: 100%;height: 99%;" class="form-control"></textarea>
+</div>
+
 <!-- 多表按方案生成代码 -->
 <div class="open-dialog" id="multitableschemadialog">
     <div class="row">
@@ -144,6 +149,7 @@
 
 <!--模板代码配置-->
 <div class="open-dialog" id="templatecodeconfig">
+    <input type="hidden" name="currentcode">
    <div class="col-xs-6">
        <div class="form-inline">
            <div class="form-group">
@@ -162,8 +168,12 @@
 
         <!-- 模板加载位置 -->
        <div id="templatePreview"></div>
+
    </div>
     <div class="col-xs-6">
+        <div class="btn-group btn-group-sm">
+            <button class="btn btn-primary" id="copyCode"><i class="fa fa-copy"></i> 复制代码</button>
+        </div>
         <div  id="codepreview">
         </div>
     </div>

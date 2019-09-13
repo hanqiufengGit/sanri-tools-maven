@@ -1,4 +1,4 @@
-define(['util','dialog','contextMenu','javabrush','xmlbrush'],function (util,dialog) {
+define(['util','dialog','contextMenu','javabrush','xmlbrush','zclip'],function (util,dialog) {
     var tablehelp = {
         connName:undefined,
         schemaName:undefined
@@ -200,6 +200,7 @@ define(['util','dialog','contextMenu','javabrush','xmlbrush'],function (util,dia
             {parent:'#tables',selector:'li',types:['click'],handler:columnsView},
             {selector:'#templates',types:['change'],handler:switchTemplate},
             {selector:'#codeschema',types:['click'],handler:codeSchemaDialog},
+            {selector:'#copyCode',types:['click'],handler:copyCurrentCode},
             {parent:'#codeSchemaDialog>ul.list-group',selector:'li',types:['click'],handler:makeCodeFromSchema},
             {selector:'#multiTableSchemaCode',types:['click'],handler:multiTableSchemaCode},
             {parent:'#multitableschemadialog ul.list-group',selector:'li',types:['click'],handler:switchCodeSchema},
@@ -216,33 +217,26 @@ define(['util','dialog','contextMenu','javabrush','xmlbrush'],function (util,dia
                     }
             }}];
 
+        /**
+         * 用于复制当前代码
+         */
+        function copyCurrentCode(){
+            var formatCode = $('#templatecodeconfig>input:hidden[name=currentcode]').val();
+            $('#dataDialog>textarea').val(formatCode);
+            dialog.create('代码查看')
+                .setContent($('#dataDialog'))
+                .setWidthHeight('90%','90%')
+                .build();
+        }
+
         //绑定全选/不选的复选事件
         $('#multitableschemadialog').find('thead').on('ifChanged','input:checkbox',function () {
-            var name = $(this).attr('name');
-            var checked = $(this).prop('checked');
             var $items =  $('#multitableschemadialog').find('tbody').find('input:checkbox');
-            var selectedTables = [];
-            // $items.prop('checked',checked);
-            $items.iCheck('toggle');
-            if(checked){
-                // $items.iCheck('check',false);
-                selectedTables = $('#multitableschemadialog').data('allTables');
+            if($(this).is(':checked')){
+                $items.iCheck('check');
+            }else{
+                $items.iCheck('uncheck');
             }
-            $('#multitableschemadialog').data('selectedTables',selectedTables);
-        });
-        //绑定选表的时候的复选事件
-        $('#multitableschemadialog').find('tbody').on('ifChanged','input:checkbox',function () {
-            var selectedTables = [];
-            $('#multitableschemadialog').find('tbody>tr').each(function () {
-                var tableName = $(this).attr('tablename');
-                var selected = $(this).find('input:checkbox').prop('checked');
-                if(selected && tableName){
-                    selectedTables.push(tableName);
-                }
-            });
-            //TODO 这里写得有点问题,连调了多次，几张表就调用几次
-            console.log('调用次数');
-            $('#multitableschemadialog').data('selectedTables',selectedTables);
         });
 
         function multiSearch(keyword) {
@@ -285,7 +279,9 @@ define(['util','dialog','contextMenu','javabrush','xmlbrush'],function (util,dia
             $(this).closest('ul').data('value',$(this).attr('value'));
         }
 
-
+        /**
+         * 多表方案代码生成，数据加载
+         */
         function multiTableSchemaCode() {
             //加载所有模板信息和表信息
             var $codeSchemaUl = $('#multitableschemadialog').find('ul.list-group').empty();
@@ -296,8 +292,10 @@ define(['util','dialog','contextMenu','javabrush','xmlbrush'],function (util,dia
                 }
             });
 
-            //记录所有选中表的信息(初次记录,所有表选中)
-            searchRequest('',function (tables) {
+            //记录所有选中表的信息(初次记录,加载外部搜索条件,所有搜索到的表选中)
+            var keyword = $('#search').val().trim();
+            $('#multisearch').val(keyword);
+            searchRequest(keyword,function (tables) {
                 var tableNames = [];
                 for (var i=0;i<tables.length;i++){
                     tableNames.push(tables[i].tableName);
@@ -316,7 +314,13 @@ define(['util','dialog','contextMenu','javabrush','xmlbrush'],function (util,dia
             });
 
             function requestCodeTicket(index) {
-                var selectedTables = $('#multitableschemadialog').data('selectedTables');
+                var selectedTables = [];
+                $('#multitableschemadialog').find('tbody').find(':checkbox').each(function () {
+                   var $tr = $(this).closest('tr');
+                   if($(this).is(':checked')){
+                       selectedTables.push($tr.attr('tablename'));
+                   }
+                });
                 var codeSchemaName = $codeSchemaUl.find('li.list-group-item.active').attr('value');
                 util.requestData(apis.multiTableSchemaConvert,{connName:tablehelp.connName,schemaName:tablehelp.schemaName,tableNames:selectedTables,codeSchemaName:codeSchemaName},function (ticket) {
                     util.downFile(apis.downloadPath,{modul:'generate',baseName: 'tableTemplateCodePath/'+ticket},1000,function () {
@@ -410,6 +414,8 @@ define(['util','dialog','contextMenu','javabrush','xmlbrush'],function (util,dia
                     $('#codepreview').empty();
                     $('#codepreview').append('<pre class="brush:\''+fileType+'\';"></pre>');
                     $('#codepreview>pre').text(formatCode);
+                    //记录当时生成的代码
+                    $('#templatecodeconfig>input:hidden[name=currentcode]').val(formatCode);
                     SyntaxHighlighter.highlight();
                 });
             })
