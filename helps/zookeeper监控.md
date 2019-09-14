@@ -4,4 +4,6 @@
 
 #### 背景
 
-此工具是为了模仿 ZooInspector 做的，最初的代码也全是 ZooInspector 的代码，后面进行了缩减。ZooInspector 一个实例只支持单连接，而界面端是可以做多连接的，而且 ZooInspector 在数据多的时候会卡死，但网页端的不会
+此工具是为了模仿 ZooInspector 做的，最初的代码也全是 ZooInspector 的代码，后面进行了缩减。ZooInspector 一个实例只支持单连接，而界面端是可以做多连接的，而且 ZooInspector 在数据多的时候会卡死，但网页端的不会有这个问题。
+
+![](http://pic.yupoo.com/sanri1993/52c86d89/f1b07a05.png)
