@@ -1,5 +1,6 @@
 package com.sanri.app.jdbc.codegenerate;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashMap;
@@ -23,10 +24,14 @@ public class RenamePolicyDefault implements RenamePolicy {
 	public String mapperClassName(String tableName) {
 		if (!StringUtils.isBlank(tableName)) {
 			tableName = tableName.toLowerCase();
+			//如果是 pgsql ，去掉前面的 .
+			if(tableName.indexOf('.') != -1){
+				tableName = FilenameUtils.getExtension(tableName);
+			}
 			String[] part = tableName.split("_");
 			String className = "";
 			if(part.length > 1){		//去掉前缀
-				for (int i = 1; i < part.length; i++) {
+				for (int i = 0; i < part.length; i++) {
 					className += StringUtils.capitalize(part[i]);
 				}
 			}else{

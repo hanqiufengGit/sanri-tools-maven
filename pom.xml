@@ -389,6 +389,16 @@
             <scope>system</scope>
             <systemPath>${project.basedir}/src/main/resources/jave-1.0.2.jar</systemPath>
         </dependency>
+        <dependency>
+            <groupId>org.apache.sanselan</groupId>
+            <artifactId>sanselan</artifactId>
+            <version>0.97-incubator</version>
+        </dependency>
+        <dependency>
+            <groupId>com.jcraft</groupId>
+            <artifactId>jsch</artifactId>
+            <version>0.1.49</version>
+        </dependency>
     </dependencies>
 
     <build>
