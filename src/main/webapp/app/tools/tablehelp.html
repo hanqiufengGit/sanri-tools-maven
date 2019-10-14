@@ -36,6 +36,24 @@
         #multitableschemadialog ul.list-group>li{
             cursor: pointer;
         }
+
+        .table-columns{
+            overflow: hidden;
+        }
+        .table-columns>li{
+            float: left;
+            width: 240px;
+            margin-left: 3px;
+            height: 300px;
+            border: 1px solid lightgrey;
+        }
+        .table-columns>li>textarea{
+            height: 100%;
+            width: 100%;
+            resize: none;
+            border: none;
+            padding: 5px;
+        }
     </style>
 </head>
 <body>
@@ -64,7 +82,10 @@
                     </div>
 
                     <div class="input-group">
-                        <button class="btn btn-warning btn-sm" id="multiTableSchemaCode">多表方案生成</button>
+                        <div class="btn-group-sm">
+                            <button class="btn  btn-success" id="multiTableSchemaCode"><i class="fa fa-android"></i> 多表方案生成</button>
+                            <button class="btn  btn-white border-orange" id="quickCreateTable"><i class="fa fa-credit-card"></i> 快速建表</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -110,6 +131,28 @@
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+</div>
+
+<!--快速建表对话框-->
+<div class="open-dialog" id="quickCreateTableDialog">
+    <div class="">
+        <ul class="nav nav-tabs">
+            <li class="active" data-toggle="tab"><a href="#editview">多列编辑</a></li>
+            <li data-toggle="tab"><a href="#sqlview">sql预览</a></li>
+        </ul>
+
+        <div class="tab-content">
+            <div class="tab-pane active" id="editview" >
+                <input type="text" class="form-control" placeholder="主键列" />
+                <ul class="table-columns">
+                    <li ><textarea placeholder="列"></textarea></li>
+                    <li ><textarea placeholder="类型"></textarea></li>
+                    <li ><textarea placeholder="注释"></textarea></li>
+                </ul>
+            </div>
+            <div class="tab-pane" id="sqlview" ></div>
         </div>
     </div>
 </div>
