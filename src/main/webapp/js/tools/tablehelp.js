@@ -204,6 +204,7 @@ define(['util','dialog','contextMenu','javabrush','xmlbrush','zclip'],function (
             {parent:'#codeSchemaDialog>ul.list-group',selector:'li',types:['click'],handler:makeCodeFromSchema},
             {selector:'#multiTableSchemaCode',types:['click'],handler:multiTableSchemaCode},
             {parent:'#multitableschemadialog ul.list-group',selector:'li',types:['click'],handler:switchCodeSchema},
+            {selector:'#quickCreateTable',types:['click'],handler:quickCreateTable},
             {selector:'#search',types:['keydown'],handler:function (event) {
                     var event = event || window.event;
                     if(event.keyCode == 13){
@@ -216,6 +217,21 @@ define(['util','dialog','contextMenu','javabrush','xmlbrush','zclip'],function (
                         multiClickSearch();
                     }
             }}];
+
+        /**
+         * 打开快速建表对话框
+         */
+        function quickCreateTable() {
+            dialog.create('快速建表')
+                .setContent($('#quickCreateTableDialog'))
+                .setWidthHeight('800px','90%')
+                .addBtn({type:'button',text:'执行',handler:executeCreateTable})
+                .build();
+            
+            function executeCreateTable() {
+
+            }
+        }
 
         /**
          * 用于复制当前代码
