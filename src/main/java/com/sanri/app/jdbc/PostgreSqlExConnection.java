@@ -139,4 +139,5 @@ public class PostgreSqlExConnection extends ExConnection {
     public String getDbType() {
         return dbType;
     }
+
 }

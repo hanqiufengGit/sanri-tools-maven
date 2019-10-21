@@ -139,17 +139,33 @@
 <div class="open-dialog" id="quickCreateTableDialog">
     <div class="">
         <ul class="nav nav-tabs">
-            <li class="active" data-toggle="tab"><a href="#editview">多列编辑</a></li>
-            <li data-toggle="tab"><a href="#sqlview">sql预览</a></li>
+            <li class="active"><a  data-toggle="tab" href="#editview">多列编辑</a></li>
+            <li><a href="#sqlview"  data-toggle="tab">sql预览</a></li>
         </ul>
 
         <div class="tab-content">
             <div class="tab-pane active" id="editview" >
-                <input type="text" class="form-control" placeholder="主键列" />
+                <div class="form-group form-inline margin-top">
+                    <input type="text" class="form-control" name="tableName" placeholder="表名" value="user"/>
+                    <input type="text" class="form-control" name="tableComments" placeholder="表注释"  value="用户"/>
+                    <input type="text" class="form-control" placeholder="主键列" value="id" name="primaryKeys"/>
+                </div>
                 <ul class="table-columns">
-                    <li ><textarea placeholder="列"></textarea></li>
-                    <li ><textarea placeholder="类型"></textarea></li>
-                    <li ><textarea placeholder="注释"></textarea></li>
+                    <li ><textarea placeholder="列" name="column" >
+id
+a
+b
+                    </textarea></li>
+                    <li ><textarea placeholder="类型" name="type">
+int(11)
+varchar(64)
+varchar(64)
+                    </textarea></li>
+                    <li ><textarea placeholder="注释" name="comments">
+主键
+字段一
+字段二
+                    </textarea></li>
                 </ul>
             </div>
             <div class="tab-pane" id="sqlview" ></div>

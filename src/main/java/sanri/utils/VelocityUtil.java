@@ -44,8 +44,9 @@ public class VelocityUtil {
 	 * @return
 	 * @throws IOException
 	 */
-	public static String formatFile(String tmplPath,Charset charset,Map<String,Object> context) throws IOException {
+	public static String formatFile(String tmplPath,Map<String,Object> context) throws IOException {
 		InputStream inputStream = VelocityUtil.class.getResourceAsStream(tmplPath);
+		Charset charset = Charset.forName("utf-8");
 		InputStreamReader inputStreamReader = new InputStreamReader(inputStream, charset);
 		return formatReader(inputStreamReader,context);
 	}

@@ -145,4 +145,5 @@ public class OracleExConnection extends ExConnection {
     public String getDbType() {
         return dbType;
     }
+
 }

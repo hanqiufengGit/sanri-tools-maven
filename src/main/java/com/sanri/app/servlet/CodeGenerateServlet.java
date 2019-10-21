@@ -134,7 +134,7 @@ public class CodeGenerateServlet extends BaseServlet {
 		String className = extendRenamePolicy.mapperClassName(tableName);
 		File file = new File(mybatisPath, className + ".xml");
 		try {
-			String formatString = VelocityUtil.formatFile("/com/sanri/config/templates/mybatis.tpl",charset, context);
+			String formatString = VelocityUtil.formatFile("/com/sanri/config/templates/mybatis.tpl", context);
 			FileUtils.writeStringToFile(file, formatString);
 		} catch (IOException e) {
 			e.printStackTrace();

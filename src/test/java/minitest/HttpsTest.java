@@ -15,7 +15,7 @@ import org.apache.log4j.Logger;
 import org.junit.Test;
 
 public class HttpsTest {
-//    private String url = "https://kyfw.12306.cn/";
+    //    private String url = "https://kyfw.12306.cn/";
     private String url = "https://10.101.70.202/20191011/1570793159426.png";
     private Logger logger;
 
@@ -91,28 +91,14 @@ public class HttpsTest {
         public java.security.cert.X509Certificate[] getAcceptedIssuers() {
             return null;
         }
-
-        public boolean isServerTrusted(java.security.cert.X509Certificate[] certs) {
-            return true;
+        public void checkServerTrusted(java.security.cert.X509Certificate[] certs, String authType) {
         }
-
-        public boolean isClientTrusted(java.security.cert.X509Certificate[] certs) {
-            return true;
-        }
-
-        public void checkServerTrusted(java.security.cert.X509Certificate[] certs, String authType)
-                throws java.security.cert.CertificateException {
-            return;
-        }
-
-        public void checkClientTrusted(java.security.cert.X509Certificate[] certs, String authType)
-                throws java.security.cert.CertificateException {
-            return;
+        public void checkClientTrusted(java.security.cert.X509Certificate[] certs, String authType) {
         }
     }
 
     @Test
-    public void test(){
+    public void test() {
         String data = getData();
         System.out.println(data);
     }

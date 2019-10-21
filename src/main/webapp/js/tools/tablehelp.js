@@ -40,6 +40,7 @@ define(['util','dialog','contextMenu','javabrush','xmlbrush','zclip'],function (
             $('#conns').empty().append(htmlCode.join(''));
 
             if(conns.length != 0){
+                // 启动的时候不加载当前连接,切换数据库来加载
                 $('#conns').change();
             }
         });
@@ -218,19 +219,66 @@ define(['util','dialog','contextMenu','javabrush','xmlbrush','zclip'],function (
                     }
             }}];
 
+        function trimValue($el,enableEmptyLine){
+            var value = $el.val().trim();
+            var array = value.split('\n');
+            var newLines = [];
+            for (var i = 0; i < array.length; i++) {
+                var currentLine = array[i].trim();
+                if(!enableEmptyLine && !currentLine){continue;}
+                newLines.push(currentLine);
+            }
+            return newLines.join('\n');
+        }
+
+        $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+            var $target = $(e.target);
+            var href = $target.attr('href');
+            if(href != '#sqlview')return;
+            var $targetPanel = $(href);
+
+            var $column = $('#quickCreateTableDialog').find('textarea[name=column]');
+            var $type = $('#quickCreateTableDialog').find('textarea[name=type]');
+            var $comments = $('#quickCreateTableDialog').find('textarea[name=comments]');
+            var tableName = $('#quickCreateTableDialog').find('input[name=tableName]').val().trim();
+            var tableComments = $('#quickCreateTableDialog').find('input[name=tableComments]').val().trim();
+            var primaryKeys = $('#quickCreateTableDialog').find('input[name=primaryKeys]').val().trim();
+
+            util.requestData('/sqlclient/createTableDDL',{
+                connName:tablehelp.connName,
+                tableName:tableName,
+                tableComments:tableComments,
+                primaryKeys:primaryKeys,
+                columns:trimValue($column),
+                types:trimValue($type),
+                comments:trimValue($comments)
+            },function (ddl) {
+                $targetPanel.text(ddl);
+            });
+        });
+
         /**
          * 打开快速建表对话框
          */
         function quickCreateTable() {
-            dialog.create('快速建表')
+            var build = dialog.create('快速建表')
                 .setContent($('#quickCreateTableDialog'))
                 .setWidthHeight('800px','90%')
                 .addBtn({type:'button',text:'执行',handler:executeCreateTable})
                 .build();
             
-            function executeCreateTable() {
-
+            function executeCreateTable(index) {
+               util.requestData('/sqlclient/executor',{
+                   connName:tablehelp.connName,
+                   schemaName:tablehelp.schemaName,
+                   ddl:$('#sqlview').text()
+               },function () {
+                   layer.msg('建表成功');
+                   layer.close(index);
+               })
             }
+
+
         }
 
         /**

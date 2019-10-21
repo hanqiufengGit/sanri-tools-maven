@@ -1,0 +1,14 @@
+create table `${tableName}` (
+    #foreach ($column in $columns)
+    #if ($velocityCount != 1),#end
+    #set($index=$velocityCount - 1)
+    `$column` $types[ $index ]  COLLATE utf8_bin DEFAULT NULL comment "$comments[ $index  ]"
+    #end
+    #if ($primaryKeys.length > 1)
+    PRIMARY KEY (
+     #foreach ($key in $primaryKeys )
+        #if ($velocityCount != 1),#end
+        `$key`
+     #end )
+    #end
+) ENGINE=InnoDB  #if ($primaryKeys.length > 0)AUTO_INCREMENT=1 #end DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='${tableComments}';

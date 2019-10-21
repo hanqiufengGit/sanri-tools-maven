@@ -1100,4 +1100,31 @@ public class SqlClientServlet extends BaseServlet{
 			IOUtils.closeQuietly(fileInputStream);
 		}
 	}
+
+	/**
+	 * 执行 ddl 语句
+	 * @param ddl
+	 * @return
+	 */
+	public int executor(String connName,String schemaName,String ddl) throws SQLException {
+        ExConnection exConnection = InitJdbcConnections.CONNECTIONS.get(connName);
+        exConnection.executor(schemaName,ddl);
+		return 0;
+	}
+
+	/**
+	 * 获取建表语句
+	 * @param tableName
+	 * @param tableComments
+	 * @param columns
+	 * @param types
+	 * @param comments
+	 * @return
+	 */
+	public String createTableDDL(String connName,String tableName,String tableComments,String columns,String types,String comments,String primaryKeys){
+		ExConnection exConnection = InitJdbcConnections.CONNECTIONS.get(connName);
+		return exConnection.createTableDDL(tableName,tableComments,
+				StringUtils.split(columns,"\n"),StringUtils.split(types,"\n"),
+				StringUtils.split(comments,"\n"),StringUtils.split(primaryKeys,"\n"));
+	}
 }

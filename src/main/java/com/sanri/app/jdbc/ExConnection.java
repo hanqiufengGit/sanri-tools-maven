@@ -6,8 +6,10 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.ResultSetHandler;
 import org.apache.commons.lang3.ObjectUtils;
+import sanri.utils.VelocityUtil;
 
 import javax.sql.DataSource;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -270,5 +272,39 @@ public abstract class ExConnection {
         });
 
         return tablePrimaryMap;
+    }
+
+    /**
+     * 获取建表语句
+     * @param tableName
+     * @param tableComments
+     * @param columns
+     * @param types
+     * @param comments
+     * @return
+     */
+    public String createTableDDL(String tableName, String tableComments, String[] columns, String[] types, String[] comments,String [] primaryKeys){
+        String dbType = getDbType();
+        Map<String,Object> context = new HashMap<>();
+        context.put("tableName",tableName);
+        context.put("tableComments",tableComments);
+        context.put("columns",columns);
+        context.put("types",types);
+        context.put("comments",comments);
+        context.put("primaryKeys",primaryKeys);
+        context.put("directive.foreach.counter.initial.value",0);
+        try {
+            String ddl = VelocityUtil.formatFile("/com/sanri/config/templates/ddl." + dbType, context);
+            return ddl;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return "";
+    }
+
+    public void executor(String schemaName, String ddl) throws SQLException {
+        Schema schema = getSchema(schemaName);
+        QueryRunner queryRunner = new QueryRunner(schema.dataSource());
+        queryRunner.update(ddl);
     }
 }
