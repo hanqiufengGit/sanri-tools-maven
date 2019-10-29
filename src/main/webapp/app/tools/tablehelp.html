@@ -54,6 +54,10 @@
             border: none;
             padding: 5px;
         }
+
+        .unknow-float .form-group{
+
+        }
     </style>
 </head>
 <body>
@@ -135,6 +139,130 @@
     </div>
 </div>
 
+<!--使用 tk.mybatis 生成代码对话框-->
+<div class="open-dialog" id="tkmybatisCodeGenDialog">
+    <form class="form-horizontal" >
+        <div class="row">
+            <div class="col-xs-3">
+                <div class="btn-group btn-group-sm ">
+                    <button class="btn btn-white"> <i class="fa fa-plus text-forestgreen border-forestgreen"></i></button>
+                </div>
+                <ul class="list-group margin-little-top" id="selectTableList">
+                </ul>
+            </div>
+            <div class="col-xs-9 unknow-float">
+                <div class="panel panel-info">
+                    <div class="panel-heading">包配置</div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label class="control-label col-sm-3">tkMapper:</label>
+                                    <div class="col-sm-9">
+                                        <input class="form-control"  name="baseMapper" value="tk.mybatis.mapper.common.Mapper" placeholder="Mapper 文件继承的类" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label class="control-label col-sm-3">基础包:</label>
+                                    <div class="col-sm-9">
+                                        <input class="form-control"  name="base" placeholder="填写基础包,将自动配置下面的包" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label class="control-label col-sm-3">idColumn:</label>
+                                    <div class="col-sm-9">
+                                        <input class="form-control"  name="idColumn" value="id" placeholder="id 列，自增长列" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label class="control-label col-sm-3">sqlStatement:</label>
+                                    <div class="col-sm-9">
+                                        <input class="form-control"  name="sqlStatement" value="JDBC" placeholder="自增长策略" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label class="control-label col-sm-3">entity:</label>
+                                <div class="col-sm-9">
+                                    <input class="form-control" key="entity" name="entityPackage" placeholder="entity包名" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label class="control-label col-sm-3" title="javaMapper 和 xml 将在同一个包中">mapper:</label>
+                                <div class="col-sm-9">
+                                    <input class="form-control" key="mapper" name="mapperPackage" placeholder="mapper 包名" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel panel-info">
+                    <div class="panel-heading">实体配置</div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label class="control-label col-sm-3">继承自:</label>
+                                    <div class="col-sm-9">
+                                        <input class="form-control"  name="baseEntity" placeholder="继承自" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label class="control-label col-sm-3">排除字段:</label>
+                                    <div class="col-sm-9">
+                                        <input class="form-control" name="excludeColumns" placeholder="排除字段以逗号分隔" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label class="control-label col-sm-3">实现接口:</label>
+                                    <div class="col-sm-9">
+                                        <label class="checkbox-inline">
+                                            <input type="checkbox" name="interfaces" checked value="java.io.Serializable"  > Serializable
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label class="control-label col-sm-3">添加支持:</label>
+                                    <label class="checkbox-inline">
+                                        <input type="checkbox" name="supports" checked  value="swagger"> swagger
+                                    </label>
+                                    <label class="checkbox-inline">
+                                        <input type="checkbox" name="supports" checked value="lombok"> lombok
+                                    </label>
+                                    <label class="checkbox-inline">
+                                        <input type="checkbox" name="supports" checked value="persistence"> persistence
+                                    </label>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
 <!--快速建表对话框-->
 <div class="open-dialog" id="quickCreateTableDialog">
     <div class="">
@@ -151,21 +279,9 @@
                     <input type="text" class="form-control" placeholder="主键列" value="id" name="primaryKeys"/>
                 </div>
                 <ul class="table-columns">
-                    <li ><textarea placeholder="列" name="column" >
-id
-a
-b
-                    </textarea></li>
-                    <li ><textarea placeholder="类型" name="type">
-int(11)
-varchar(64)
-varchar(64)
-                    </textarea></li>
-                    <li ><textarea placeholder="注释" name="comments">
-主键
-字段一
-字段二
-                    </textarea></li>
+                    <li ><textarea placeholder="列" name="column" ></textarea></li>
+                    <li ><textarea placeholder="类型" name="type"></textarea></li>
+                    <li ><textarea placeholder="注释" name="comments"> </textarea></li>
                 </ul>
             </div>
             <div class="tab-pane" id="sqlview" ></div>

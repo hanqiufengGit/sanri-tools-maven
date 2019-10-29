@@ -14,7 +14,8 @@ define(['util','dialog','contextMenu','javabrush','xmlbrush','zclip'],function (
         readConfig:'/file/manager/readConfig',
         templateConvert:'/code/templateConvert',
         downloadPath:'/file/manager/downloadPath',
-        multiTableSchemaConvert:'/code/multiTableSchemaConvert'
+        multiTableSchemaConvert:'/code/multiTableSchemaConvert',
+        tablesCode:'/mybatis/code/tablesCode'
     };
     var modul = 'tableTemplate';
     var codeSchemaModul = 'codeSchema';
@@ -55,11 +56,69 @@ define(['util','dialog','contextMenu','javabrush','xmlbrush','zclip'],function (
             zIndex: 4,
             items:{
                 templateCode:{name:'模板代码...',icon:'copy',callback:templateCode},
+                tablesCode:{name:'tkmybatis 模板生成',icon:'copy',callback:tablesCode},
                 columns:{name:'属性列',icon:'cut',callback:tableColumns},
                 steps:'------',
                 tableInfo:{name:'表格属性',icon:'copy',callback:tableInfo}
             }
         });
+
+        /**
+         * 使用 tk.mybatis mbg 生成代码
+         */
+        function tablesCode(key,opts) {
+            var tableName = currentTable(opts);
+            var tableComments = opts.$trigger.attr('tableComments');
+            dialog.create('tk.mybatis 代码['+tableName+']')
+                .setContent($('#tkmybatisCodeGenDialog'))
+                .setWidthHeight('90%', '90%')
+                .addBtn({type:'yes',text:'确认',handler:genAndDownCode})
+                .onOpen(initDialog)
+                .build();
+
+            function initDialog() {
+               util.icheck($('#tkmybatisCodeGenDialog'));
+               $('#selectTableList').empty().append(
+                   '<li class="list-group-item" tablename="'+tableName+'" title="'+tableComments+'">'+tableName+' <a class=" pull-right"><i class="fa fa-trash "></i> 删除</a></li>'
+               );
+            }
+
+            function genAndDownCode() {
+                var configs = util.serialize2Json($('#tkmybatisCodeGenDialog>form').serialize());
+                var connName = $('#conns').val();
+                var schemaName = $('#schemas').val();
+                var tableNames = [];
+                $('#selectTableList').find('li').each(function () {
+                    tableNames.push($(this).attr('tablename'));
+                });
+                var data = {
+                    baseMapper:configs.baseMapper,
+                    connectionConfig:{
+                        connName:connName,
+                        schemaName:schemaName,
+                        tableNames:tableNames
+                    },
+                    packageConfig:{
+                        base:configs.base,
+                        mapper:configs.mapperPackage,
+                        entity:configs.entityPackage
+                    },
+                    entityConfig:{
+                        baseEntity:configs.baseEntity,
+                        interfaces:configs.interfaces,
+                        excludeColumns:configs.excludeColumns,
+                        supports:configs.supports,
+                        idColumn:configs.idColumn,
+                        sqlStatement:configs.sqlStatement
+                    }
+                }
+
+                // 参数过于复杂，无法注入
+                util.requestData(apis.tablesCode,{codeGeneratorConfig:data},function (filePath) {
+                   console.log(filePath);
+                });
+            }
+        }
 
         /**
          * 查看表信息
@@ -181,7 +240,7 @@ define(['util','dialog','contextMenu','javabrush','xmlbrush','zclip'],function (
             var htmlCode = [];
             for(var i=0;i<tables.length;i++){
                 if(!tables[i].tableName)continue;
-                htmlCode.push('<li class="list-group-item" tableName = "'+tables[i].tableName+'"> <i class="fa fa-table"></i> '+tables[i].tableName+'('+(tables[i].comments || '未说明')+')</li>')
+                htmlCode.push('<li class="list-group-item" tableName = "'+tables[i].tableName+'" tableComments="'+tables[i].comments+'"> <i class="fa fa-table"></i> '+tables[i].tableName+'('+(tables[i].comments || '未说明')+')</li>')
             }
             $('#tables').empty().html(htmlCode.join(''));
 
