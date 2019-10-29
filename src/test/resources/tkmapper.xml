@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE generatorConfiguration
+        PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
+        "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
+
+<generatorConfiguration>
+    <context id="Mysql" targetRuntime="MyBatis3Simple" defaultModelType="flat">
+        <property name="javaFileEncoding" value="UTF-8"/>
+        <property name="useMapperCommentGenerator" value="true"/>
+
+        <plugin type="tk.mybatis.mapper.generator.MapperPlugin">
+            <property name="mappers" value="${baseMapper}"/>
+            <property name="caseSensitive" value="true"/>
+            <property name="forceAnnotation" value="true"/>
+            <property name="generateColumnConsts" value="true"/>
+            <property name="generateDefaultInstanceMethod" value="true"/>
+            <property name="lombok" value="Data,Accessors"/>
+            <property name="lombokEqualsAndHashCodeCallSuper" value="true"/>
+            <property name="swagger" value="true"/>
+        </plugin>
+
+        <!--通用代码生成器插件-->
+        <!--mapper接口-->
+        <plugin type="tk.mybatis.mapper.generator.TemplateFilePlugin">
+            <property name="targetProject" value="d:/test"/>
+            <property name="targetPackage" value="com.sanri.card.mapper"/>
+            <property name="templatePath" value="generator/mapper.ftl"/>
+            <property name="mapperSuffix" value="Mapper"/>
+            <property name="fileName" value="${tableClass.shortClassName}${mapperSuffix}.java"/>
+        </plugin>
+
+        <jdbcConnection driverClass="${driverClass}"
+                        connectionURL="${connectionURL}"
+                        userId="${userId}"
+                        password="${password}">
+        </jdbcConnection>
+
+        <javaModelGenerator targetPackage="com.sanri.card.entity" targetProject="d:/test"/>
+
+        <sqlMapGenerator targetPackage="com.sanri.card.mapper"
+                         targetProject="d:/test">
+            <property name="enableSubPackages" value="false" />
+        </sqlMapGenerator>
+
+        <table tableName="${tableNames}">
+            <generatedKey column="${idColumn}" sqlStatement="${sqlStatement}"/>
+        </table>
+    </context>
+</generatorConfiguration>

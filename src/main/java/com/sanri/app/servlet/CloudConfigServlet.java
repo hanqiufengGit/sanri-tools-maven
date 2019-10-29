@@ -33,9 +33,9 @@ public class CloudConfigServlet extends BaseServlet {
     /**
      * 读取 springcloud 配置
      * @param configUrl 配置地址
-     * @param modul     模块名
-     * @param env       环境名
-     * @param branch    分支名
+     * @param modul     模块名 profile
+     * @param env       环境名 label
+     * @param branch    分支名 env
      * @return
      */
     public String readConfig(String conn,String modul,String env,String branch) throws IOException {

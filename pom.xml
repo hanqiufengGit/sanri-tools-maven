@@ -389,21 +389,42 @@
             <scope>system</scope>
             <systemPath>${project.basedir}/src/main/resources/jave-1.0.2.jar</systemPath>
         </dependency>
+<!--  图片分辨率      -->
         <dependency>
             <groupId>org.apache.sanselan</groupId>
             <artifactId>sanselan</artifactId>
             <version>0.97-incubator</version>
         </dependency>
+<!--        sftp 文件上传 -->
         <dependency>
             <groupId>com.jcraft</groupId>
             <artifactId>jsch</artifactId>
             <version>0.1.49</version>
         </dependency>
+<!--        增强 java 正则-->
         <dependency>
             <groupId>oro</groupId>
             <artifactId>oro</artifactId>
             <version>2.0.8</version>
         </dependency>
+
+        <dependency>
+            <groupId>cpdetector</groupId>
+            <artifactId>cpdetector</artifactId>
+            <version>1.0.7</version>
+        </dependency>
+
+        <dependency>
+            <groupId>tk.mybatis</groupId>
+            <artifactId>mapper-generator</artifactId>
+            <version>1.1.5</version>
+        </dependency>
+        <dependency>
+            <groupId>org.freemarker</groupId>
+            <artifactId>freemarker</artifactId>
+            <version>2.3.29</version>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -483,6 +504,19 @@
             <releases>
                 <enabled>true</enabled>
             </releases>
+        </repository>
+<!--        这个仓库为了下载 字符集处理包
+<dependency>
+    <groupId>cpdetector</groupId>
+    <artifactId>cpdetector</artifactId>
+    <version>1.0.7</version>
+</dependency>
+-->
+        <repository>
+            <id>ebi</id>
+            <name>https://www.ebi.ac.uk/intact/maven/nexus/content/repositories/ebi-repo/</name>
+            <url>https://www.ebi.ac.uk/intact/maven/nexus/content/repositories/ebi-repo/</url>
+            <snapshots><enabled>true</enabled></snapshots>
         </repository>
     </repositories>
     <pluginRepositories>
