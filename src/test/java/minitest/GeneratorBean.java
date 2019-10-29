@@ -33,7 +33,7 @@ public class GeneratorBean {
         map.put("package",package_);
         map.put("baseMapper","tk.mybatis.mapper.common.Mapper");
 
-        map.put("tableNames","%");
+        map.put("tableNames","enterprise_card_base");
         map.put("idColumn","id");
         map.put("sqlStatement","JDBC");
         String formatString = VelocityUtil.formatString(s, map);

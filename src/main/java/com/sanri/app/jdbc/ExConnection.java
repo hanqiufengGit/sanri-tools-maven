@@ -70,6 +70,11 @@ public abstract class ExConnection {
         return dataSource.getConnection();
     }
 
+    public abstract String getDriver();
+    public abstract String getConnectionURL(String schemaName);
+    public abstract String getUsername();
+    public abstract String getPassword();
+
     /**
      * 获取一个数据库
      * @param schemaName

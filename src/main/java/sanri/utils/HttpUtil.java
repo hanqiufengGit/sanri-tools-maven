@@ -234,7 +234,7 @@ public class HttpUtil {
 		}
 		getMethod.addHeader("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36");
 		//输出url 参数日期
-		logger.debug("请求数据为:"+params);
+//		logger.debug("请求数据为:"+params);
 		HttpResponse response  = null;
 		try {
 			response = httpClient.execute(getMethod);

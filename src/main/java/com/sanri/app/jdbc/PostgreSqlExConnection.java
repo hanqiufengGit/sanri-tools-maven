@@ -21,6 +21,26 @@ public class PostgreSqlExConnection extends ExConnection {
     }
 
     @Override
+    public String getDriver() {
+        return null;
+    }
+
+    @Override
+    public String getConnectionURL(String schemaName) {
+        return null;
+    }
+
+    @Override
+    public String getUsername() {
+        return null;
+    }
+
+    @Override
+    public String getPassword() {
+        return null;
+    }
+
+    @Override
     protected DataSource copyDataSource(String schemaName) {
         PGSimpleDataSource pgSimpleDataSource = new PGSimpleDataSource();
         PropertyEditUtil.copyExclude(pgSimpleDataSource,dataSource);

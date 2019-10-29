@@ -23,6 +23,28 @@ public class MysqlExConnection extends ExConnection{
     }
 
     @Override
+    public String getDriver() {
+        return "com.mysql.jdbc.Driver";
+    }
+
+    @Override
+    public String getConnectionURL(String schemaName) {
+        MysqlDataSource dataSource = (MysqlDataSource) getDataSource(schemaName);
+        String builtUrl = "jdbc:mysql://";
+       return builtUrl + dataSource.getServerName() + ":" + dataSource.getPort() + "/" + dataSource.getDatabaseName()+"?characterEncoding=utf8";
+    }
+
+    @Override
+    public String getUsername() {
+        return ((MysqlDataSource)dataSource).getUser();
+    }
+
+    @Override
+    public String getPassword() {
+        return getPassword((MysqlDataSource) this.dataSource);
+    }
+
+    @Override
     protected DataSource copyDataSource(String schemaName) {
         MysqlDataSource newDatasource = new MysqlDataSource();
         MysqlDataSource dataSource = (MysqlDataSource) this.dataSource;

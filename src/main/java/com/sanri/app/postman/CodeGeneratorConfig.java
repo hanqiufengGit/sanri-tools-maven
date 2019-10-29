@@ -9,31 +9,70 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * {
+ *     "codeGeneratorConfig": {
+ *         "filePath": "d:/test",
+ *         "baseMapper": "tk.mybatis.mapper.common.Mapper",
+ *         "connectionConfig": {
+ *             "connName": "mysql",
+ *             "schemaName": "card",
+ *             "tableNames": [
+ *                 "enterprise_card_base",
+ *                 "enterprise_card_core"
+ *             ]
+ *         },
+ *         "packageConfig": {
+ *             "base": "com.sanri.card",
+ *             "mapper": "com.sanri.card.dao.mapper",
+ *             "service": "com.sanri.card.service",
+ *             "entity": "com.sanri.card.dao.entity",
+ *             "vo": "com.sanri.card.web.vo",
+ *             "dto": "com.sanri.card.web.dto",
+ *             "param": "com.sanri.card.web.param"
+ *         },
+ *         "entityConfig": {
+ *             "baseEntity": "com.sanri.card.dao.BaseEntity",
+ *             "interfaces": [
+ *                 "java.io.Serializable"
+ *             ],
+ *             "excludeColumns": [
+ *                 "id"
+ *             ],
+ *             "supports": [
+ *                 "swagger",
+ *                 "lombok"
+ *             ],
+ *             "idColumn":"id",
+ *             "sqlStatement":"JDBC"
+ *         }
+ *     }
+ * }
+ */
 public class CodeGeneratorConfig {
     private ConnectionConfig connectionConfig;
     private PackageConfig packageConfig;
     private EntityConfig entityConfig;
 
+    private String baseMapper;
+    private String filePath;
+
     public static class ConnectionConfig{
         private String connName;
         private String schemaName;
-        private String[] tableNames;
+        private String [] tableNames;
 
-        public ExConnection getConnection() throws SQLException {
+        private String driverClass;
+        private String connectionURL;
+        private String userId;
+        private String password;
+
+        public void config(){
             ExConnection exConnection = InitJdbcConnections.CONNECTIONS.get(connName);
-            return exConnection;
-        }
-
-        public List<Table> tables() throws SQLException {
-            List<Table> tables = getConnection().tables(schemaName, true);
-            List<Table> filterTables = new ArrayList<>();
-            for (Table table : tables) {
-                String tableName = table.getTableName();
-                if(ArrayUtils.contains(tableNames,tableName)){
-                    filterTables.add(table);
-                }
-            }
-            return filterTables;
+            this.driverClass = exConnection.getDriver();
+            this.connectionURL = exConnection.getConnectionURL(schemaName);
+            this.userId = exConnection.getUsername();
+            this.password = exConnection.getPassword();
         }
 
         public String getConnName() {
@@ -58,6 +97,38 @@ public class CodeGeneratorConfig {
 
         public void setTableNames(String[] tableNames) {
             this.tableNames = tableNames;
+        }
+
+        public String getDriverClass() {
+            return driverClass;
+        }
+
+        public void setDriverClass(String driverClass) {
+            this.driverClass = driverClass;
+        }
+
+        public String getConnectionURL() {
+            return connectionURL;
+        }
+
+        public void setConnectionURL(String connectionURL) {
+            this.connectionURL = connectionURL;
+        }
+
+        public String getUserId() {
+            return userId;
+        }
+
+        public void setUserId(String userId) {
+            this.userId = userId;
+        }
+
+        public String getPassword() {
+            return password;
+        }
+
+        public void setPassword(String password) {
+            this.password = password;
         }
     }
 
@@ -134,6 +205,9 @@ public class CodeGeneratorConfig {
         private String [] interfaces;
         private String [] excludeColumns;
         private String [] supports;
+        private String idColumn;
+        private String sqlStatement;
+
         public String getBaseEntity() {
             return baseEntity;
         }
@@ -165,6 +239,22 @@ public class CodeGeneratorConfig {
         public void setSupports(String[] supports) {
             this.supports = supports;
         }
+
+        public String getIdColumn() {
+            return idColumn;
+        }
+
+        public void setIdColumn(String idColumn) {
+            this.idColumn = idColumn;
+        }
+
+        public String getSqlStatement() {
+            return sqlStatement;
+        }
+
+        public void setSqlStatement(String sqlStatement) {
+            this.sqlStatement = sqlStatement;
+        }
     }
 
     public ConnectionConfig getConnectionConfig() {
@@ -189,5 +279,21 @@ public class CodeGeneratorConfig {
 
     public void setEntityConfig(EntityConfig entityConfig) {
         this.entityConfig = entityConfig;
+    }
+
+    public String getBaseMapper() {
+        return baseMapper;
+    }
+
+    public void setBaseMapper(String baseMapper) {
+        this.baseMapper = baseMapper;
+    }
+
+    public String getFilePath() {
+        return filePath;
+    }
+
+    public void setFilePath(String filePath) {
+        this.filePath = filePath;
     }
 }

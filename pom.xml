@@ -408,11 +408,11 @@
             <version>2.0.8</version>
         </dependency>
 
-        <dependency>
-            <groupId>cpdetector</groupId>
-            <artifactId>cpdetector</artifactId>
-            <version>1.0.7</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>cpdetector</groupId>-->
+<!--            <artifactId>cpdetector</artifactId>-->
+<!--            <version>1.0.7</version>-->
+<!--        </dependency>-->
 
         <dependency>
             <groupId>tk.mybatis</groupId>
@@ -512,12 +512,6 @@
     <version>1.0.7</version>
 </dependency>
 -->
-        <repository>
-            <id>ebi</id>
-            <name>https://www.ebi.ac.uk/intact/maven/nexus/content/repositories/ebi-repo/</name>
-            <url>https://www.ebi.ac.uk/intact/maven/nexus/content/repositories/ebi-repo/</url>
-            <snapshots><enabled>true</enabled></snapshots>
-        </repository>
     </repositories>
     <pluginRepositories>
         <pluginRepository>
