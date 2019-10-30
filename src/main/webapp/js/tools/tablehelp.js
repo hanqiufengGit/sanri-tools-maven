@@ -15,7 +15,8 @@ define(['util','dialog','contextMenu','javabrush','xmlbrush','zclip'],function (
         templateConvert:'/code/templateConvert',
         downloadPath:'/file/manager/downloadPath',
         multiTableSchemaConvert:'/code/multiTableSchemaConvert',
-        tablesCode:'/mybatis/code/tablesCode'
+        tablesCode:'/mybatis/code/tablesCode',
+        projectBuild:'/mybatis/code/projectBuild'
     };
     var modul = 'tableTemplate';
     var codeSchemaModul = 'codeSchema';
@@ -72,7 +73,7 @@ define(['util','dialog','contextMenu','javabrush','xmlbrush','zclip'],function (
             dialog.create('tk.mybatis 代码['+tableName+']')
                 .setContent($('#tkmybatisCodeGenDialog'))
                 .setWidthHeight('90%', '90%')
-                .addBtn({type:'yes',text:'确认',handler:genAndDownCode})
+                .addBtn({type:'yes',text:'单模块生成',handler:genAndDownCode})
                 .onOpen(initDialog)
                 .build();
 
@@ -83,7 +84,7 @@ define(['util','dialog','contextMenu','javabrush','xmlbrush','zclip'],function (
                );
             }
 
-            function genAndDownCode() {
+            function genAndDownCode(index) {
                 var configs = util.serialize2Json($('#tkmybatisCodeGenDialog>form').serialize());
                 var connName = $('#conns').val();
                 var schemaName = $('#schemas').val();
@@ -105,17 +106,18 @@ define(['util','dialog','contextMenu','javabrush','xmlbrush','zclip'],function (
                     },
                     entityConfig:{
                         baseEntity:configs.baseEntity,
-                        interfaces:configs.interfaces,
-                        excludeColumns:configs.excludeColumns,
-                        supports:configs.supports,
+                        interfaces:[configs.interfaces],
+                        excludeColumns:[configs.excludeColumns],
+                        supports:configs.supports.split(','),
                         idColumn:configs.idColumn,
                         sqlStatement:configs.sqlStatement
                     }
                 }
 
-                // 参数过于复杂，无法注入
                 util.requestData(apis.tablesCode,{codeGeneratorConfig:data},function (filePath) {
-                   console.log(filePath);
+                    util.downFile(apis.downloadPath,{modul:'mybatisCode',baseName:filePath},1000,function () {
+                        layer.close(index);
+                    });
                 });
             }
         }
@@ -249,6 +251,93 @@ define(['util','dialog','contextMenu','javabrush','xmlbrush','zclip'],function (
     }
 
     function bindEvents() {
+        var mybatisCodeHandler = {};
+        mybatisCodeHandler.addTable = function () {
+            /**
+             * 选择表确认后操作
+             */
+            function confirmTables(index) {
+                var selectedTables = [];
+                $('#multitableschemadialog').find('tbody').find(':checkbox').each(function () {
+                    var $tr = $(this).closest('tr');
+                    if($(this).is(':checked')){
+                        selectedTables.push($tr.attr('tablename'));
+                    }
+                });
+
+                var existTables = [] ;
+                $('#selectTableList>li').each(function () {
+                   existTables.push($(this).attr('tablename'));
+                });
+                //合并选择的表信息
+                selectedTables.concat(existTables);
+                util.CollectionUtils.uniqueSimpleArray(selectedTables);
+
+                $('#selectTableList').empty();
+                for (var i=0;i<selectedTables.length;i++){
+                    var tableName = selectedTables[i];
+                    $('#selectTableList').append(
+                        '<li class="list-group-item" tablename="'+tableName+'" title="'+tableName+'">'+tableName+' <a class=" pull-right"><i class="fa fa-trash "></i> 删除</a></li>'
+                    );
+                }
+
+                layer.close(index);
+            }
+
+            //记录所有选中表的信息(初次记录,加载外部搜索条件,所有搜索到的表选中)
+            var keyword = $('#search').val().trim();
+            $('#multisearch').val(keyword);
+            searchRequest(keyword,function (tables) {
+                var tableNames = [];
+                for (var i=0;i<tables.length;i++){
+                    tableNames.push(tables[i].tableName);
+                }
+                $('#multitableschemadialog').data('selectedTables',tableNames);
+                $('#multitableschemadialog').data('allTables',tableNames);
+
+                dialog.create('选择用于代码生成的表')
+                    .setContent($('#multitableschemadialog'))
+                    .setWidthHeight('90%', '90%')
+                    .addBtn({type:'yes',text:'确定',handler:confirmTables})
+                    .build();
+
+                //触发表搜索
+                $('#multisearchBtn').click();
+            });
+        }
+        /**
+         * 代码生成时删除表行
+         */
+        mybatisCodeHandler.deleteTable = function () {
+            $(this).closest('li').remove();
+        }
+        /**
+         * 自动填充包信息
+         */
+        mybatisCodeHandler.autoFillPackage = function () {
+            var base = $(this).val();
+            $('#tkmybatisCodeGenDialog').find('input[name=entityPackage]').val(base+'.dao.entity');
+            $('#tkmybatisCodeGenDialog').find('input[name=mapperPackage]').val(base+'.dao.mapper');
+            $('#tkmybatisCodeGenDialog').find('input[name=entityPackage]').val(base+'.dao.entity');
+            $('#tkmybatisCodeGenDialog').find('input[name=controllerPackage]').val(base+'.web.controller');
+            $('#tkmybatisCodeGenDialog').find('input[name=servicePackage]').val(base+'.service');
+            $('#tkmybatisCodeGenDialog').find('input[name=voPackage]').val(base+'.web.dto.vo');
+            $('#tkmybatisCodeGenDialog').find('input[name=dtoPackage]').val(base+'.web.dto');
+            $('#tkmybatisCodeGenDialog').find('input[name=paramPackage]').val(base+'.web.param');
+
+            //填写 groupId 和 artifactId 还有项目名字
+            $('#tkmybatisCodeGenDialog').find('input[name=groupId]').val(base);
+            var projectName = base;
+            var split = base.split('.');
+            if(split.length > 0){
+                projectName = split[split.length - 1];
+            }
+            $('#tkmybatisCodeGenDialog').find('input[name=groupId]').val(base);
+            $('#tkmybatisCodeGenDialog').find('input[name=artifactId]').val(projectName);
+            $('#tkmybatisCodeGenDialog').find('input[name=projectName]').val(projectName);
+
+        }
+
         var events = [{selector:'#conns',types:['change'],handler:switchConn},
             {selector:'#schemas',types:['change'],handler:switchSchema},
             {selector:'#search',types:['keyup'],handler:keyupSearch},
@@ -276,7 +365,96 @@ define(['util','dialog','contextMenu','javabrush','xmlbrush','zclip'],function (
                     if(event.keyCode == 13){
                         multiClickSearch();
                     }
-            }}];
+            }},
+
+            // 代码生成的相关事件
+            {selector:'#mybatiscodeaddtable',types:['click'],handler:mybatisCodeHandler.addTable},
+            {parent:'#selectTableList',selector:'>li>a',types:['click'],handler:mybatisCodeHandler.deleteTable},
+            {selector:'#projectBuild',types:['click'],handler:projectBuild},
+            {parent:'#tkmybatisCodeGenDialog',selector:'input[name=base]',types:['keyup'],handler:mybatisCodeHandler.autoFillPackage}];
+
+        /**
+         * 项目构建
+         */
+        function projectBuild() {
+            dialog.create('项目生成')
+                .setContent($('#tkmybatisCodeGenDialog'))
+                .setWidthHeight('90%', '90%')
+                .addBtn({type:'yes',text:'整项目生成',handler:projectBuildSendData})
+                .onOpen(initDialog)
+                .build();
+
+            function initDialog() {
+                util.icheck($('#tkmybatisCodeGenDialog'));
+
+                //获取到搜索的所有表
+                var keyword = $('#search').val().trim();
+                searchRequest(keyword,function (tables) {
+                    var tableNames = [];$('#selectTableList').empty();
+                    for (var i = 0; i < tables.length; i++) {
+                        $('#selectTableList') .append(
+                            '<li class="list-group-item" tablename="'+tables[i].tableName+'" title="'+tables[i].tableComments+'">'+tables[i].tableName+' <a class=" pull-right"><i class="fa fa-trash "></i> 删除</a></li>'
+                        );
+                    }
+
+                });
+            }
+
+            function projectBuildSendData(index) {
+                var configs = util.serialize2Json($('#tkmybatisCodeGenDialog>form').serialize());
+                var connName = $('#conns').val();
+                var schemaName = $('#schemas').val();
+                var tableNames = [];
+                $('#selectTableList').find('li').each(function () {
+                    tableNames.push($(this).attr('tablename'));
+                });
+                var data = {
+                    baseMapper:configs.baseMapper,
+                    projectName:configs.projectName,
+                    connectionConfig:{
+                        connName:connName,
+                        schemaName:schemaName,
+                        tableNames:tableNames
+                    },
+                    packageConfig:{
+                        base:configs.base,
+                        mapper:configs.mapperPackage,
+                        entity:configs.entityPackage,
+                        service:configs.servicePackage,
+                        controller:configs.controllerPackage,
+                        vo:configs.dtoPackage,
+                        dto:configs.dtoPackage,
+                        param:configs.paramPackage
+                    },
+                    entityConfig:{
+                        baseEntity:configs.baseEntity,
+                        interfaces:[configs.interfaces],
+                        excludeColumns:[configs.excludeColumns],
+                        supports:configs.supports.split(','),
+                        idColumn:configs.idColumn,
+                        sqlStatement:configs.sqlStatement
+                    },
+                    mavenConfig:{
+                        groupId:configs.groupId,
+                        artifactId:configs.artifactId,
+                        version:configs.version,
+                        springBootVersion:configs.springBootVersion
+                    }
+                }
+
+                var mask = layer.load(1, {
+                    shade: [0.1,'#fff']
+                });
+                util.requestData(apis.projectBuild,{codeGeneratorConfig:data},function (filePath) {
+                    layer.close(mask);
+                    util.downFile(apis.downloadPath,{modul:'projectCode',baseName:filePath},1000,function () {
+                        layer.close(index);
+                    });
+                },function () {
+                    layer.close(mask);
+                });
+            }
+        }
 
         function trimValue($el,enableEmptyLine){
             var value = $el.val().trim();

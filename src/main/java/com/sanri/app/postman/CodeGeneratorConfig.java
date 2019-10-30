@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * 基本代码生成
  * {
  *     "codeGeneratorConfig": {
  *         "filePath": "d:/test",
@@ -48,14 +49,57 @@ import java.util.List;
  *         }
  *     }
  * }
+ *
+ * 项目代码生成示例
  */
 public class CodeGeneratorConfig {
     private ConnectionConfig connectionConfig;
     private PackageConfig packageConfig;
     private EntityConfig entityConfig;
+    private MavenConfig mavenConfig;
 
     private String baseMapper;
     private String filePath;
+    private String projectName;
+
+    public static class MavenConfig{
+        private String groupId;
+        private String artifactId;
+        private String version = "1.0-SNAPSHOT";
+        private String springBootVersion = "2.0.5.RELEASE";
+
+        public String getGroupId() {
+            return groupId;
+        }
+
+        public void setGroupId(String groupId) {
+            this.groupId = groupId;
+        }
+
+        public String getArtifactId() {
+            return artifactId;
+        }
+
+        public void setArtifactId(String artifactId) {
+            this.artifactId = artifactId;
+        }
+
+        public String getVersion() {
+            return version;
+        }
+
+        public void setVersion(String version) {
+            this.version = version;
+        }
+
+        public String getSpringBootVersion() {
+            return springBootVersion;
+        }
+
+        public void setSpringBootVersion(String springBootVersion) {
+            this.springBootVersion = springBootVersion;
+        }
+    }
 
     public static class ConnectionConfig{
         private String connName;
@@ -137,11 +181,20 @@ public class CodeGeneratorConfig {
 
         private String mapper;
         private String service;
+        private String controller;
 
         private String entity;
         private String vo;
         private String dto;
         private String param;
+
+        public String getController() {
+            return controller;
+        }
+
+        public void setController(String controller) {
+            this.controller = controller;
+        }
 
         public String getBase() {
             return base;
@@ -295,5 +348,21 @@ public class CodeGeneratorConfig {
 
     public void setFilePath(String filePath) {
         this.filePath = filePath;
+    }
+
+    public String getProjectName() {
+        return projectName;
+    }
+
+    public void setProjectName(String projectName) {
+        this.projectName = projectName;
+    }
+
+    public MavenConfig getMavenConfig() {
+        return mavenConfig;
+    }
+
+    public void setMavenConfig(MavenConfig mavenConfig) {
+        this.mavenConfig = mavenConfig;
     }
 }

@@ -522,9 +522,7 @@ public class HttpUtil {
         } catch (ClientProtocolException e) {
             throw new IllegalArgumentException("客户端协议错误 ，检查 url 配置 url: "+url,e);
         }finally{
-            if(response != null){
-                response.close();
-            }
+//            HttpClientUtils.closeQuietly(httpClient);
         }
     }
     

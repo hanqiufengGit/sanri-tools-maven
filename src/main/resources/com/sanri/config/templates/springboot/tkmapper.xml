@@ -35,7 +35,7 @@
         </plugin>
 
         <jdbcConnection driverClass="${config.connectionConfig.driverClass}"
-                        connectionURL="jdbc:mysql://localhost:3306/card"
+                        connectionURL="${config.connectionConfig.connectionURL}"
                         userId="${config.connectionConfig.userId}"
                         password="${config.connectionConfig.password}">
         </jdbcConnection>

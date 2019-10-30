@@ -88,7 +88,8 @@
                     <div class="input-group">
                         <div class="btn-group-sm">
                             <button class="btn  btn-success" id="multiTableSchemaCode"><i class="fa fa-android"></i> 多表方案生成</button>
-                            <button class="btn  btn-white border-orange" id="quickCreateTable"><i class="fa fa-credit-card"></i> 快速建表</button>
+                            <button class="btn  btn-info" id="projectBuild"><i class="fa fa-apple"></i> 项目构建</button>
+                            <button class="btn  btn-white border-gold" id="quickCreateTable"><i class="fa fa-credit-card"></i> 快速建表</button>
                         </div>
                     </div>
                 </div>
@@ -145,7 +146,7 @@
         <div class="row">
             <div class="col-xs-3">
                 <div class="btn-group btn-group-sm ">
-                    <button class="btn btn-white"> <i class="fa fa-plus text-forestgreen border-forestgreen"></i></button>
+                    <button class="btn btn-white" type="button" id="mybatiscodeaddtable"> <i class="fa fa-plus text-forestgreen border-forestgreen"></i></button>
                 </div>
                 <ul class="list-group margin-little-top" id="selectTableList">
                 </ul>
@@ -165,9 +166,9 @@
                             </div>
                             <div class="col-sm-6">
                                 <div class="form-group">
-                                    <label class="control-label col-sm-3">基础包:</label>
+                                    <label class="control-label col-sm-3" title="填写基础包,将自动配置下面的包">基础包:</label>
                                     <div class="col-sm-9">
-                                        <input class="form-control"  name="base" placeholder="填写基础包,将自动配置下面的包" />
+                                        <input class="form-control"  name="base" placeholder="请先填这个，下面会自动填写"  />
                                     </div>
                                 </div>
                             </div>
@@ -190,19 +191,65 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-sm-6">
-                            <div class="form-group">
-                                <label class="control-label col-sm-3">entity:</label>
-                                <div class="col-sm-9">
-                                    <input class="form-control" key="entity" name="entityPackage" placeholder="entity包名" />
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label class="control-label col-sm-3">entity:</label>
+                                    <div class="col-sm-9">
+                                        <input class="form-control" key="entity" name="entityPackage" placeholder="entity包名" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label class="control-label col-sm-3" title="javaMapper 和 xml 将在同一个包中">mapper:</label>
+                                    <div class="col-sm-9">
+                                        <input class="form-control" key="mapper" name="mapperPackage" placeholder="mapper 包名" />
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-sm-6">
-                            <div class="form-group">
-                                <label class="control-label col-sm-3" title="javaMapper 和 xml 将在同一个包中">mapper:</label>
-                                <div class="col-sm-9">
-                                    <input class="form-control" key="mapper" name="mapperPackage" placeholder="mapper 包名" />
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label class="control-label col-sm-3">controller:</label>
+                                    <div class="col-sm-9">
+                                        <input class="form-control" name="controllerPackage" placeholder="controller 包名" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label class="control-label col-sm-3" >service:</label>
+                                    <div class="col-sm-9">
+                                        <input class="form-control"  name="servicePackage" placeholder="service 包名" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-4">
+                                <div class="form-group">
+                                    <label class="control-label col-sm-3">vo:</label>
+                                    <div class="col-sm-9">
+                                        <input class="form-control" name="voPackage" placeholder="vo 包名" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-4">
+                                <div class="form-group">
+                                    <label class="control-label col-sm-3" >dto:</label>
+                                    <div class="col-sm-9">
+                                        <input class="form-control"  name="dtoPackage" placeholder="dto 包名" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-4">
+                                <div class="form-group">
+                                    <label class="control-label col-sm-3" >param:</label>
+                                    <div class="col-sm-9">
+                                        <input class="form-control"  name="paramPackage" placeholder="param 包名" />
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -255,6 +302,59 @@
                                 </div>
                             </div>
 
+                        </div>
+                    </div>
+                </div>
+                <div class="panel panel-info">
+                    <div class="panel-heading">项目配置</div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-sm-4">
+                                <div class="form-group">
+                                    <label class="control-label col-sm-3">groupId:</label>
+                                    <div class="col-sm-9">
+                                        <input class="form-control"  name="groupId" placeholder="groupId" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-4">
+                                <div class="form-group">
+                                    <label class="control-label col-sm-3">artifactId:</label>
+                                    <div class="col-sm-9">
+                                        <input class="form-control" name="artifactId" placeholder="artifactId" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-4">
+                                <div class="form-group">
+                                    <label class="control-label col-sm-3">version:</label>
+                                    <div class="col-sm-9">
+                                        <select class="form-control" name="version">
+                                            <option value="1.0-SNAPSHOT">1.0-SNAPSHOT</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-4">
+                                <div class="form-group">
+                                    <label class="control-label col-sm-3">项目名字:</label>
+                                    <div class="col-sm-9">
+                                        <input class="form-control"  name="projectName" placeholder="项目名字" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-4">
+                                <div class="form-group">
+                                    <label class="control-label col-sm-3">springBoot:</label>
+                                    <div class="col-sm-9">
+                                        <select class="form-control" name="springBootVersion">
+                                            <option value="2.0.5.RELEASE">2.0.5.RELEASE</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

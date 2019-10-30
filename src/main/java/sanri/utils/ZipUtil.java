@@ -16,6 +16,7 @@ import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.junit.Test;
 
 /**
  * 
@@ -147,4 +148,8 @@ public class ZipUtil {
 		}
 	}
 
+	@Test
+	public void testUnzip(){
+		unzip(new File("D:\\tmp\\projectCode\\1572417685251/cardtest.zip"),"D:\\tmp\\projectCode\\1572417685251");
+	}
 }
