@@ -48,7 +48,7 @@ public class HttpsTest {
                 }
             };
             HttpsURLConnection.setDefaultHostnameVerifier(hv);
-            conn = (HttpURLConnection) new URL(url).openConnection();
+            conn = (HttpURLConnection) new URL("http://www.baidu.com").openConnection();
             // 发送GET请求必须设置如下两行
             conn.setDoInput(true);
             conn.setRequestMethod("GET");

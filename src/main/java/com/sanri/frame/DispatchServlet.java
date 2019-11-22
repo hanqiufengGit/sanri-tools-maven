@@ -579,6 +579,18 @@ public class DispatchServlet extends HttpServlet {
 		if(nativeMethod == null){
 			throw new ServletException("can not find method :"+methodName);		//add by sanri at 2017/04/24 解决找不到映射问题
 		}
+		//支持跨域
+		/* 允许跨域的主机地址 */
+		response.setHeader("Access-Control-Allow-Origin", "*");
+		/* 允许跨域的请求方法GET, POST, HEAD 等 */
+		response.setHeader("Access-Control-Allow-Methods", "*");
+		/* 重新预检验跨域的缓存时间 (s) */
+		response.setHeader("Access-Control-Max-Age", "3600");
+		/* 允许跨域的请求头 */
+		response.setHeader("Access-Control-Allow-Headers", "*");
+		/* 是否携带cookie */
+		response.setHeader("Access-Control-Allow-Credentials", "true");
+
 		//解析参数
 		JSONObject jsonObject = parserParams(request, response,nativeMethod);
 		Method method = nativeMethod.getMethod();

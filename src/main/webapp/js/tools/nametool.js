@@ -174,7 +174,7 @@ define(['util', 'dialog', 'icheck'], function (util, dialog) {
             var biz = $('#bizs').val();
             var configs = $('#bizmapping').val().trim();
 
-            util.requestData(apis.writeConfig, {biz: biz, content: configs,modul:modul});
+            util.requestData(apis.writeConfig, {baseName: biz, content: configs,modul:modul});
         }
 
     }

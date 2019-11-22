@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>测试布局新工具</title>
+    <link rel="stylesheet" href="../css/font-awesome.min.css"/>
+    <link rel="stylesheet" href="../css/fa-font-awesome.min.css"/>
+    <style>
+
+        body{
+            /*background-color: whitesmoke;*/
+            /*background-image: url("微信图片_20191118164718.jpg");*/
+            /*background-repeat: no-repeat;*/
+        }
+        .section{
+            display: flex;
+             /*布局方向 row column 及反向*/
+            flex-direction: row;
+            /*横向调整*/
+            justify-content: flex-end;
+            /*纵向调整*/
+            align-items: flex-end;
+        }
+        .bg-red{
+            background:lightcoral;
+        }
+        .bg-blue{
+            background-color: lightblue;
+        }
+
+        .bg-yellow{
+            background-color: lightyellow;
+        }
+        .bg-green{
+            background-color: greenyellow;
+        }
+
+        .shape{
+            width: 100px;
+            height: 100px;
+        }
+
+        .opacity-text{
+            width: 300px;
+            height: 100px;
+            border-radius: 50px;
+            border: 1px solid #ddd;
+            background: rgba(255, 255, 255, 0.5);
+            /*opacity: .4;*/
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .multi-x{
+            width: 250px;
+            height: 500px;
+            border: 1px solid red;
+            display: flex;
+            /*justify-content: start;*/
+            flex-wrap: wrap;
+            align-content:flex-end;
+        }
+
+        .flex-test{
+            display: flex;
+            flex-direction: row;
+            justify-content:start;
+        }
+
+        .box{
+            width: 350px;
+            height: 220px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            padding: 15px;
+            align-content: space-between;
+            flex-direction: column;
+        }
+
+        .box-long{
+            width: 50%;
+            height: 100px;
+        }
+        .box-short{
+            width: 40%;
+            height: 100px;
+        }
+
+
+
+        .box-search{
+            width: 350px;
+            height: 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 15px;
+            background-image: url("timg.jpg");
+        }
+        .box-search .search{
+            width: 90%;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 25px;
+        }
+        .box-search .search input{
+            background-color: inherit;
+            width: 100%;
+            height: 100%;
+        }
+
+        .box-search .search input::-ms-input-placeholder {
+            text-align: center;
+        }
+
+        .box-search .search input::-webkit-input-placeholder {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="section">
+        <div class="bg-red shape">1</div>
+        <div class="bg-blue shape">2</div>
+        <div class="bg-green shape">3</div>
+    </div>
+
+    <div class="opacity-text">
+        <span>这是半透明框中的文本</span>
+    </div>
+
+    <div class="multi-x">
+        <div class="bg-red shape">1</div>
+        <div class="bg-blue shape">2</div>
+        <div class="bg-green shape">3</div>
+    </div>
+
+    <div class=" flex-test" style="width: 100%;height: 100px;">
+        <div class="bg-green" style="width: 60%;height: 100%"></div>
+        <!-- margin-left:auto 用于子元素靠右展示 -->
+        <div class="bg-red " style="width: 30%;height: 100%;margin-left: auto"></div>
+        <!--  此方法不行,项目将占据整个右侧空间 -->
+<!--        <div class="bg-blue" style="width: 200px;height: 100%;flex: 1;text-align: right"></div>-->
+    </div>
+
+    <div class="box" style="border: 1px solid red;">
+        <div class="box-long bg-blue" ></div>
+        <div class="box-short bg-green"></div>
+        <div class="box-short bg-red"></div>
+        <div class="box-long bg-yellow" ></div>
+    </div>
+
+    <div class="box-search">
+        <div class="map"><i class="icon icon-map-marker"></i></div>
+        <div class="search">
+            <input type="text" style="border: none" placeholder="请输入商品名称" >
+        </div>
+        <div class="more"><i class="icon icon-moon"></i></div>
+    </div>
+</body>
+</html>

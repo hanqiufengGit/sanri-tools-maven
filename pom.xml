@@ -430,6 +430,12 @@
             <version>2.3.29</version>
         </dependency>
 
+        <!-- guava 限流 -->
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>25.1-jre</version>
+        </dependency>
     </dependencies>
 
     <build>

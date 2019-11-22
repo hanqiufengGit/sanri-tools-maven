@@ -14,6 +14,7 @@ public class ToolModel {
     private String desc;
     private int totalCalls;
     private long lastCallTime;
+    private String component;
     //用于配置在哪些环境可以访问此工具
     private Set<String> envs = new HashSet<>();
 
@@ -109,5 +110,13 @@ public class ToolModel {
 
     public void removeEnv(String env) {
         envs.remove(env);
+    }
+
+    public String getComponent() {
+        return component;
+    }
+
+    public void setComponent(String component) {
+        this.component = component;
     }
 }

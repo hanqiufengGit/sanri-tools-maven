@@ -2,6 +2,8 @@ package minitest;
  
 import java.net.SocketTimeoutException;
 import java.security.cert.X509Certificate;
+import java.util.*;
+import java.util.stream.Collectors;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
@@ -14,6 +16,23 @@ import org.apache.http.impl.client.DefaultHttpClient;
  
 @SuppressWarnings("deprecation")
 public class ConnectUtils {
+
+	public static void main(String[] args) {
+		List<String> deviceIds = new ArrayList<String>(){{
+			add("a");add("b");add("c");
+		}
+		};
+		Map<String,String> mirror = new HashMap<String,String>(){{
+			put("a","1");
+			put("b","2");
+		}};
+
+		// toMap 不允许空值
+//		Map<String, String> terminalNoMap = deviceIds.stream().collect(Collectors.toMap(deviceNo -> deviceNo, deviceNo -> mirror.get(deviceNo)));
+//		System.out.println(terminalNoMap);
+		Map<String, String> terminalNoMap = deviceIds.stream().collect(HashMap::new, (m, v) -> m.put(v, mirror.get(v)), HashMap::putAll);
+		System.out.println(terminalNoMap);
+	}
 	/**
 	 * 自定义私有类：绕开HTTPS证书校验
 	 */
