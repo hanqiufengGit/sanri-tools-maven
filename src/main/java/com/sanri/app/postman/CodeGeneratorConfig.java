@@ -1,9 +1,13 @@
 package com.sanri.app.postman;
 
 import com.sanri.app.jdbc.ExConnection;
+import com.sanri.app.jdbc.PostgreSqlExConnection;
 import com.sanri.app.jdbc.Table;
 import com.sanri.initexec.InitJdbcConnections;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.postgresql.ds.PGSimpleDataSource;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -117,6 +121,13 @@ public class CodeGeneratorConfig {
             this.connectionURL = exConnection.getConnectionURL(schemaName);
             this.userId = exConnection.getUsername();
             this.password = exConnection.getPassword();
+
+            //表名处理，如果是 pgsql ，需要去掉 schema 信息 mybatisgen 的坑
+            if(exConnection instanceof PostgreSqlExConnection){
+                for (int i = 0; i < tableNames.length; i++) {
+                    tableNames[i] = FilenameUtils.getExtension(tableNames[i]);
+                }
+            }
         }
 
         public String getConnName() {

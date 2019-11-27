@@ -1,5 +1,6 @@
 package com.sanri.app.jdbc;
 
+import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
 import com.sanri.app.jdbc.codegenerate.RenamePolicyMybatisExtend;
 import com.sanri.app.postman.JdbcConnDetail;
 import org.apache.commons.dbutils.QueryRunner;
@@ -22,22 +23,25 @@ public class PostgreSqlExConnection extends ExConnection {
 
     @Override
     public String getDriver() {
-        return null;
+        return "org.postgresql.Driver";
     }
 
     @Override
     public String getConnectionURL(String schemaName) {
-        return null;
+        PGSimpleDataSource dataSource = (PGSimpleDataSource) getDataSource(schemaName);
+        return "jdbc:postgresql://"+dataSource.getServerName()+":"+dataSource.getPortNumber()+"/"+schemaName;
     }
 
     @Override
     public String getUsername() {
-        return null;
+        PGSimpleDataSource dataSource = (PGSimpleDataSource) getDataSource();
+        return dataSource.getUser();
     }
 
     @Override
     public String getPassword() {
-        return null;
+        PGSimpleDataSource dataSource = (PGSimpleDataSource) getDataSource();
+        return dataSource.getPassword();
     }
 
     @Override

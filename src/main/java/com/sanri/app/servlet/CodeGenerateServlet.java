@@ -18,6 +18,7 @@ import com.sanri.frame.DispatchServlet;
 import com.sanri.frame.RequestMapping;
 import com.sanri.initexec.InitJdbcConnections;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
@@ -294,6 +295,10 @@ public class CodeGenerateServlet extends BaseServlet {
 				context.put("daoImplPackage", generateConfig.getDaoimplPackage());
 				context.put("entityPackage", generateConfig.getEntityPackage());
 				context.put("tableName", table.getTableName());
+				//如果是 pgsql ,表名去掉 schema TODO
+				if(table.getTableName().contains(".")){
+					context.put("tableName", FilenameUtils.getExtension(table.getTableName()));
+				}
 				context.put("chineseEntity",table.getComments());
 				context.put("datetime", DateFormatUtils.format(System.currentTimeMillis(), datetimePattern));
 
