@@ -100,11 +100,11 @@ public class QueueUseWaitNotify {
     public static void main(String[] args) throws InterruptedException {
         for (int j = 0; j < 1000000; j++) {
             CountDownLatch countDownLatch = new CountDownLatch(4);
-            for (int i = 0; i < 2; i++) {
+            for (int i = 0; i < 12; i++) {
                 new Producer(countDownLatch).start();
             }
 
-            for (int i = 0; i < 2; i++) {
+            for (int i = 0; i < 12; i++) {
                 new Consumer(countDownLatch).start();
             }
             countDownLatch.await();

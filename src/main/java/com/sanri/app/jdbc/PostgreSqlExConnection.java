@@ -11,6 +11,7 @@ import org.postgresql.ds.PGSimpleDataSource;
 import sanri.utils.PropertyEditUtil;
 
 import javax.sql.DataSource;
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
@@ -18,6 +19,7 @@ import java.util.*;
 public class PostgreSqlExConnection extends ExConnection {
     public static final String dbType = "postgresql";
     public PostgreSqlExConnection(DataSource dataSource) throws SQLException {
+      
         super(dataSource);
     }
 
