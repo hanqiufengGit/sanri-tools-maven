@@ -28,7 +28,7 @@ public class PathTest {
 //        String s = DurationFormatUtils.formatDuration(millis, "HH:mm:ss");
 //        System.out.println(s);
 
-        File source = new File("C:\\Users\\091795960\\Desktop/v.mp4");
+        File source = new File("C:\\Users\\091795960\\Videos/HD.Club-4K-Chimei-inn-20mbps.mp4");
         Encoder encoder = new Encoder();
         FileChannel fc= null;
         try {

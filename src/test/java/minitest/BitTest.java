@@ -19,6 +19,7 @@ public class BitTest {
         System.out.println(b);
 
         System.out.println(888 % 128);
+
     }
 
     @Test

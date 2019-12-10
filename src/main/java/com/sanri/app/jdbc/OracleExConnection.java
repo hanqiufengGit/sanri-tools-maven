@@ -4,13 +4,16 @@ import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
 import com.sanri.app.jdbc.codegenerate.RenamePolicyMybatisExtend;
 import com.sanri.app.postman.JdbcConnDetail;
 import oracle.jdbc.pool.OracleDataSource;
+import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.ResultSetHandler;
 import org.apache.commons.dbutils.handlers.ScalarHandler;
 import org.apache.commons.lang3.ObjectUtils;
+import org.springframework.util.ReflectionUtils;
 import sanri.utils.PropertyEditUtil;
 
 import javax.sql.DataSource;
+import java.lang.reflect.Field;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -27,22 +30,29 @@ public class OracleExConnection extends ExConnection {
 
     @Override
     public String getDriver() {
-        return null;
+        return "oracle.jdbc.driver.OracleDriver";
     }
 
     @Override
     public String getConnectionURL(String schemaName) {
-        return null;
+        OracleDataSource oracleDataSource = (OracleDataSource) getDataSource(schemaName);
+        return "jdbc:oracle:thin:@"+oracleDataSource.getServerName()+":"+oracleDataSource.getPortNumber()+":"+oracleDataSource.getDatabaseName();
     }
 
     @Override
     public String getUsername() {
-        return null;
+        OracleDataSource oracleDataSource = (OracleDataSource) getDataSource();
+        return oracleDataSource.getUser();
     }
 
     @Override
     public String getPassword() {
-        return null;
+//        OracleDataSource oracleDataSource = (OracleDataSource) getDataSource();
+        //反射 password
+        Field password = ReflectionUtils.findField(OracleDataSource.class, "password");
+        password.setAccessible(true);
+        Object field = ReflectionUtils.getField(password, dataSource);
+        return ObjectUtils.toString(field);
     }
 
     @Override

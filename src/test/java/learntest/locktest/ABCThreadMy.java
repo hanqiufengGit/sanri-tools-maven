@@ -1,14 +1,23 @@
 package learntest.locktest;
 
+import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.CyclicBarrier;
+
 public class ABCThreadMy {
 
     static int count = 30;
-
+    static CyclicBarrier cyclicBarrier = new CyclicBarrier(3);
     static class A extends Thread{
         Thread b;Thread c;
 
         @Override
         public void run() {
+            try {
+                cyclicBarrier.await();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
             while (true) {
                 synchronized (c) {
                     synchronized (this) {
@@ -42,6 +51,11 @@ public class ABCThreadMy {
 
         @Override
         public void run() {
+            try {
+                cyclicBarrier.await();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             while (true) {
                 synchronized (a) {
                     synchronized (this) {
@@ -75,6 +89,11 @@ public class ABCThreadMy {
 
         @Override
         public void run() {
+            try {
+                cyclicBarrier.await();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             while (true) {
                 synchronized (b) {
                     synchronized (this) {
@@ -110,8 +129,10 @@ public class ABCThreadMy {
         ((B) b).setA(a);((B) b).setC(c);
         ((C) c).setA(a);((C) c).setB(b);
 
-        a.start();Thread.sleep(100);
-        b.start();Thread.sleep(100);
-        c.start();
+//        a.start();Thread.sleep(100);
+//        b.start();Thread.sleep(100);
+//        c.start();
+        a.start();b.start();c.start();
+
     }
 }
