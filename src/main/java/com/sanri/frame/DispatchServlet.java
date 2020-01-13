@@ -2,6 +2,9 @@ package com.sanri.frame;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.parser.Feature;
+import com.alibaba.fastjson.serializer.SerializeConfig;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.sanri.app.BaseServlet;
 import javassist.ClassClassPath;
 import javassist.ClassPool;
@@ -655,7 +658,7 @@ public class DispatchServlet extends HttpServlet {
 			if(returnValue != null){
 				response.setContentType("text/html;charset=UTF-8");
 				writer = response.getWriter();
-				writer.write(JSONObject.toJSONString(returnValue));
+				writer.write(JSONObject.toJSONString(returnValue, SerializerFeature.SortField));
 			}
 
 			//如果返回为空,处理返回

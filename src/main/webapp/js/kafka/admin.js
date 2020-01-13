@@ -1,4 +1,4 @@
-define(['util','dialog','icheck','jsonview'],function (util,dialog) {
+define(['util','dialog','jsoneditor','icheck','jsonview'],function (util,dialog,JSONEditor) {
     var kafkaAdmin = {};
     var apis = {
         topics:'/kafka/topics',
@@ -7,7 +7,8 @@ define(['util','dialog','icheck','jsonview'],function (util,dialog) {
         drop:'/kafka/deleteTopic',
         lastDatas: '/kafka/lastDatas',
         nearbyDatas:'/kafka/nearbyDatas',
-        serializes:'/zk/serializes'
+        serializes:'/zk/serializes',
+        sendKafkaData:'/kafka/sendJsonData'
     }
     kafkaAdmin.init = function () {
         bindEvents();
@@ -26,6 +27,19 @@ define(['util','dialog','icheck','jsonview'],function (util,dialog) {
                 $('#serializeTools').append('<option value="' + serializes[i] + '">' + serializes[i] + '</option>');
             }
         });
+
+        // 初始化 json 编辑器
+        var container = document.getElementById('jsondataformat');
+        var options = {
+            mode: 'tree',
+            onError: function (err) {
+                alert(err.toString());
+            }
+        };
+        kafkaAdmin.jsonEditor = new JSONEditor(container, options, null);
+        //全局文本域自动高度
+        $('textarea[autoHeight]').autoHeight();
+
         return this;
     }
 
@@ -55,9 +69,12 @@ define(['util','dialog','icheck','jsonview'],function (util,dialog) {
         var serialize = $('#serializeTools').val();
         util.requestData(switchApi,{clusterName:kafkaAdmin.conn,topic:topic,partition:partition,offset:offset,serialize:serialize},function (datas) {
             var $tbody = $('#datadetail').find('tbody').empty();
-            for(var offset in datas){
+            // for(var offset in datas){
+            for(var i=0;i<datas.length;i++){
+                var offset = datas[i].offset;
+                var data = datas[i].data;
                 var btn = '<button type="button" class="btn btn-sm btn-primary"><i class="fa fa-book"></i> JSON </button>';
-                $tbody.append('<tr offset="'+offset+'"><td>'+btn+'</td><td>'+offset+'</td><td>'+datas[offset]+'</td></tr>');
+                $tbody.append('<tr offset="'+offset+'"><td>'+btn+'</td><td>'+offset+'</td><td>'+data+'</td></tr>');
             }
 
             var buildDialog = dialog.create('显示topic['+topic+']partition['+partition+']offset['+offset+']附近['+btnName+']的数据')
@@ -75,10 +92,34 @@ define(['util','dialog','icheck','jsonview'],function (util,dialog) {
             {selector:'#createdata',types:['click'],handler:createData},
             {parent:'#topicdetail',selector:'button[name=lastdata],button[name=nearbyData]',types:['click'],handler:showdata},
             {selector:'#serializeTools',types:['change'],handler:changeSerialize},
-            {parent:'#datadetail',selector:'button',types:['click'],handler:jsonView}];
+            {parent:'#datadetail',selector:'button',types:['click'],handler:jsonView},
+            {selector:'#validJson',types:['click'],handler:validJson},
+            {selector:'#compactJson',types:['click'],handler:compactJson},
+            {selector:'#sendData',types:['click'],handler:sendKafkaData}];
 
         util.regPageEvents(events);
 
+        // 发送数据时验证 json 是否正确
+        function validJson() {
+            var json = $('#jsondata').val().trim();
+            kafkaAdmin.jsonEditor.setText(json);
+        }
+        function compactJson() {
+            var text = kafkaAdmin.jsonEditor.getText();
+            $('#jsondata').val(text);
+        }
+        // 发送数据到 kafka
+        function sendKafkaData() {
+            var partition = $('#datajson').find('input[name=partition]').val().trim();
+            partition = partition ? partition:undefined;
+            var json = $('#jsondata').val().trim();
+            var topic = $('#topicname').data('topic');
+            util.requestData(apis.sendKafkaData,{topic:topic,clusterName:kafkaAdmin.conn,key:partition,data:json},function () {
+               layer.msg('发送成功');
+            });
+        }
+
+        // 查看 json 视图数据
         function jsonView() {
             var offset = $(this).closest('tr').attr('offset');
             var json = $(this).parent().siblings('td:last').text();
@@ -140,6 +181,8 @@ define(['util','dialog','icheck','jsonview'],function (util,dialog) {
             var topicName = $(this).attr('topic');
             $('#topicname').text(topicName);
             $('#topicname').data('topic',topicName);
+
+            $('#topicdetail>tbody').empty();    // 点击新主题时,清空 logSize 列表,避免计算出错
             renderTopicPartitions(topicName);
         }
         function deleteTopic() {
@@ -162,16 +205,30 @@ define(['util','dialog','icheck','jsonview'],function (util,dialog) {
             var index = layer.load(1, {
                 shade: [0.1,'#fff']
             });
+            // 记住之前的数据,与之后变化的数据进行对比,可以比较出哪一个是有新加消息的并且加了多少
+            var $tbody = $('#topicdetail>tbody');
+            var lastLogSize = undefined;
+            // 不知道怎么判断是否还有节点，暂时用获取 td 的个数来判断
+            if($tbody.find('td').size() != 0){
+                lastLogSize = [];
+                $tbody.find('tr>td:nth-child(2)').each(function (i) {
+                    lastLogSize[i+''] = parseInt($(this).text());
+                });
+            }
             util.requestData(apis.logSizes, {clusterName:kafkaAdmin.conn,topic: topicName}, function (logSizes) {
-                var $tbody = $('#topicdetail>tbody').empty();
+                // 写入最近一次刷新时间
+                var dateFormat = util.FormatUtil.dateFormat(new Date().getTime(), 'yyyy-MM-dd HH:mm:ss');
+                $('#refreshlogsize').next('time').text(dateFormat);
+
+                $tbody.empty();
                 var htmlCode = [];
                 var partitions = Object.keys(logSizes);
                 $('#topicname').data('partitions', partitions);
 
-                var dateFormat = util.FormatUtil.dateFormat(new Date().getTime(), 'yyyy-MM-dd HH:mm:ss');
                 var $btnGroup = '<div class="btn-group btn-group-sm"><button class="btn btn-sm btn-success" name="nearbyData">附近数据</button><button class="btn btn-sm btn-warning" name="lastdata">尾部数据</button></div>';
                 for (var key in logSizes) {
-                    htmlCode.push('<tr partition="'+key+'"><td>' + key + '</td><td>' + logSizes[key] + '</td><td>' + (dateFormat) + '</td><td>'+$btnGroup+'</td></tr>')
+                    var change = lastLogSize ? '+'+(logSizes[key] - lastLogSize[key]):logSizes[key];
+                    htmlCode.push('<tr partition="'+key+'"><td>' + key + '</td><td>' + logSizes[key] + '</td><td>'+change+'</td><td>'+$btnGroup+'</td></tr>')
                 }
                 $tbody.append(htmlCode.join(''));
 

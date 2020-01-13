@@ -3,6 +3,7 @@ package com.sanri.app.servlet;
 import com.alibaba.fastjson.JSONObject;
 import com.sanri.app.BaseServlet;
 import com.sanri.app.postman.RedisKeyResult;
+import com.sanri.app.postman.RedisService;
 import com.sanri.frame.DispatchServlet;
 import com.sanri.frame.RequestMapping;
 import org.I0Itec.zkclient.serialize.ZkSerializer;
@@ -22,9 +23,7 @@ import static com.sanri.app.servlet.ZkServlet.zkSerializerMap;
 
 @RequestMapping("/redis")
 public class RedisConnectServlet extends BaseServlet {
-    static Map<String,Jedis> jedisMap = new HashMap<String, Jedis>();
-    private String modul = "redis";
-
+    RedisService redisService =  new RedisService();
     /**
      * 获取连接信息
      * @param name
@@ -33,7 +32,7 @@ public class RedisConnectServlet extends BaseServlet {
      */
     final static String [] sections = {"Server","Clients","Memory","Persistence","Stats","Replication","CPU","Cluster","Keyspace"};
     public Map<String,String> redisInfo(String name) throws IOException {
-        Jedis jedis = jedis(name);
+        Jedis jedis = redisService.jedis(name);
         Map<String,String> infos = new HashMap<>();
         for (String section : sections) {
             String info = jedis.info(section);
@@ -51,7 +50,7 @@ public class RedisConnectServlet extends BaseServlet {
     public Map<String,Long> dbs(String name) throws IOException {
         Map<String,Long> dbsMap = new HashMap<>();
 
-        Jedis jedis = jedis(name);
+        Jedis jedis = redisService.jedis(name);
         List<String> databases = jedis.configGet("databases");
         int size = NumberUtil.toInt(databases.get(1));
         boolean cluster = false;
@@ -83,7 +82,7 @@ public class RedisConnectServlet extends BaseServlet {
      * @throws IOException
      */
     public List<RedisKeyResult> scan(String name,int index, String pattern, int cursor, int limit) throws IOException {
-        Jedis jedis = jedis(name);if(index != 0){jedis.select(index);};
+        Jedis jedis = redisService.jedis(name);if(index != 0){jedis.select(index);};
 
         ScanParams scanParams = new ScanParams();
         scanParams.count(limit);
@@ -136,7 +135,7 @@ public class RedisConnectServlet extends BaseServlet {
      * @throws IOException
      */
     public List<String> hscan(String name, int index, String key, String pattern, int cursor, int limit) throws IOException {
-        Jedis jedis = jedis(name);if(index != 0){jedis.select(index);};
+        Jedis jedis = redisService.jedis(name);if(index != 0){jedis.select(index);};
 
         ScanParams scanParams = new ScanParams();
         scanParams.count(limit);
@@ -167,7 +166,7 @@ public class RedisConnectServlet extends BaseServlet {
      * @throws IOException
      */
     public Object readValue(String name,int index,String key,String serialize) throws IOException {
-        Jedis jedis = jedis(name);if(index != 0){jedis.select(index);}
+        Jedis jedis = redisService.jedis(name);if(index != 0){jedis.select(index);}
 
         //获取当前键类型
         String type = jedis.type(key);
@@ -183,25 +182,7 @@ public class RedisConnectServlet extends BaseServlet {
         throw new IllegalArgumentException("类型不支持读取数据:"+type);
     }
 
-    Jedis jedis(String name) throws IOException {
-        Jedis jedis = jedisMap.get(name);
-        if(jedis == null){
-            FileManagerServlet fileManagerServlet = DispatchServlet.getServlet(FileManagerServlet.class);
-            String redisConnInfo = fileManagerServlet.readConfig(modul, name);
 
-            JSONObject jsonObject = JSONObject.parseObject(redisConnInfo);
-            String address = jsonObject.getString("connectStrings");
-            String auth = jsonObject.getString("auth");
-
-            String[] split = StringUtils.split(address, ':');
-            jedis = new Jedis(split[0], NumberUtil.toInt(split[1]), 1000, 60000);
-            if(StringUtils.isNotBlank(auth)){
-                jedis.auth(auth);
-            }
-            jedisMap.put(name,jedis);
-        }
-        return jedis;
-    }
     enum RedisType{
         string("string"),Set("set"),ZSet("zset"),Hash("hash"),List("list");
         private String value;

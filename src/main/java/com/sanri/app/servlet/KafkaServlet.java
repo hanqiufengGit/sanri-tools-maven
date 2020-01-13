@@ -6,6 +6,7 @@ import com.sanri.app.BaseServlet;
 import com.sanri.app.kafka.KafkaConnInfo;
 import com.sanri.app.kafka.OffsetShow;
 import com.sanri.app.kafka.TopicOffset;
+import com.sanri.app.postman.KafkaData;
 import com.sanri.frame.RequestMapping;
 import org.I0Itec.zkclient.serialize.ZkSerializer;
 import org.apache.commons.collections.CollectionUtils;
@@ -16,15 +17,16 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.consumer.OffsetAndMetadata;
-import org.apache.kafka.common.KafkaFuture;
-import org.apache.kafka.common.TopicPartition;
-import org.apache.kafka.common.TopicPartitionInfo;
+import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.common.*;
 import org.apache.kafka.common.config.SaslConfigs;
 import sanri.utils.NumberUtil;
 
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -299,10 +301,10 @@ public class KafkaServlet extends BaseServlet{
      * @param serialize
      * @return
      */
-    public Map<String,Object> lastDatas(String clusterName,String topic,int partition,String serialize) throws IOException {
+    public List<KafkaData> lastDatas(String clusterName,String topic,int partition,String serialize) throws IOException {
         Properties properties = kafkaProperties(clusterName);
         KafkaConsumer<byte[], byte[]> consumer = new KafkaConsumer<byte[], byte[]>(properties);
-        Map<String,Object> datas = new LinkedHashMap<String,Object>();
+        List<KafkaData> datas = new ArrayList<>();
         try {
             TopicPartition topicPartition = new TopicPartition(topic, partition);
             consumer.assign(Collections.singletonList(topicPartition));
@@ -329,7 +331,7 @@ public class KafkaServlet extends BaseServlet{
 
                     byte[] value = record.value();
                     Object deserialize = zkSerializer.deserialize(value);
-                    datas.put(offset + "", deserialize);
+                    datas.add(new KafkaData(offset,deserialize));
                 }
                 if (currOffset >= endOffset) {
                     break;
@@ -339,7 +341,7 @@ public class KafkaServlet extends BaseServlet{
             if(consumer != null)
                 consumer.close();
         }
-
+        Collections.sort(datas);
         return datas;
     }
 
@@ -352,10 +354,10 @@ public class KafkaServlet extends BaseServlet{
      * @param serialize
      * @return offset => data
      */
-    public Map<String,Object> nearbyDatas(String clusterName,String topic,int partition,long offset,String serialize) throws IOException {
+    public List<KafkaData> nearbyDatas(String clusterName, String topic, int partition, long offset, String serialize) throws IOException {
         Properties properties = kafkaProperties(clusterName);
         KafkaConsumer<byte[], byte[]> consumer = new KafkaConsumer<byte[], byte[]>(properties);
-        Map<String, Object> datas = new LinkedHashMap<String,Object>();
+        List<KafkaData> datas = new ArrayList<>();
         try {
             TopicPartition topicPartition = new TopicPartition(topic, partition);
             consumer.assign(Collections.singletonList(topicPartition));
@@ -386,7 +388,8 @@ public class KafkaServlet extends BaseServlet{
                     currOffset = record.offset();
                     byte[] value = record.value();
                     Object deserialize = zkSerializer.deserialize(value);
-                    datas.put(currOffset + "", deserialize);
+//                    datas.put(currOffset + "", deserialize);
+                    datas.add(new KafkaData(currOffset,deserialize));
                 }
                 if (currOffset >= seekEndOffset) {
                     break;
@@ -396,7 +399,26 @@ public class KafkaServlet extends BaseServlet{
             if(consumer != null)
                 consumer.close();
         }
+        Collections.sort(datas);
         return datas;
+    }
+
+    /**
+     * 发送数据到 kafka , 这里只支持 json 数据
+     * @param key
+     * @param data
+     * @return
+     */
+    public int sendJsonData(String clusterName, String topic, String key, String data) throws IOException, ExecutionException, InterruptedException {
+        Properties properties = kafkaProperties(clusterName);
+        properties.put("key.serializer","org.apache.kafka.common.serialization.StringSerializer");
+        properties.put("value.serializer","org.apache.kafka.common.serialization.StringSerializer");
+        KafkaProducer kafkaProducer = new KafkaProducer(properties);
+        ProducerRecord producerRecord = new ProducerRecord<>(topic, key, data);
+        Future send = kafkaProducer.send(producerRecord);
+        send.get();     //阻塞，直到发送成功
+        kafkaProducer.close();
+        return 0;
     }
 
 //    private Collection<DescribeLogDirsResponse.LogDirInfo> logDirsInfosxxx(String clusterName) throws IOException, InterruptedException, ExecutionException {

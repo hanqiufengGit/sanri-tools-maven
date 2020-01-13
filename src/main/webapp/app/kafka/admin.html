@@ -13,6 +13,7 @@
 
     <link rel="stylesheet" href="../../plugins/icheck/custom.css" />
     <link rel="stylesheet" href="../../plugins/jsonview/jquery.jsonview.min.css" />
+    <link rel="stylesheet" href="../../plugins/jsoneditor/jsoneditor.min.css" />
 
         <style>
         .list-group-item{
@@ -62,17 +63,18 @@
                     <ul class="nav nav-tabs">
                         <li class="active"><a href="#profile" data-toggle="tab">属性列表</a></li>
                         <li  class="" ><a href="#data" data-toggle="tab">数据模拟</a></li>
+                        <li  class="" ><a href="#datajson" data-toggle="tab">JSON 数据模拟</a></li>
                     </ul>
 
                     <div class="tab-content padding-top">
-                        <div class="active tab-pane" id="profile">
-                            <button class="btn btn-link" id="refreshlogsize"><i class="fa fa-refresh"></i></button>
+                        <div class=" tab-pane" id="profile">
+                            <button class="btn btn-link" id="refreshlogsize"><i class="fa fa-refresh"></i></button> <time class="refresh"></time>
                             <table class="table table-bordered table-striped table-hover" id="topicdetail">
                                 <thead>
                                 <tr>
                                     <td>partition</td>
                                     <td>logSize</td>
-                                    <td>update</td>
+                                    <td>change</td>
                                     <td>查看数据</td>
                                 </tr>
                                 </thead>
@@ -95,6 +97,31 @@
 
                                 </div>
                             </div>
+                        </div>
+                        <div class="tab-pane active" id="datajson">
+                            <div class="form-horizontal">
+                                <div class="form-group">
+                                    <label class="col-xs-2 control-label" >发送分区</label>
+                                    <div class="col-xs-10">
+                                        <input type="text" name="partition" class="form-control" placeholder="数据发到哪个分区,不填表示随机分配">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-xs-2 control-label" >JSON 数据</label>
+                                    <div class="col-xs-10">
+                                        <textarea id="jsondata" class="form-control autoHeight " style="min-height: 200px" ></textarea>
+                                        <div class="button-group margin-top">
+                                            <button class="btn btn-sm btn-primary" id="sendData"><i class="fa  fa-send"></i> 发送数据 </button>
+                                            <button class="btn btn-sm btn-info" id="validJson"><i class="fa fa-legal"></i> 验证 json </button>
+                                            <button class="btn btn-sm btn-white" id="compactJson"><i class="fa fa-paragraph"></i> 解析到 json 数据 </button>
+                                        </div>
+
+                                        <div id="jsondataformat" class="margin-top"></div>
+                                    </div>
+
+                                </div>
+                            </div>
+
                         </div>
                     </div>
                 </div>

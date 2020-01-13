@@ -15,6 +15,34 @@ import java.util.Properties;
 public class SFTPTest {
 
     @Test
+    public void testException() throws JSchException, SftpException {
+        JSch jsch = new JSch();
+        Session session = jsch.getSession("ftpadmin","10.101.70.202",22);
+        session.setPassword("salt202");
+
+        Properties config = new Properties();
+        // 不验证 HostKey
+        config.put("StrictHostKeyChecking", "no");
+        session.setConfig(config);
+
+        session.connect();
+
+        ChannelSftp channel = (ChannelSftp) session.openChannel("sftp");
+        channel.connect();
+
+        try {
+            channel.lstat("ab/c");
+        }catch (SftpException e){
+            System.out.println(e.id);
+            e.printStackTrace();
+        }
+
+        channel.disconnect();
+        channel.exit();
+        session.disconnect();
+    }
+
+    @Test
     public void testUpload() throws JSchException, IOException, SftpException {
         JSch jsch = new JSch();
         Session session = jsch.getSession("ftpadmin","10.101.70.202",22);

@@ -65,9 +65,11 @@ define(['util','dialog','icheck'],function(util,dialog){
         util.requestData(switchApi,{clusterName:conn,topic:topic,partition:partition,offset:offset,serialize:serialize},function (datas) {
             // $('#datadetail').html(data.join('<br/>'));
             var $tbody = $('#datadetail').find('tbody').empty();
-            for(var offset in datas){
+            for(var i = 0;i<datas.length;i++){
+                var offset = datas[i].offset;
+                var data = datas[i].data;
                 var btn = '<button type="button" class="btn btn-sm btn-primary"><i class="fa fa-book"></i> JSON </button>';
-                $tbody.append('<tr offset="'+offset+'"><td>'+btn+'</td><td>'+offset+'</td><td>'+datas[offset]+'</td></tr>');
+                $tbody.append('<tr offset="'+offset+'"><td>'+btn+'</td><td>'+offset+'</td><td>'+data+'</td></tr>');
             }
         });
     }
