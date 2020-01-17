@@ -3,10 +3,17 @@ package com.sanri.app.postman;
 public class KafkaData implements Comparable<KafkaData> {
     private Long offset;
     private Object data;
+    private long timestamp;
 
     public KafkaData(Long offset, Object data) {
         this.offset = offset;
         this.data = data;
+    }
+
+    public KafkaData(Long offset, Object data, long timestamp) {
+        this.offset = offset;
+        this.data = data;
+        this.timestamp = timestamp;
     }
 
     public KafkaData() {
@@ -31,5 +38,13 @@ public class KafkaData implements Comparable<KafkaData> {
     @Override
     public int compareTo(KafkaData o) {
         return o.offset.compareTo(this.offset);
+    }
+
+    public long getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
     }
 }

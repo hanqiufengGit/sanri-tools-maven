@@ -328,10 +328,10 @@ public class KafkaServlet extends BaseServlet{
                 for (ConsumerRecord<byte[], byte[]> record : records) {
                     long offset = record.offset();
                     currOffset = offset;
-
+                    long timestamp = record.timestamp();
                     byte[] value = record.value();
                     Object deserialize = zkSerializer.deserialize(value);
-                    datas.add(new KafkaData(offset,deserialize));
+                    datas.add(new KafkaData(offset,deserialize,timestamp));
                 }
                 if (currOffset >= endOffset) {
                     break;
@@ -385,11 +385,12 @@ public class KafkaServlet extends BaseServlet{
                     break;
                 }
                 for (ConsumerRecord<byte[], byte[]> record : records) {
+                    long timestamp = record.timestamp();
                     currOffset = record.offset();
                     byte[] value = record.value();
                     Object deserialize = zkSerializer.deserialize(value);
 //                    datas.put(currOffset + "", deserialize);
-                    datas.add(new KafkaData(currOffset,deserialize));
+                    datas.add(new KafkaData(currOffset,deserialize,timestamp));
                 }
                 if (currOffset >= seekEndOffset) {
                     break;
@@ -402,6 +403,7 @@ public class KafkaServlet extends BaseServlet{
         Collections.sort(datas);
         return datas;
     }
+
 
     /**
      * 发送数据到 kafka , 这里只支持 json 数据
