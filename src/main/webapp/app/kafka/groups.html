@@ -86,55 +86,70 @@
 <!--新建连接-->
 <div class="open-dialog" id="newconn">
     <form class="form-horizontal">
-        <div class="form-group">
-            <label class="control-label col-sm-3 ">连接名:</label>
-            <div class="col-sm-9 ">
-                <select name="zkConn" id="conns"  class="form-control" ></select>
-            </div>
-        </div>
+        <div>
+            <ul class="nav nav-tabs">
+                <li class="active" data-toggle="tab"><a href="#basic"><i class="fa fa-save"></i> 基础信息</a></li>
+                <li class=""  data-toggle="tab"><a href="#security"><i class="fa fa-pencil"></i> 认证</a></li>
+            </ul>
+            <div class="tab-content">
+                <div class="tab-pane active" id="basic">
+                    <div class="panel">
+                        <div class="panel-body">
+                            <div class="form-group">
+                                <label class="control-label col-sm-3 ">连接名:</label>
+                                <div class="col-sm-9 ">
+                                    <select name="zkConn" id="conns"  class="form-control" ></select>
+                                </div>
+                            </div>
 
-        <div class="form-group">
-            <label class="control-label col-sm-3 ">根路径:</label>
-            <div class="col-sm-9 ">
-                <input type="text" name="chroot" autocomplete="false" spellcheck="false"  class="form-control" placeholder="根路径(默认空)" />
-            </div>
-        </div>
+                            <div class="form-group">
+                                <label class="control-label col-sm-3 ">根路径:</label>
+                                <div class="col-sm-9 ">
+                                    <input type="text" name="chroot" autocomplete="false" spellcheck="false"  class="form-control" placeholder="根路径(默认空)" />
+                                </div>
+                            </div>
 
-        <div class="form-group">
-            <label class="control-label col-sm-3 ">版本:</label>
-            <div class="col-sm-9 ">
-                <select name="clusterVersion" class="form-control" id="version">
-                    <option value="new">新0.8.1.1</option>
-                    <option value="old">旧0.8.1.1(包含)</option>
-                </select>
-            </div>
-        </div>
-
-        <div class="form-group">
-            <label for="" class="control-label col-sm-3">sasl.mechanism</label>
-            <div class="col-sm-9">
-                <input type="text" name="saslMechanism" autocomplete="false" spellcheck="false"  class="form-control" placeholder="saslMechanism" />
-            </div>
-        </div>
-
-        <div class="form-group">
-            <label for="" class="control-label col-sm-3">loginModel</label>
-            <div class="col-sm-9">
-                <input type="text" name="loginModel" autocomplete="false" spellcheck="false"  class="form-control" placeholder="loginModel" />
-            </div>
-        </div>
-
-        <div class="form-group">
-            <label for="" class="control-label col-sm-3">username</label>
-            <div class="col-sm-9">
-                <input type="text" name="username" autocomplete="false" spellcheck="false"  class="form-control" placeholder="username" />
-            </div>
-        </div>
-
-        <div class="form-group">
-            <label for="" class="control-label col-sm-3">password</label>
-            <div class="col-sm-9">
-                <input type="text" name="password" autocomplete="false" spellcheck="false"  class="form-control" placeholder="password" />
+                            <div class="form-group">
+                                <label class="control-label col-sm-3 ">版本:</label>
+                                <div class="col-sm-9 ">
+                                    <select name="clusterVersion" class="form-control" id="version">
+                                        <option value="new">新0.8.1.1</option>
+                                        <option value="old">旧0.8.1.1(包含)</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane " id="security">
+                    <!-- 暂时不做证书认证 -->
+                    <div class="panel">
+                        <div class="panel-body">
+                            <div class="form-group">
+                                <!--                            <label for="" class="control-label col-sm-3">sasl.mechanism</label>-->
+                                <div class="col-sm-9">
+                                    <input type="text" name="saslMechanism" value="GSSAPI" autocomplete="false" spellcheck="false"  class="form-control" placeholder="saslMechanism" />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-xs-5">
+                                    <div class="file padding-small">
+                                        <input type="file" />
+                                        <span>上传 client_jaas.conf</span>
+                                    </div>
+                                </div>
+                                <div class="col-xs-5">
+                                    <button class="btn btn-link"> 下载示例文件</button>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-xs-12">
+                                    <textarea disabled class="form-control form-control-static">org.apache.kafka.common.security.plain.PlainLoginModule required username=hd password=hd-kafka</textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </form>

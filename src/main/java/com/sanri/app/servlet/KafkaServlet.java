@@ -11,6 +11,8 @@ import com.sanri.app.postman.PartitionKafkaData;
 import com.sanri.frame.RequestMapping;
 import org.I0Itec.zkclient.serialize.ZkSerializer;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.admin.*;
@@ -24,7 +26,9 @@ import org.apache.kafka.common.*;
 import org.apache.kafka.common.config.SaslConfigs;
 import sanri.utils.NumberUtil;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -41,6 +45,12 @@ public class KafkaServlet extends BaseServlet{
     private FileManagerServlet fileManagerServlet;
     private static final String modul = "kafka";
     private static final String relativeBrokerPath = "/brokers/ids";
+    private static final String jaasSave = "jaas";
+
+    private static File jaasFilesDir = null;
+    static {
+        jaasFilesDir = mkConfigPath(jaasSave);
+    }
 
     private static final Map<String, AdminClient> adminClientMap = new HashMap<>();
 
@@ -74,6 +84,19 @@ public class KafkaServlet extends BaseServlet{
     public KafkaConnInfo readConfig(String clusterName) throws IOException {
         String kafkaConnInfoJson = fileManagerServlet.readConfig(modul,clusterName);
         return JSONObject.parseObject(kafkaConnInfoJson,KafkaConnInfo.class);
+    }
+
+    /**
+     * 返回文件地址
+     * @param jaasConfig
+     * @return
+     * @throws UnsupportedEncodingException
+     */
+    public String writeJaasFile(FileItem jaasConfig) throws IOException {
+        String jaasConfigString = jaasConfig.getString("utf-8");
+        File file = new File(jaasFilesDir, System.currentTimeMillis() + "");
+        FileUtils.writeStringToFile(file,jaasConfigString);
+        return jaasSave+"/"+file.getName();
     }
 
     /**
