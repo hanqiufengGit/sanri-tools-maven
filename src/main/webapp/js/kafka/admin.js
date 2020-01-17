@@ -8,7 +8,8 @@ define(['util','dialog','jsoneditor','icheck','jsonview'],function (util,dialog,
         lastDatas: '/kafka/lastDatas',
         nearbyDatas:'/kafka/nearbyDatas',
         serializes:'/zk/serializes',
-        sendKafkaData:'/kafka/sendJsonData'
+        sendKafkaData:'/kafka/sendJsonData',
+        allPartitionDatas:'/kafka/allPartitionDatas'
     }
     kafkaAdmin.init = function () {
         bindEvents();
@@ -69,13 +70,12 @@ define(['util','dialog','jsoneditor','icheck','jsonview'],function (util,dialog,
         var serialize = $('#serializeTools').val();
         util.requestData(switchApi,{clusterName:kafkaAdmin.conn,topic:topic,partition:partition,offset:offset,serialize:serialize},function (datas) {
             var $tbody = $('#datadetail').find('tbody').empty();
-            // for(var offset in datas){
             for(var i=0;i<datas.length;i++){
                 var offset = datas[i].offset;
                 var data = datas[i].data;
                 var timeFormat = util.FormatUtil.dateFormat(datas[i].timestamp,'yyyy-MM-dd HH:mm:ss');
                 var btn = '<button type="button" class="btn btn-sm btn-primary"><i class="fa fa-book"></i> JSON </button>';
-                $tbody.append('<tr offset="'+offset+'"><td>'+btn+'</td><td>'+offset+'</td><td>'+timeFormat+'</td><td>'+data+'</td></tr>');
+                $tbody.append('<tr offset="'+offset+'"><td>'+btn+'</td><td>'+partition+'</td><td>'+offset+'</td><td>'+timeFormat+'</td><td>'+data+'</td></tr>');
             }
 
             var buildDialog = dialog.create('显示topic['+topic+']partition['+partition+']offset['+offset+']附近['+btnName+']的数据')
@@ -96,9 +96,39 @@ define(['util','dialog','jsoneditor','icheck','jsonview'],function (util,dialog,
             {parent:'#datadetail',selector:'button',types:['click'],handler:jsonView},
             {selector:'#validJson',types:['click'],handler:validJson},
             {selector:'#compactJson',types:['click'],handler:compactJson},
-            {selector:'#sendData',types:['click'],handler:sendKafkaData}];
+            {selector:'#sendData',types:['click'],handler:sendKafkaData},
+            {selector:'#allPartitionDatas',types:['click'],handler:allPartitionDatas}];
 
         util.regPageEvents(events);
+
+        // 获取所有分区 kafka 数据列表,常用于调试 kafka 消息
+        function allPartitionDatas() {
+            // TODO 和 openDataDialog 代码重复
+            var topic = $('#topicname').data('topic');
+            var serialize = $('#serializeTools').val();
+            var index = layer.load(1, {
+                shade: [0.1,'#fff']
+            });
+            util.requestData(apis.allPartitionDatas,{clusterName:kafkaAdmin.conn,topic:topic,perPartitionMessages:50,serialize:serialize},function (datas) {
+                var $tbody = $('#datadetail').find('tbody').empty();
+                for(var i=0;i<datas.length;i++){
+                    var offset = datas[i].offset;
+                    var data = datas[i].data;
+                    var timeFormat = util.FormatUtil.dateFormat(datas[i].timestamp,'yyyy-MM-dd HH:mm:ss');
+                    var btn = '<button type="button" class="btn btn-sm btn-primary"><i class="fa fa-book"></i> JSON </button>';
+                    $tbody.append('<tr offset="'+offset+'"><td>'+btn+'</td><td>'+datas[i].partition+'</td><td>'+offset+'</td><td>'+timeFormat+'</td><td>'+data+'</td></tr>');
+                }
+
+                var buildDialog = dialog.create('显示topic['+topic+'] 所有分区数据')
+                    .setWidthHeight('90%','90%')
+                    .setContent($('#showdataDialog'));
+                buildDialog.build();
+
+                layer.close(index);
+            },function () {
+                layer.close(index);
+            });
+        }
 
         // 发送数据时验证 json 是否正确
         function validJson() {

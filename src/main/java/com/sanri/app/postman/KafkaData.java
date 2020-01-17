@@ -1,9 +1,9 @@
 package com.sanri.app.postman;
 
 public class KafkaData implements Comparable<KafkaData> {
-    private Long offset;
-    private Object data;
-    private long timestamp;
+    protected Long offset;
+    protected Object data;
+    protected long timestamp;
 
     public KafkaData(Long offset, Object data) {
         this.offset = offset;

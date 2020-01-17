@@ -7,6 +7,7 @@ import com.sanri.app.kafka.KafkaConnInfo;
 import com.sanri.app.kafka.OffsetShow;
 import com.sanri.app.kafka.TopicOffset;
 import com.sanri.app.postman.KafkaData;
+import com.sanri.app.postman.PartitionKafkaData;
 import com.sanri.frame.RequestMapping;
 import org.I0Itec.zkclient.serialize.ZkSerializer;
 import org.apache.commons.collections.CollectionUtils;
@@ -404,6 +405,57 @@ public class KafkaServlet extends BaseServlet{
         return datas;
     }
 
+    // 查询所有分区数据,根据时间排序
+    public List<PartitionKafkaData> allPartitionDatas(String clusterName, String topic, long perPartitionMessages, String serialize) throws IOException {
+        Properties properties = kafkaProperties(clusterName);
+        KafkaConsumer<byte[], byte[]> consumer = new KafkaConsumer<byte[], byte[]>(properties);
+        List<PartitionKafkaData> datas = new ArrayList<>();
+        try {
+            // 获取分区列表
+            List<PartitionInfo> partitionInfos = consumer.partitionsFor(topic);
+            List<TopicPartition> topicPartitions = new ArrayList<>();
+            for (PartitionInfo partitionInfo : partitionInfos) {
+                int partition = partitionInfo.partition();
+                TopicPartition topicPartition = new TopicPartition(topic, partition);
+                consumer.assign(Collections.singletonList(topicPartition));
+                topicPartitions.add(topicPartition);
+            }
+            consumer.assign(topicPartitions);
+
+            // 定位到每一个分区的最后 100 条数据
+            Map<TopicPartition, Long> topicPartitionLongMap = consumer.endOffsets(topicPartitions);
+            Iterator<Map.Entry<TopicPartition, Long>> iterator = topicPartitionLongMap.entrySet().iterator();
+            int seekCount = 0;
+            while (iterator.hasNext()){
+                Map.Entry<TopicPartition, Long> topicPartitionLongEntry = iterator.next();
+                TopicPartition key = topicPartitionLongEntry.getKey();
+                Long offset = topicPartitionLongEntry.getValue();
+                long seekOffset = offset - perPartitionMessages;
+                if(seekOffset < 0){seekOffset = 0;}
+                seekCount += (offset - seekOffset);     //计算总共需要抓取多少数据
+
+                consumer.seek(key,seekOffset);
+            }
+
+            ZkSerializer zkSerializer = zkSerializerMap.get(serialize);
+
+            ConsumerRecords<byte[], byte[]> consumerRecords = consumer.poll(seekCount);         // 一次性抓取全量数据,后续可分批抓取
+            Iterator<ConsumerRecord<byte[], byte[]>> consumerRecordIterator = consumerRecords.iterator();
+            while (consumerRecordIterator.hasNext()){
+                ConsumerRecord<byte[], byte[]> consumerRecord = consumerRecordIterator.next();
+                byte[] value = consumerRecord.value();
+                Object deserialize = zkSerializer.deserialize(value);
+                PartitionKafkaData partitionKafkaData = new PartitionKafkaData(consumerRecord.offset(), deserialize, consumerRecord.timestamp(), consumerRecord.partition());
+                datas.add(partitionKafkaData);
+            }
+
+        }finally {
+            if(consumer != null)
+                consumer.close();
+        }
+        Collections.sort(datas);
+        return datas;
+    }
 
     /**
      * 发送数据到 kafka , 这里只支持 json 数据

@@ -70,7 +70,7 @@ define(['util','dialog','icheck'],function(util,dialog){
                 var data = datas[i].data;
                 var timeFormat = util.FormatUtil.dateFormat(datas[i].timestamp,'yyyy-MM-dd HH:mm:ss');
                 var btn = '<button type="button" class="btn btn-sm btn-primary"><i class="fa fa-book"></i> JSON </button>';
-                $tbody.append('<tr offset="'+offset+'"><td>'+btn+'</td><td>'+offset+'</td><td>'+timeFormat+'</td><td>'+data+'</td></tr>');
+                $tbody.append('<tr offset="'+offset+'"><td>'+btn+'</td><td>'+partition+'</td><td>'+offset+'</td><td>'+timeFormat+'</td><td>'+data+'</td></tr>');
             }
         });
     }
