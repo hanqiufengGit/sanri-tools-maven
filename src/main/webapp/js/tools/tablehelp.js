@@ -16,7 +16,9 @@ define(['util','dialog','contextMenu','javabrush','xmlbrush','zclip'],function (
         downloadPath:'/file/manager/downloadPath',
         multiTableSchemaConvert:'/code/multiTableSchemaConvert',
         tablesCode:'/mybatis/code/tablesCode',
-        projectBuild:'/mybatis/code/projectBuild'
+        projectBuild:'/mybatis/code/projectBuild',
+        refreshConnection:'/sqlclient/refreshConnection',
+        refreshSchema:'/sqlclient/refreshSchema'
     };
     var modul = 'tableTemplate';
     var codeSchemaModul = 'codeSchema';
@@ -252,6 +254,7 @@ define(['util','dialog','contextMenu','javabrush','xmlbrush','zclip'],function (
 
     function bindEvents() {
         var mybatisCodeHandler = {};
+        var refreshEvents = {};
         mybatisCodeHandler.addTable = function () {
             /**
              * 选择表确认后操作
@@ -338,8 +341,27 @@ define(['util','dialog','contextMenu','javabrush','xmlbrush','zclip'],function (
 
         }
 
+        /** 刷新连接和刷新表格事件*/
+        refreshEvents.refreshConnection = function () {
+            var connName = $('#conns').val();
+            util.requestData(apis.refreshConnection,{connName:connName},function () {
+               // 重新加载 schema
+                $('#conns').change();
+            });
+        }
+        refreshEvents.refreshSchema = function () {
+            var connName = $('#conns').val();
+            var schemaName = $('#schemas').val();
+            util.requestData(apis.refreshSchema,{connName:connName,schemaName:schemaName},function () {
+                // 重新加载数据表
+                $('#schemas').change();
+            });
+        }
+        
         var events = [{selector:'#conns',types:['change'],handler:switchConn},
             {selector:'#schemas',types:['change'],handler:switchSchema},
+            {selector:'#conns+.input-group-btn>button',types:['click'],handler:refreshEvents.refreshConnection},
+            {selector:'#schemas+.input-group-btn>button',types:['click'],handler:refreshEvents.refreshSchema},
             {selector:'#search',types:['keyup'],handler:keyupSearch},
             {selector:'#btnsearch',types:['click'],handler:clickSearch},
             {selector:'#multisearch',types:['keyup'],handler:multiKeyupSearch},
