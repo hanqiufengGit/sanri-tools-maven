@@ -3,7 +3,7 @@ define(['util','dialog','jsoneditor','icheck','jsonview'],function (util,dialog,
     var apis = {
         topics:'/kafka/topics',
         logSizes:'/kafka/logSizes',
-        create:'/kafka/createTopic',
+        createTopic:'/kafka/createTopic',
         drop:'/kafka/deleteTopic',
         lastDatas: '/kafka/lastDatas',
         nearbyDatas:'/kafka/nearbyDatas',
@@ -197,8 +197,8 @@ define(['util','dialog','jsoneditor','icheck','jsonview'],function (util,dialog,
                             layer.msg('请将信息填写完整');
                             return ;
                         }
-                        params.name = kafkaAdmin.conn;
-                        util.requestData(apis.create,params,function () {
+                        params.clusterName = kafkaAdmin.conn;
+                        util.requestData(apis.createTopic,params,function () {
                             loadTopics(params.topic);
                             layer.close(index);
                         })
@@ -220,7 +220,7 @@ define(['util','dialog','jsoneditor','icheck','jsonview'],function (util,dialog,
             var topicName = $(this).parent().attr('topic');
             layer.confirm('确定删除主题:'+topicName,function (r) {
                 if(r){
-                    util.requestData(apis.drop,{topic:topicName,name:kafkaAdmin.conn},function () {
+                    util.requestData(apis.drop,{topic:topicName,clusterName:kafkaAdmin.conn},function () {
                         layer.msg('删除成功');
                         loadTopics(); //不管用,因为删除的也加载了
                     });

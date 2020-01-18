@@ -8,11 +8,13 @@ import com.sanri.app.kafka.OffsetShow;
 import com.sanri.app.kafka.TopicOffset;
 import com.sanri.app.postman.KafkaData;
 import com.sanri.app.postman.PartitionKafkaData;
+import com.sanri.frame.DispatchServlet;
 import com.sanri.frame.RequestMapping;
 import org.I0Itec.zkclient.serialize.ZkSerializer;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.admin.*;
@@ -29,6 +31,7 @@ import sanri.utils.NumberUtil;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -96,7 +99,43 @@ public class KafkaServlet extends BaseServlet{
         String jaasConfigString = jaasConfig.getString("utf-8");
         File file = new File(jaasFilesDir, System.currentTimeMillis() + "");
         FileUtils.writeStringToFile(file,jaasConfigString);
-        return jaasSave+"/"+file.getName();
+        return file.getName();
+    }
+
+    /**
+     * 创建主键
+     * @param clusterName
+     * @param topic
+     * @param partitions
+     * @param replication
+     * @return
+     * @throws IOException
+     * @throws ExecutionException
+     * @throws InterruptedException
+     */
+    public int createTopic(String clusterName,String topic,int partitions,int replication) throws IOException, ExecutionException, InterruptedException {
+        AdminClient adminClient = loadAdminClient(clusterName);
+        NewTopic newTopic = new NewTopic(topic,partitions,(short)replication);
+        CreateTopicsResult createTopicsResult = adminClient.createTopics(Collections.singletonList(newTopic));
+        KafkaFuture<Void> voidKafkaFuture = createTopicsResult.values().get(topic);
+        voidKafkaFuture.get();
+        return 0;
+    }
+
+    /**
+     * 删除主题
+     * @param clusterName
+     * @param topic
+     * @return
+     * @throws IOException
+     * @throws ExecutionException
+     * @throws InterruptedException
+     */
+    public int deleteTopic(String clusterName,String topic) throws IOException, ExecutionException, InterruptedException {
+        AdminClient adminClient = loadAdminClient(clusterName);
+        DeleteTopicsResult deleteTopicsResult = adminClient.deleteTopics(Collections.singletonList(topic));
+        deleteTopicsResult.all().get();
+        return 0;
     }
 
     /**
@@ -342,7 +381,7 @@ public class KafkaServlet extends BaseServlet{
 
             ZkSerializer zkSerializer = zkSerializerMap.get(serialize);
             while (true) {
-                ConsumerRecords<byte[], byte[]> consumerRecords = consumer.poll(100);
+                ConsumerRecords<byte[], byte[]> consumerRecords = consumer.poll(Duration.ofMillis(10));
                 List<ConsumerRecord<byte[], byte[]>> records = consumerRecords.records(topicPartition);
                 long currOffset = seekOffset;
                 if (CollectionUtils.isEmpty(records)) {
@@ -401,7 +440,7 @@ public class KafkaServlet extends BaseServlet{
             }
             ZkSerializer zkSerializer = zkSerializerMap.get(serialize);
             while (true) {
-                ConsumerRecords<byte[], byte[]> consumerRecords = consumer.poll(100);
+                ConsumerRecords<byte[], byte[]> consumerRecords = consumer.poll(Duration.ofMillis(10));       // 100ms 内抓取的数据，不是抓取的数据量
                 List<ConsumerRecord<byte[], byte[]>> records = consumerRecords.records(topicPartition);
                 long currOffset = seekOffset;
                 if (CollectionUtils.isEmpty(records)) {
@@ -459,19 +498,29 @@ public class KafkaServlet extends BaseServlet{
 
                 consumer.seek(key,seekOffset);
             }
+            if(seekCount == 0){
+                logger.warn("无数据可抓取");
+                return datas;
+            }
 
             ZkSerializer zkSerializer = zkSerializerMap.get(serialize);
 
-            ConsumerRecords<byte[], byte[]> consumerRecords = consumer.poll(seekCount);         // 一次性抓取全量数据,后续可分批抓取
-            Iterator<ConsumerRecord<byte[], byte[]>> consumerRecordIterator = consumerRecords.iterator();
-            while (consumerRecordIterator.hasNext()){
-                ConsumerRecord<byte[], byte[]> consumerRecord = consumerRecordIterator.next();
-                byte[] value = consumerRecord.value();
-                Object deserialize = zkSerializer.deserialize(value);
-                PartitionKafkaData partitionKafkaData = new PartitionKafkaData(consumerRecord.offset(), deserialize, consumerRecord.timestamp(), consumerRecord.partition());
-                datas.add(partitionKafkaData);
+            int currentFetchCount = 0;
+            while (true) {
+                ConsumerRecords<byte[], byte[]> consumerRecords = consumer.poll(Duration.ofMillis(10));
+                Iterator<ConsumerRecord<byte[], byte[]>> consumerRecordIterator = consumerRecords.iterator();
+                while (consumerRecordIterator.hasNext()) {
+                    ConsumerRecord<byte[], byte[]> consumerRecord = consumerRecordIterator.next();
+                    byte[] value = consumerRecord.value();
+                    Object deserialize = zkSerializer.deserialize(value);
+                    PartitionKafkaData partitionKafkaData = new PartitionKafkaData(consumerRecord.offset(), deserialize, consumerRecord.timestamp(), consumerRecord.partition());
+                    datas.add(partitionKafkaData);
+                }
+                currentFetchCount+= consumerRecords.count();
+                if(currentFetchCount >= seekCount){
+                    break;
+                }
             }
-
         }finally {
             if(consumer != null)
                 consumer.close();
@@ -565,10 +614,16 @@ public class KafkaServlet extends BaseServlet{
         if(StringUtils.isNotBlank(kafkaConnInfo.getSaslMechanism())) {
             properties.put(SaslConfigs.SASL_MECHANISM, kafkaConnInfo.getSaslMechanism());
         }
-        if(StringUtils.isNotBlank(kafkaConnInfo.getLoginModel())) {
-            properties.put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "SASL_PLAINTEXT");
-            properties.put("sasl.jaas.config",kafkaConnInfo.getLoginModel()+" username=\""+kafkaConnInfo.getUsername()+"\" password=\""+kafkaConnInfo.getPassword()+"\";");
+        if(StringUtils.isNotBlank(kafkaConnInfo.getSecurityProtocol())){
+            properties.put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, kafkaConnInfo.getSecurityProtocol());
         }
+        if(StringUtils.isNotBlank(kafkaConnInfo.getJaasConfig())){
+            File file = new File(jaasFilesDir, kafkaConnInfo.getJaasConfig());
+//            String jaasContent = FileUtils.readFileToString(file, "utf-8");
+//            jaasContent.replaceAll("\\n","")
+            System.setProperty("java.security.auth.login.config",file.getAbsolutePath());
+        }
+
         return properties;
     }
 

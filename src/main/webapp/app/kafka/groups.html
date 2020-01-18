@@ -88,8 +88,8 @@
     <form class="form-horizontal">
         <div>
             <ul class="nav nav-tabs">
-                <li class="active" data-toggle="tab"><a href="#basic"><i class="fa fa-save"></i> 基础信息</a></li>
-                <li class=""  data-toggle="tab"><a href="#security"><i class="fa fa-pencil"></i> 认证</a></li>
+                <li class="active" ><a href="#basic" data-toggle="tab"><i class="fa fa-save"></i> 基础信息</a></li>
+                <li class=""  ><a href="#security" data-toggle="tab"><i class="fa fa-pencil"></i> 认证</a></li>
             </ul>
             <div class="tab-content">
                 <div class="tab-pane active" id="basic">
@@ -125,27 +125,37 @@
                     <!-- 暂时不做证书认证 -->
                     <div class="panel">
                         <div class="panel-body">
-                            <div class="form-group">
-                                <!--                            <label for="" class="control-label col-sm-3">sasl.mechanism</label>-->
+                            <div class="form-group form-group-sm">
+                                <label for="" class="control-label col-sm-3">sasl.mechanism</label>
                                 <div class="col-sm-9">
-                                    <input type="text" name="saslMechanism" value="GSSAPI" autocomplete="false" spellcheck="false"  class="form-control" placeholder="saslMechanism" />
+                                    <input type="text" name="saslMechanism" value="GSSAPI" autocomplete="false" spellcheck="false"  class="form-control" placeholder="sasl.mechanism" />
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <div class="col-xs-5">
-                                    <div class="file padding-small">
-                                        <input type="file" />
-                                        <span>上传 client_jaas.conf</span>
+                            <div class="form-group form-group-sm">
+                                <label for="" class="control-label col-sm-3">security.protocol</label>
+                                <div class="col-sm-9">
+                                    <input type="text" name="securityProtocol" value="" autocomplete="false" spellcheck="false"  class="form-control" placeholder="security.protocol" />
+                                </div>
+                            </div>
+                            <div class="form-group form-group-sm">
+                                <label for="" class="control-label col-sm-3">jaas</label>
+                                <div class="col-sm-9">
+                                    <div class="row">
+                                        <div class="col-xs-6">
+                                            <div class="file padding-small">
+                                                <input type="file" name="jaasConfig" />
+                                                <span>上传 client_jaas.conf</span>
+                                            </div>
+                                        </div>
+                                        <button class="btn btn-link text-forestgreen "> 下载示例文件</button>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-xs-12">
+                                            <textarea name="jaasContent" disabled class="form-control auto-height" style="min-height: 100px"></textarea>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="col-xs-5">
-                                    <button class="btn btn-link"> 下载示例文件</button>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <div class="col-xs-12">
-                                    <textarea disabled class="form-control form-control-static">org.apache.kafka.common.security.plain.PlainLoginModule required username=hd password=hd-kafka</textarea>
-                                </div>
+
                             </div>
                         </div>
                     </div>

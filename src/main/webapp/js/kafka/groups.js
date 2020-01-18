@@ -10,7 +10,9 @@ define(['util','dialog'],function (util,dialog) {
         createConn:'/kafka/writeConfig',
         groupSubscribeTopics:'/kafka/groupSubscribeTopics',
         zkConns:'/file/manager/simpleConfigNames',
-        brokers:'/kafka/brokers'
+        brokers:'/kafka/brokers',
+        writeJaasFile:'/kafka/writeJaasFile',
+        readConfig:'/file/manager/readConfig'
     }
 
     groups.init = function () {
@@ -60,8 +62,25 @@ define(['util','dialog'],function (util,dialog) {
             {selector:'#thirdpart',types:['click'],handler:thirdpart},
             {parent:'#connect>.dropdown-menu',selector:'li',types:['click'],handler:switchConn},
             {parent:'#groups>.list-group',selector:'a',types:['click'],handler:subscribeTopicsPage},
-            {selector:'#admin',types:['click'],handler:adminPage}];
+            {selector:'#admin',types:['click'],handler:adminPage},
+            {parent:'#security',selector:'input[type=file][name=jaasConfig]',types:['change'],handler:uploadJaasConfig}];
         util.regPageEvents(events);
+
+        /**
+         * 上传 jaas 文件
+         */
+        function uploadJaasConfig() {
+            var jaasfile = this.files[0];
+            var formData = new FormData();
+            formData.append("jaasConfig",jaasfile);
+            util.postFile(apis.writeJaasFile,formData,function (filename) {
+                $('#security').data('jaasConfig',filename);
+                // 加载 jaas 文件内容
+                util.requestData(apis.readConfig,{modul:'jaas',baseName:filename},function (content) {
+                   $('#security').find('textarea[name=jaasContent]').val(content);
+                });
+            })
+        }
 
         function subscribeTopicsPage() {
             var group = $(this).attr('group');
@@ -92,7 +111,7 @@ define(['util','dialog'],function (util,dialog) {
         function newconn() {
             dialog.create('创建新连接')
                 .setContent($('#newconn'))
-                .setWidthHeight('500px','500px')
+                .setWidthHeight('500px','450px')
                 .addBtn({type:'yes',text:'添加',handler:createConn})
                 .build();
             //加载所有 zk 连接
@@ -105,6 +124,8 @@ define(['util','dialog'],function (util,dialog) {
 
             function createConn(index) {
                 var params = util.serialize2Json($('#newconn>form').serialize());
+                delete params.jaasContent;
+                params.jaasConfig = $('#security').data('jaasConfig');
                 var sendData = {
                     zkConn:params.zkConn,
                     kafkaConnInfo:params

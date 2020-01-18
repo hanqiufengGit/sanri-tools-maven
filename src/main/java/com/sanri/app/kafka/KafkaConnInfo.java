@@ -7,10 +7,9 @@ public class KafkaConnInfo {
     private String chroot = "/";
 
     private String saslMechanism = "GSSAPI";
+    private String securityProtocol = "SASL_PLAINTEXT";
 
-    private String username;
-    private String password;
-    private String loginModel;
+    private String jaasConfig;
 
     public KafkaConnInfo() {
     }
@@ -69,27 +68,19 @@ public class KafkaConnInfo {
         this.saslMechanism = saslMechanism;
     }
 
-    public String getUsername() {
-        return username;
+    public String getSecurityProtocol() {
+        return securityProtocol;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setSecurityProtocol(String securityProtocol) {
+        this.securityProtocol = securityProtocol;
     }
 
-    public String getPassword() {
-        return password;
+    public String getJaasConfig() {
+        return jaasConfig;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getLoginModel() {
-        return loginModel;
-    }
-
-    public void setLoginModel(String loginModel) {
-        this.loginModel = loginModel;
+    public void setJaasConfig(String jaasConfig) {
+        this.jaasConfig = jaasConfig;
     }
 }
