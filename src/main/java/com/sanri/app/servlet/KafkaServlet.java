@@ -11,6 +11,7 @@ import com.sanri.app.postman.PartitionKafkaData;
 import com.sanri.frame.DispatchServlet;
 import com.sanri.frame.RequestMapping;
 import org.I0Itec.zkclient.serialize.ZkSerializer;
+import org.apache.commons.collections.ArrayStack;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.io.FileUtils;
@@ -26,8 +27,10 @@ import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.*;
 import org.apache.kafka.common.config.SaslConfigs;
+import org.apache.kafka.common.security.auth.SecurityProtocol;
 import sanri.utils.NumberUtil;
 
+import javax.security.auth.login.Configuration;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -48,12 +51,6 @@ public class KafkaServlet extends BaseServlet{
     private FileManagerServlet fileManagerServlet;
     private static final String modul = "kafka";
     private static final String relativeBrokerPath = "/brokers/ids";
-    private static final String jaasSave = "jaas";
-
-    private static File jaasFilesDir = null;
-    static {
-        jaasFilesDir = mkConfigPath(jaasSave);
-    }
 
     private static final Map<String, AdminClient> adminClientMap = new HashMap<>();
 
@@ -87,19 +84,6 @@ public class KafkaServlet extends BaseServlet{
     public KafkaConnInfo readConfig(String clusterName) throws IOException {
         String kafkaConnInfoJson = fileManagerServlet.readConfig(modul,clusterName);
         return JSONObject.parseObject(kafkaConnInfoJson,KafkaConnInfo.class);
-    }
-
-    /**
-     * 返回文件地址
-     * @param jaasConfig
-     * @return
-     * @throws UnsupportedEncodingException
-     */
-    public String writeJaasFile(FileItem jaasConfig) throws IOException {
-        String jaasConfigString = jaasConfig.getString("utf-8");
-        File file = new File(jaasFilesDir, System.currentTimeMillis() + "");
-        FileUtils.writeStringToFile(file,jaasConfigString);
-        return file.getName();
     }
 
     /**
@@ -617,11 +601,19 @@ public class KafkaServlet extends BaseServlet{
         if(StringUtils.isNotBlank(kafkaConnInfo.getSecurityProtocol())){
             properties.put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, kafkaConnInfo.getSecurityProtocol());
         }
-        if(StringUtils.isNotBlank(kafkaConnInfo.getJaasConfig())){
-            File file = new File(jaasFilesDir, kafkaConnInfo.getJaasConfig());
-//            String jaasContent = FileUtils.readFileToString(file, "utf-8");
-//            jaasContent.replaceAll("\\n","")
-            System.setProperty("java.security.auth.login.config",file.getAbsolutePath());
+
+        String securityChoseValue = kafkaConnInfo.getSecurityProtocol();
+        SecurityProtocol securityProtocol = SecurityProtocol.valueOf(securityChoseValue);
+        switch (securityProtocol){
+            case PLAINTEXT:
+                break;
+            case SASL_PLAINTEXT:
+                properties.put("sasl.jaas.config",kafkaConnInfo.getJaasConfig());
+                break;
+            case SASL_SSL:
+                properties.put("sasl.jaas.config",kafkaConnInfo.getJaasConfig());
+            case SSL:
+                throw new IllegalArgumentException("不支持 ssl 操作");
         }
 
         return properties;

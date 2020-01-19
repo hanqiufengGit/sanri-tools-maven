@@ -21,6 +21,9 @@
         .admin-class:hover{
             text-decoration: underline;
         }
+        .form-group-sm select.form-control {
+            line-height: inherit;
+        }
     </style>
 
 </head>
@@ -118,6 +121,13 @@
                                     </select>
                                 </div>
                             </div>
+
+                            <div class="form-group ">
+                                <label for="" class="control-label col-sm-3">sasl.mechanism</label>
+                                <div class="col-sm-9">
+                                    <input type="text" name="saslMechanism" value="PLAIN" autocomplete="false" spellcheck="false"  class="form-control" placeholder="sasl.mechanism" />
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -126,36 +136,54 @@
                     <div class="panel">
                         <div class="panel-body">
                             <div class="form-group form-group-sm">
-                                <label for="" class="control-label col-sm-3">sasl.mechanism</label>
-                                <div class="col-sm-9">
-                                    <input type="text" name="saslMechanism" value="GSSAPI" autocomplete="false" spellcheck="false"  class="form-control" placeholder="sasl.mechanism" />
-                                </div>
-                            </div>
-                            <div class="form-group form-group-sm">
                                 <label for="" class="control-label col-sm-3">security.protocol</label>
                                 <div class="col-sm-9">
-                                    <input type="text" name="securityProtocol" value="" autocomplete="false" spellcheck="false"  class="form-control" placeholder="security.protocol" />
+                                   <select class="form-control" name="securityProtocol">
+                                       <option value="SASL_PLAINTEXT">SASL_PLAINTEXT</option>
+                                       <option value="PLAINTEXT">PLAINTEXT</option>
+                                       <option value="SSL">SSL</option>
+                                       <option value="SASL_SSL">SASL_SSL</option>
+                                   </select>
                                 </div>
                             </div>
                             <div class="form-group form-group-sm">
                                 <label for="" class="control-label col-sm-3">jaas</label>
                                 <div class="col-sm-9">
-                                    <div class="row">
-                                        <div class="col-xs-6">
-                                            <div class="file padding-small">
-                                                <input type="file" name="jaasConfig" />
-                                                <span>上传 client_jaas.conf</span>
-                                            </div>
-                                        </div>
-                                        <button class="btn btn-link text-forestgreen "> 下载示例文件</button>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-xs-12">
-                                            <textarea name="jaasContent" disabled class="form-control auto-height" style="min-height: 100px"></textarea>
-                                        </div>
-                                    </div>
+                                    <textarea name="jaasConfig" class="form-control" placeholder="<LoginModule> <controlFlag> <options>"></textarea>
                                 </div>
 
+                            </div>
+                            <div class="form-group form-group-sm ">
+                                <div class="form-group">
+                                    <label for="" class="control-label col-sm-3">truststoreLocation: </label>
+                                    <div class="col-sm-9">
+                                        <input type="text" class="form-control " name="ssl.truststoreLocation" placeholder="truststoreLocation">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="" class="control-label col-sm-3">truststorePassword: </label>
+                                    <div class="col-sm-9">
+                                        <input type="text" class="form-control " name="ssl.truststorePassword" placeholder="truststorePassword">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="" class="control-label col-sm-3">keystoreLocation: </label>
+                                    <div class="col-sm-9">
+                                        <input type="text" class="form-control " name="ssl.keystoreLocation" placeholder="keystoreLocation">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="" class="control-label col-sm-3">keystorePassword: </label>
+                                    <div class="col-sm-9">
+                                        <input type="text" class="form-control " name="ssl.keystorePassword" placeholder="keystorePassword">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="" class="control-label col-sm-3">keyPassword: </label>
+                                    <div class="col-sm-9">
+                                        <input type="text" class="form-control " name="ssl.keyPassword" placeholder="keyPassword">
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
