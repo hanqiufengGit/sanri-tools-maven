@@ -109,7 +109,7 @@ define(['util','dialog','jsoneditor','icheck','jsonview'],function (util,dialog,
             var index = layer.load(1, {
                 shade: [0.1,'#fff']
             });
-            util.requestData(apis.allPartitionDatas,{clusterName:kafkaAdmin.conn,topic:topic,perPartitionMessages:50,serialize:serialize},function (datas) {
+            util.requestData(apis.allPartitionDatas,{clusterName:kafkaAdmin.conn,topic:topic,perPartitionMessages:10,serialize:serialize},function (datas) {
                 var $tbody = $('#datadetail').find('tbody').empty();
                 for(var i=0;i<datas.length;i++){
                     var offset = datas[i].offset;
