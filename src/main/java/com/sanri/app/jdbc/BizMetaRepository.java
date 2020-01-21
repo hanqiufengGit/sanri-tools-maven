@@ -12,7 +12,7 @@ public class BizMetaRepository {
     private Map<String, Map<String, Set<BizEntry>>> bizEntryMap = new HashMap<>();
 
     public class BizEntry{
-        private String columnName;
+        private Column column;
         private BizColumnType bizColumnType;
         private Object extra;
     }
