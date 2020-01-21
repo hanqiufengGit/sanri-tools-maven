@@ -133,7 +133,7 @@ public class OracleExConnection extends ExConnection {
                     boolean isPrimaryKey = primaryKeys.contains(columnName);
 
                     ColumnType columnType = new ColumnType(dataType, precision, scale, varcharLength);
-                    Column column = new Column(columnName, columnType, comment);
+                    Column column = new Column(tableName,columnName, columnType, comment);
                     column.setPrimaryKey(isPrimaryKey);
                     columns.add(column);
                 }

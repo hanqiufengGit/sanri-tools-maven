@@ -37,4 +37,20 @@ public class ColumnType {
     public long getLength() {
         return length;
     }
+
+    public void setDataType(String dataType) {
+        this.dataType = dataType;
+    }
+
+    public void setPrecision(int precision) {
+        this.precision = precision;
+    }
+
+    public void setScale(int scale) {
+        this.scale = scale;
+    }
+
+    public void setLength(long length) {
+        this.length = length;
+    }
 }

@@ -1,19 +1,18 @@
 package com.sanri.app.postman;
 
+import com.sanri.app.jdbc.Column;
+import com.sanri.app.jdbc.Table;
+
 public class TableRelation {
-    private String sourceTable;
-    private String sourceColumn;
-    private String targetTable;
-    private String targetColumn;
+    private Column sourceColumn;
+    private Column targetColumn;
     private RelationModel relationModel;
 
     public TableRelation() {
     }
 
-    public TableRelation(String sourceTable, String sourceColumn, String targetTable, String targetColumn, RelationModel relationModel) {
-        this.sourceTable = sourceTable;
+    public TableRelation(Column sourceColumn,  Column targetColumn, RelationModel relationModel) {
         this.sourceColumn = sourceColumn;
-        this.targetTable = targetTable;
         this.targetColumn = targetColumn;
         this.relationModel = relationModel;
     }
@@ -22,35 +21,20 @@ public class TableRelation {
         ONE_ONE,ONE_MANY,MANY_MANY
     }
 
-    public String getSourceTable() {
-        return sourceTable;
-    }
 
-    public void setSourceTable(String sourceTable) {
-        this.sourceTable = sourceTable;
-    }
-
-    public String getSourceColumn() {
+    public Column getSourceColumn() {
         return sourceColumn;
     }
 
-    public void setSourceColumn(String sourceColumn) {
+    public void setSourceColumn(Column sourceColumn) {
         this.sourceColumn = sourceColumn;
     }
 
-    public String getTargetTable() {
-        return targetTable;
-    }
-
-    public void setTargetTable(String targetTable) {
-        this.targetTable = targetTable;
-    }
-
-    public String getTargetColumn() {
+    public Column getTargetColumn() {
         return targetColumn;
     }
 
-    public void setTargetColumn(String targetColumn) {
+    public void setTargetColumn(Column targetColumn) {
         this.targetColumn = targetColumn;
     }
 
@@ -62,10 +46,6 @@ public class TableRelation {
         this.relationModel = relationModel;
     }
 
-    public String mergeProperts(){
-        return sourceTable+sourceColumn+targetTable+targetColumn+relationModel;
-    }
-
     @Override
     public boolean equals(Object obj) {
         if(obj == null || !(obj instanceof TableRelation)){
@@ -73,6 +53,12 @@ public class TableRelation {
         }
         TableRelation tableRelation = (TableRelation) obj;
         return this.mergeProperts().equals(tableRelation.mergeProperts());
+    }
+
+    private String mergeProperts() {
+        return this.sourceColumn.getTableName()+this.sourceColumn.getColumnName()+
+                this.targetColumn.getTableName()+this.targetColumn.getColumnName()
+                +this.relationModel;
     }
 
     @Override

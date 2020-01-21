@@ -7,9 +7,7 @@ import com.sanri.app.jdbc.*;
 import com.sanri.app.jdbc.codegenerate.SqlExecuteResult;
 import com.sanri.app.jdbc.datatrans.DataTransfer;
 import com.sanri.app.jdbc.datatrans.ExportProcess;
-import com.sanri.app.postman.FileInfo;
-import com.sanri.app.postman.FileListResult;
-import com.sanri.app.postman.JdbcConnDetail;
+import com.sanri.app.postman.*;
 import com.sanri.app.task.BigDataWriteThread;
 import com.sanri.frame.IgnoreSpendTime;
 import com.sanri.frame.RequestMapping;
@@ -69,6 +67,7 @@ public class SqlClientServlet extends BaseServlet{
 	private static File exportTmpDir = null;
 
 	ExecutorService privateExecutorService = Executors.newFixedThreadPool(3);
+	TableRelationRepository tableRelationRepository = TableRelationRepository.getInstance();
 
 	static{
 		sqlBaseDir = mkConfigPath("sql");
@@ -1126,6 +1125,34 @@ public class SqlClientServlet extends BaseServlet{
 		return exConnection.createTableDDL(tableName,tableComments,
 				StringUtils.split(columns,"\n"),StringUtils.split(types,"\n"),
 				StringUtils.split(comments,"\n"),StringUtils.split(primaryKeys,"\n"));
+	}
+
+	/**
+	 * 加载数据表之前的关系
+	 * @param connName
+	 * @param schemaName
+	 * @param tableName
+	 * @return
+	 */
+	public Set<TableRelation> loadTableRelations(String connName,String schemaName,String tableName){
+		return tableRelationRepository.tableRelations(connName,schemaName,tableName);
+	}
+
+	/**
+	 * 配置表关系
+	 * @param tableRelationParam
+	 * @return
+	 */
+	public int configTableRelation(TableRelationParam tableRelationParam){
+		TableRelation.RelationModel relationModel = TableRelation.RelationModel.valueOf(tableRelationParam.getRelation());
+		ExConnection exConnection = InitJdbcConnections.CONNECTIONS.get(tableRelationParam.getConnName());
+		Column sourceColumn = exConnection.getColumn(tableRelationParam.getSchemaName(), tableRelationParam.getSourceTableName(), tableRelationParam.getSourceColumnName());
+		Column targetColumn = exConnection.getColumn(tableRelationParam.getSchemaName(), tableRelationParam.getTargetTableName(), tableRelationParam.getTargetColumnName());
+		TableRelation tableRelation = new TableRelation(sourceColumn, targetColumn, relationModel);
+		Set<TableRelation> relationModels = Collections.singleton(tableRelation);
+		tableRelationRepository.insert(tableRelationParam.getConnName(),tableRelationParam.getSchemaName(),relationModels);
+		tableRelationRepository.serializerRelation();
+		return 0;
 	}
 
 }

@@ -114,6 +114,7 @@ public class PostgreSqlExConnection extends ExConnection {
         QueryRunner queryRunner = new QueryRunner(schema.dataSource());
         tableName = tableName.split("\\.")[1];
         String sql = "SELECT col_description(a.attrelid,a.attnum) as comment,format_type(a.atttypid,a.atttypmod) as type,a.attname as name, a.attnotnull as notnull FROM pg_class as c,pg_attribute as a where c.relname = '"+tableName+"' and a.attrelid = c.oid and a.attnum>0";
+        String finalTableName = tableName;
         List<Column> columns = queryRunner.query(sql, new ResultSetHandler<List<Column>>() {
             @Override
             public List<Column> handle(ResultSet resultSet) throws SQLException {
@@ -125,7 +126,7 @@ public class PostgreSqlExConnection extends ExConnection {
                     boolean isPrimaryKey = primaryKeys.contains(columnName);
 
                     ColumnType columnType = new ColumnType(dataType);
-                    Column column = new Column(columnName, columnType, comment);
+                    Column column = new Column(finalTableName,columnName, columnType, comment);
                     column.setPrimaryKey(isPrimaryKey);
                     columns.add(column);
                 }

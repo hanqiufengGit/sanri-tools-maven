@@ -1,0 +1,34 @@
+### 获取所有连接
+GET {{baseUrl}}/sqlclient/connections
+
+### 获取连接信息
+GET {{baseUrl}}/sqlclient/connectionInfo?name=localhost
+
+### 获取连接的所有 schema
+GET {{baseUrl}}/sqlclient/schemas?connName=localhost
+
+### 获取所有表
+GET {{baseUrl}}/sqlclient/tables?connName=localhost&schemaName=shiro_demo
+
+### 获取表字段列表
+GET {{baseUrl}}/sqlclient/refreshTable?connName=localhost&schemaName=shiro_demo&tableName=sys_user
+
+### 加载所有表关系
+GET {{baseUrl}}/sqlclient/loadTableRelations?connName=localhost&schemaName=shiro_demo&tableName=sys_role
+
+### 配置表关系
+POST {{baseUrl}}/sqlclient/configTableRelation
+Content-Type: application/json
+
+{"tableRelationParam":{
+  "connName": "localhost",
+  "schemaName": "shiro_demo",
+  "sourceTableName": "sys_user",
+  "targetTableName": "sys_role",
+  "sourceColumnName": "id",
+  "targetColumnName": "id",
+  "relation": "MANY_MANY"
+}}
+
+###
+

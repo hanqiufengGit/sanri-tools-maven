@@ -52,4 +52,16 @@ public class Table {
     public void setPrimaryKeys(Set<String> primaryKeys) {
         this.primaryKeys = primaryKeys;
     }
+
+    public void setTableName(String tableName) {
+        this.tableName = tableName;
+    }
+
+    public void setComments(String comments) {
+        this.comments = comments;
+    }
+
+    public void setColumns(Map<String, Column> columns) {
+        this.columns = columns;
+    }
 }
