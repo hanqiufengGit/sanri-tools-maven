@@ -52,3 +52,19 @@
 * 当数据格式为 json 时可以点击 json 书，以 json 数据查看
 
 ![](http://pic.yupoo.com/sanri1993/53e12480/0ac54c1d.png)
+
+* 在 kafka 首页点击 topic 管理可以进入 topic 管理界面，在这个界面可以创建主题，删除主题，查看主题消息，模拟数据发送
+
+![](http://pic.yupoo.com/sanri1993/d2c0764a/c38b3da9.png)
+
+*  在调试的时候，是需要看到对方的最新消息的，但是无法确定是发到了哪个分区，可以在发之前刷新下，再次刷新时就可以看到对方的数据是发到了哪个分区，发了多少条数据 
+  
+  ![](http://pic.yupoo.com/sanri1993/a5abe470/fb7e7c4c.png)
+  
+*  数据查看界面，这个界面是点击某个分区附近的消息或者尾部消息，或者点 **播放** 会加载所有分区的最近 10 条数据，这些数据会按照收取时间来倒序排序，可以更好的调试
+  
+  ![](http://pic.yupoo.com/sanri1993/e6f0fa53/654245d0.png)
+  
+*  数据模拟界面，这里只支持模拟 JSON 数据发送，可以方便的修改 JSON 参数 
+  
+  ![](http://pic.yupoo.com/sanri1993/bd06dd25/4adacb45.png)
