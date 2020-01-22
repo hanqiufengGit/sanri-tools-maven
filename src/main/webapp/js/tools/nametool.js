@@ -159,6 +159,7 @@ define(['util', 'dialog', 'icheck'], function (util, dialog) {
                             return;
                         }
                         params.modul = modul;
+                        params.baseName = params.biz;
                         util.requestData(apis.writeConfig, params, function () {
                             reloadBizs(params.biz);
                             layer.close(index);
