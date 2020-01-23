@@ -30,13 +30,16 @@ public class TableRelationRepository {
         // 加载本地的数据表关系信息
         relationDirs = BaseServlet.mkTmpPath("/relations");
         File relations = new File(relationDirs, "relations");
-        try {
-            String readFileToString = FileUtils.readFileToString(relations);
-            // 简单加载,不获取数据表的完整信息
-            TypeReference<Map<String, Map<String, Set<TableRelation>>>> mapTypeReference = new TypeReference<Map<String, Map<String, Set<TableRelation>>>>(){};
-            tableRelationMap = JSON.parseObject(readFileToString,mapTypeReference);
-        } catch (IOException e) {
-            e.printStackTrace();
+        if(relations.exists()) {
+            try {
+                String readFileToString = FileUtils.readFileToString(relations);
+                // 简单加载,不获取数据表的完整信息
+                TypeReference<Map<String, Map<String, Set<TableRelation>>>> mapTypeReference = new TypeReference<Map<String, Map<String, Set<TableRelation>>>>() {
+                };
+                tableRelationMap = JSON.parseObject(readFileToString, mapTypeReference);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 

@@ -55,13 +55,29 @@
             padding: 5px;
         }
 
-        .unknow-float .form-group{
+        .schema-functions{
+            background-color: whitesmoke;
+            display: flex;
+            align-items: center;
+            padding-left: 12px;
+        }
 
+        .quick-create-table{
+        }
+
+        .quick-create-table .create-table-list>li{
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .quick-create-table .table-list{
+            max-height: 200px;
+            overflow: scroll;
         }
     </style>
 </head>
 <body>
-<nav class="navbar navbar-default">
+<nav class="navbar navbar-default" >
     <div class="container-fluid">
         <div class="navbar-header">
             <a class="navbar-brand" >数据表工具类</a>
@@ -78,24 +94,25 @@
                         <span class="input-group-addon"><i class="fa fa-plug"></i></span>
                         <select class="form-control" style="width: 150px" name="" id="conns">
                         </select>
-                        <div class="input-group-btn"><button class="btn btn-primary"><i class="fa fa-refresh"></i></button></div>
+                        <div class="input-group-btn refresh"><button class="btn btn-link "><i class="fa fa-refresh text-danger"></i></button></div>
+                        <div class="input-group-btn plusconn"><button class="btn btn-link "><i class="fa fa-plus text-forestgreen"></i></button></div>
                     </div>
+
                     <div class="input-group">
                         <span class="input-group-addon"><i class="fa fa-database"></i></span>
                         <select class="form-control" style="width: 150px" name="" id="schemas">
                         </select>
-                        <div class="input-group-btn"><button class="btn btn-primary"><i class="fa fa-refresh"></i></button></div>
-                    </div>
-
-                    <div class="input-group">
-                        <div class="btn-group-sm">
-                            <button class="btn  btn-success" id="multiTableSchemaCode"><i class="fa fa-android"></i> 多表方案生成</button>
-                            <button class="btn  btn-info" id="projectBuild"><i class="fa fa-apple"></i> 项目构建</button>
-                            <button class="btn  btn-white border-gold" id="quickCreateTable"><i class="fa fa-credit-card"></i> 快速建表</button>
-                        </div>
+                        <div class="input-group-btn"><button class="btn btn-link"><i class="fa fa-refresh text-danger"></i></button></div>
                     </div>
                 </div>
+
+                <div class="btn-group btn-group-sm">
+                    <button class="btn  btn-success" id="multiTableSchemaCode"><i class="fa fa-android"></i> 多表方案生成</button>
+                    <button class="btn  btn-info" id="projectBuild"><i class="fa fa-apple"></i> 项目构建</button>
+                    <button class="btn  btn-white border-gold" id="quickCreateTable"><i class="fa fa-credit-card"></i> 快速建表</button>
+                </div>
             </div>
+
         </div>
 
 
@@ -140,6 +157,87 @@
             </div>
         </div>
     </div>
+</div>
+
+<!-- 新建数据表对话框 -->
+<div class="open-dialog" id="plusTableDialog">
+    <form class="form-horizontal">
+        <div class="form-group form-group-sm">
+            <label for="" class="control-label col-sm-3">表名</label>
+            <div class="col-sm-9">
+                <input type="text" class="form-control" name="tableName" autocomplete="off" spellcheck="false" />
+            </div>
+        </div>
+        <div class="form-group form-group-sm">
+            <label for="" class="control-label col-sm-3">注释</label>
+            <div class="col-sm-9">
+                <input type="text" class="form-control" name="comment" autocomplete="off" spellcheck="false" />
+            </div>
+        </div>
+        <div class="form-group form-group-sm">
+            <label for="" class="control-label col-sm-3">主键</label>
+            <div class="col-sm-9">
+                <input type="text" class="form-control" name="key" autocomplete="off" spellcheck="false" />
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- 新建连接对话框 -->
+<div class="open-dialog" id="plusConnDialog">
+    <form  class="form-horizontal">
+        <div class="form-group">
+            <label class="control-label col-sm-2 ">名称:</label>
+            <div class="col-sm-9">
+                <input class="form-control" name="name" value="mysqlLocal" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="control-label col-sm-2">类型:</label>
+            <div class="col-sm-9">
+                <label class="radio-inline">
+                    <input type="radio" name="dbType" checked="checked" value="mysql"> mysql
+                </label>
+                <label class="radio-inline">
+                    <input type="radio" name="dbType" value="oracle"> oracle
+                </label>
+                <label class="radio-inline">
+                    <input type="radio" name="dbType" value="postgresql"> postgresql
+                </label>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="control-label col-sm-2">主机:</label>
+            <div class="col-sm-9">
+                <input class="form-control" name="host"  value="localhost" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="control-label col-sm-2">端口:</label>
+            <div class="col-sm-9">
+                <input class="form-control" name="port" type="text" value="3306" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="control-label col-sm-2">库:</label>
+            <div class="col-sm-9">
+                <input class="form-control" name="database" placeholder="初始打开数据库" value="mysql" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="control-label col-sm-2">用户名:</label>
+            <div class="col-sm-9">
+                <input class="form-control" name="username" value="root" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="control-label col-sm-2">密码:</label>
+            <div class="col-sm-9">
+                <input class="form-control" name="userpass" value="h123" />
+            </div>
+        </div>
+    </form>
 </div>
 
 <!--使用 tk.mybatis 生成代码对话框-->
@@ -366,29 +464,75 @@
 </div>
 
 <!--快速建表对话框-->
-<div class="open-dialog" id="quickCreateTableDialog">
-    <div class="">
-        <ul class="nav nav-tabs">
-            <li class="active"><a  data-toggle="tab" href="#editview">多列编辑</a></li>
-            <li><a href="#sqlview"  data-toggle="tab">sql预览</a></li>
-        </ul>
-
-        <div class="tab-content">
-            <div class="tab-pane active" id="editview" >
-                <div class="form-group form-inline margin-top">
-                    <input type="text" class="form-control" name="tableName" placeholder="表名" value="user"/>
-                    <input type="text" class="form-control" name="tableComments" placeholder="表注释"  value="用户"/>
-                    <input type="text" class="form-control" placeholder="主键列" value="id" name="primaryKeys"/>
+<div class="open-dialog quick-create-table" id="quickCreateTableDialog">
+    <div class="row">
+        <!-- 左边用于表搜索 -->
+        <div class="col-xs-6">
+            <div class="row margin-bottom">
+                <div class="col-xs-12">
+                    <input type="text" placeholder="输入表名/字段名/表注释/字段注释" class="form-control " autocomplete="off" spellcheck="false" name="keyword"  />
                 </div>
-                <ul class="table-columns">
-                    <li ><textarea placeholder="列" name="column" ></textarea></li>
-                    <li ><textarea placeholder="类型" name="type"></textarea></li>
-                    <li ><textarea placeholder="注释" name="comments"> </textarea></li>
-                </ul>
             </div>
-            <div class="tab-pane" id="sqlview" ></div>
+
+            <div class="row">
+                <div class="col-xs-12">
+                    <ul class="list-group list-inline table-list" style="margin-left: 0;" id="contextTables">
+
+                    </ul>
+                    <table class="table table-striped table-bordered" id="contextColumns">
+                        <thead>
+                        <tr>
+                            <th>选择</th>
+                            <td>列名</td>
+                            <td>类型</td>
+                            <td>注释</td>
+                        </tr>
+                        </thead>
+                        <tbody>
+
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+        <!-- 右边用于表创建,可以一次性建多表 -->
+        <div class="col-xs-6">
+            <div class="btn-group btn-group-sm padding-bottom">
+                <button class="btn btn-white" name="newTable"><i class="fa fa-plane"></i> 添加新表 </button>
+                <button class="btn btn-white"><i class="fa fa-building"></i> 查看总 DDL </button>
+            </div>
+
+            <div class="row">
+                <div class="col-xs-4">
+                    <ul class="list-group create-table-list" id="newtables">
+                    </ul>
+                </div>
+                <div class="col-xs-8">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">.</div>
+                        <div class="panel-body">
+                            <div class="btn-group btn-group-sm padding-bottom ">
+                                <button class="btn btn-white"><i class="fa fa-calculator"></i> 添加翻译列 </button>
+                                <button class="btn btn-white"><i class="fa fa-building"></i> 查看当前表 DDL </button>
+                            </div>
+                            <table class="table table-striped table-bordered" id="newTableColumns">
+                                <thead>
+                                <th>顺序</th>
+                                <th>列名</th>
+                                <th>类型</th>
+                                <th>注释</th>
+                                <th>删除</th>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
+
 </div>
 
 <!--数据展示对话框-->
@@ -494,6 +638,7 @@
     </div>
 </div>
 
+<!-- 展示所有变量对话框 -->
 <div class="open-dialog" id="varslist">
     <table class="table table-bordered table-bordered">
         <caption>主体变量表</caption>
