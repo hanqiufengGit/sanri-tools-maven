@@ -1120,11 +1120,20 @@ public class SqlClientServlet extends BaseServlet{
 	 * @param comments
 	 * @return
 	 */
-	public String createTableDDL(String connName,String tableName,String tableComments,String columns,String types,String comments,String primaryKeys){
-		ExConnection exConnection = InitJdbcConnections.CONNECTIONS.get(connName);
-		return exConnection.createTableDDL(tableName,tableComments,
-				StringUtils.split(columns,"\n"),StringUtils.split(types,"\n"),
-				StringUtils.split(comments,"\n"),StringUtils.split(primaryKeys,"\n"));
+	public String createTableDDL(CreateTableParam createTableParam){
+		ExConnection exConnection = InitJdbcConnections.CONNECTIONS.get(createTableParam.getConnName());
+		List<CreateTableColumnParam> columns = createTableParam.getColumns();
+		String [] columnNames = new String [columns.size()];
+		String [] types = new String[columns.size()];
+		String [] comments = new String [columns.size()];
+		for (int i = 0; i < columns.size(); i++) {
+			columnNames[i] = columns.get(i).getColumnName();
+			types[i] = columns.get(i).getColumnType();
+			comments[i] = columns.get(i).getComment();
+		}
+
+		return exConnection.createTableDDL(createTableParam.getTableName(),createTableParam.getComment(),
+				columnNames,types,comments,new String []{createTableParam.getKey()});
 	}
 
 	/**

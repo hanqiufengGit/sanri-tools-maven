@@ -19,7 +19,10 @@ define(['util','dialog','contextMenu','javabrush','xmlbrush','zclip'],function (
         projectBuild:'/mybatis/code/projectBuild',
         refreshConnection:'/sqlclient/refreshConnection',
         refreshSchema:'/sqlclient/refreshSchema',
-        plusConn:'/sqlclient/createConnection'
+        plusConn:'/sqlclient/createConnection',
+        multiColumnsTranslate:'/translate/mutiTranslate',
+        ddl:'/sqlclient/createTableDDL',
+        executorDDL:'/sqlclient/executor'
     };
     var modul = 'tableTemplate';
     var codeSchemaModul = 'codeSchema';
@@ -440,26 +443,6 @@ define(['util','dialog','contextMenu','javabrush','xmlbrush','zclip'],function (
             var keyword = $(this).val().trim();
             quickCreateTableEvents.search(keyword);
         }
-        quickCreateTableEvents.checkOriginTableColumnSelect = function(rightTableName){
-            // 对比两边的列，将已经勾选的列选中
-            var rightTable = quickCreateTableEvents.data[rightTableName];
-            var leftColumns = [],rightColumns = rightTable? rightTable.columns : [];
-            $('#contextColumns>tbody').find('tr').each(function () {
-                leftColumns.push($(this).attr('columnname'));
-                // 先要取消全部选中
-                if($(this).find('input').iCheck) {
-                    $(this).find('input').iCheck('uncheck');
-                }
-            });
-            for(var i=0;i<rightColumns.length;i++){
-                let lowercase = rightColumns[i].columnName.toLowerCase();
-                let uppercase = rightColumns[i].columnName.toUpperCase();
-                if($.inArray(uppercase,leftColumns) != -1 || $.inArray(lowercase,leftColumns) != -1){
-                    var columnName = rightColumns[i].columnName;
-                    $('#contextColumns>tbody').find('tr[columnname='+columnName+']').iCheck('check');
-                }
-            }
-        }
         quickCreateTableEvents.choseTable = function (event) {
             var tableName = $(this).attr('tableName');
             $('#contextTables>li').removeClass('active');$(this).addClass('active');
@@ -483,11 +466,37 @@ define(['util','dialog','contextMenu','javabrush','xmlbrush','zclip'],function (
                 quickCreateTableEvents.checkOriginTableColumnSelect(rightTableName);
             });
         }
+        // 比较两边表格列，做左边表格的列选中
+        quickCreateTableEvents.checkOriginTableColumnSelect = function(rightTableName){
+            // 对比两边的列，将已经勾选的列选中
+            var rightTable = quickCreateTableEvents.data[rightTableName];
+            if(!rightTable || !rightTable.columns){console.log('右边表格不存在:'+rightTableName);return ;}
+
+            // 先全部取消左边的全部选中
+            require(['icheck'],function () {
+                $('#contextColumns>tbody').find('input').iCheck('uncheck');
+                for (let i = 0; i <rightTable.columns.length; i++) {
+                    let columnSelectedName = rightTable.columns[i].columnName;
+                    $('#contextColumns>tbody').find('tr[columnname='+columnSelectedName+']').find('input').iCheck('check');
+                }
+            });
+        }
+        // 获取右边选中的表格名称
+        quickCreateTableEvents.rightSelectedTableName = function(){
+            var $selectedLi = $('#newtables>.list-group-item.active');
+            if($selectedLi.size() > 0){
+                return $selectedLi.attr('tablename');
+            }
+            return undefined;
+        }
         quickCreateTableEvents.plusNewTable = function (event) {
             dialog.create('创建数据表')
                 .setContent($('#plusTableDialog'))
                 .setWidthHeight('400px', '300px')
                 .addBtn({type:'yes',text:'创建',handler:newTable})
+                .onOpen(function () {
+                    $('#plusTableDialog').find('input:first').focus();
+                })
                 .build();
 
             function newTable(index) {
@@ -502,6 +511,23 @@ define(['util','dialog','contextMenu','javabrush','xmlbrush','zclip'],function (
                 layer.close(index);
             }
         }
+        // 右边表格插入一列
+        quickCreateTableEvents.insertColumn = function(columnName,columnType,comment){
+            // 获取所有列,判断是否有重复列,重复拒绝添加
+            let tds = [];
+            $('#newTableColumns>tbody').find('tr').each(function () {
+                tds.push($(this).find('td:eq(1)').text());
+            });
+            if($.inArray(columnName,tds) != -1)return ;
+
+            // 重新给当前列编排顺序
+            let index = tds.length + 1;
+
+            $('#newTableColumns>tbody').append('<tr contenteditable="true" columnName="'+columnName+'"><td contenteditable="false">'+(index)+'</td><td>'+columnName+'</td><td>'+(columnType || '')+'</td><td>'+(comment || '')+'</td><td contenteditable="false"><a href="javascript:void(0);">删除</a></td></tr>');
+
+            let rightSelectedTableName = quickCreateTableEvents.rightSelectedTableName();
+            quickCreateTableEvents.data[rightSelectedTableName].columns.push({columnName,columnType,comment});
+        }
         quickCreateTableEvents.loadNewTableConfig = function(event){
             $(this).addClass('active');
             $(this).siblings().removeClass('active');
@@ -511,25 +537,129 @@ define(['util','dialog','contextMenu','javabrush','xmlbrush','zclip'],function (
             var columns = quickCreateTableEvents.data[tableName].columns;
             $('#newTableColumns>tbody').empty();
 
-            var htmlCode = [];
-            for (var i=0;i<columns.length;i++){
-                htmlCode.push('<tr contenteditable="true" columnName="'+columns[i].columnName+'"><td contenteditable="false">'+(i+1)+'</td><td>'+columns[i].columnName+'</td><td>'+(columns[i].typeName || '')+'</td><td>'+(columns[i].comment || '')+'</td><td contenteditable="false"><a href="javascript:void(0);">删除</a></td></tr>');
+            for (let i = 0; i < columns.length; i++) {
+                quickCreateTableEvents.insertColumn(columns[i].columnName,columns[i].columnType,columns[i].comment);
             }
-            $('#newTableColumns>tbody').append(htmlCode.join(''));
 
             // 右边加载完列后，需要判断是否左边的表格有选中的相似列
             quickCreateTableEvents.checkOriginTableColumnSelect(tableName);
         }
-        quickCreateTableEvents.refreshTables = function () {
-            $('#newtables').empty();
-
-        }
-        editNewTableColumn.editNewTableColumn = function () {
+        quickCreateTableEvents.editNewTableColumn = function () {
             var newValue = $(this).val().trim();
+            if(newValue.length < 2)return ;     // 字段长度大于 2 才发起处理
+
+            var $tr = $(this).closest('tr');
+            // 计算索引位置,当前列名
+            var row = $(this).index($tr),col = $tr.index($tr.closest('tbody'));
+            var currentColumnName = $tr.closest('table').find('thead>tr>th:eq('+col+')').col;
             var tableName = $('#newtables').find('li.list-group-item.active').attr('tablename');
-            // 找到编辑了的表格进行列更新 TODO
+            // 找到编辑了的表格进行列更新
+            var columns = quickCreateTableEvents.data[tableName].colums;
+            columns[row][currentColumnName] = newValue;
+
             // 执行更新
             quickCreateTableEvents.checkOriginTableColumnSelect(tableName);
+        }
+        // 左边表格列选中的时候，添加列到右边表格
+        var leftColumns = [null,'columnName','columnType','comment']
+        quickCreateTableEvents.changeSelectColumnToRight = function () {
+            var currentTableName = quickCreateTableEvents.rightSelectedTableName();
+            if(!currentTableName ){return ;}
+
+            var checked = $(this).is(':checked');
+            var $tr = $(this).closest('tr');
+            let columnName = $tr.find('td:eq(1)').text(),
+                columnType = $tr.find('td:eq(2)').text(),
+                comment = $tr.find('td:eq(3)').text();
+
+            if(checked){
+                quickCreateTableEvents.insertColumn(columnName,columnType,comment);
+            }else{
+                let columns = quickCreateTableEvents.data[currentTableName].columns;
+                for (let i = 0; i < columns.length; i++) {
+                    if(columns[i].columnName == columnName){
+                        quickCreateTableEvents.data[currentTableName].columns.splice(i,1);break;
+                    }
+                }
+                $('#newTableColumns>tbody').find('tr[columnname='+columnName+']').remove();
+            }
+        }
+        // 删除右边表格
+        quickCreateTableEvents.deleteNewTable = function () {
+            $(this).closest('li').prev().click();
+            $(this).closest('li').remove();
+        }
+        quickCreateTableEvents.deleteNewTableColumn = function () {
+            $(this).closest('tr').remove();
+            let columnName = $(this).closest('tr').attr('columnname');
+            let rightSelectedTableName = quickCreateTableEvents.rightSelectedTableName();
+            if(rightSelectedTableName){
+                $('#contextColumns>tbody').find('tr[columnname='+columnName+']').find('input').iCheck('uncheck');
+            }
+        }
+        // 添加翻译列
+        quickCreateTableEvents.translateColumns = function () {
+            dialog.create('添加翻译列')
+                .setContent($('#translateColumnsDialog'))
+                .setWidthHeight('300px','400px')
+                .addBtn({type:'yes',text:'翻译',handler:startTranslate})
+                .build();
+            let rightSelectedTableName = quickCreateTableEvents.rightSelectedTableName();
+
+            function startTranslate(index) {
+                var  originChars = $('#translateColumnsDialog').find('textarea').val().trim();
+                if(!originChars){layer.msg('输入原始中文字符串');return ;}
+
+                var originCharsColumns = originChars.split('\n');
+                var chineseColumns = [];
+                for (let i = 0; i < originCharsColumns.length; i++) {
+                    if(originCharsColumns[i].trim()){
+                        chineseColumns.push(originCharsColumns[i].trim());
+                    }
+                }
+
+                if(chineseColumns.length == 0){layer.msg('请输入原始中文字符串');return ;}
+
+                var maskIndex = layer.load(1, {
+                    shade: [0.1,'#fff']
+                });
+                util.requestData(apis.multiColumnsTranslate,{words:chineseColumns},function (ens) {
+                   // 组装中文列和英文列，猜测其类型
+                   var guessColumnTypeMirror = {id:'int',date:'timestamp',time:'timestamp'};
+                   var htmlCode = [];
+                   // 获取当前最大编号
+                    var startIndex = parseInt($('#newTableColumns>tbody>tr:last>td:first').text());
+                    for (let i = 0; i < ens.length; i++) {
+                        htmlCode.push('<tr contenteditable="true" columnName="'+ens[i]+'"><td contenteditable="false">'+(startIndex + i)+'</td><td>'+ens[i]+'</td><td>varchar</td><td>'+(chineseColumns[i] || '')+'</td><td contenteditable="false"><a href="javascript:void(0);">删除</a></td></tr>')
+                        quickCreateTableEvents.data[rightSelectedTableName].columns.push({columnName:ens[i],columnType:'varchar',comment:chineseColumns[i] });
+                    }
+                    $('#newTableColumns>tbody').append(htmlCode.join(''));
+
+                    layer.close(index);
+                    layer.close(maskIndex)
+                },function () {
+                    layer.close(maskIndex);
+                });
+            }
+
+        }
+
+        // 设计暂存，保存草稿
+        quickCreateTableEvents.saveDraft = function () {
+            localStorage.setItem('quickCreateTable',JSON.stringify(quickCreateTableEvents.data));
+        }
+
+        // 当前表格 DDL
+        quickCreateTableEvents.currentTableDDL = function () {
+            let rightSelectedTableName = quickCreateTableEvents.rightSelectedTableName();
+            let tableData = quickCreateTableEvents.data[rightSelectedTableName];
+            util.requestData(apis.ddl,{createTableParam:$.extend({},tableData,{connName:tablehelp.connName})},function (ddl) {
+               layer.alert(ddl);
+            });
+        }
+        // 所有表格 DDL
+        quickCreateTableEvents.allTableDDLs = function () {
+            
         }
 
         var events = [{selector:'#conns',types:['change'],handler:switchConn},
@@ -574,7 +704,13 @@ define(['util','dialog','contextMenu','javabrush','xmlbrush','zclip'],function (
             {parent:'#contextTables',selector:'li',types:['click'],handler:quickCreateTableEvents.choseTable},
             {parent:'#quickCreateTableDialog',selector:'button[name=newTable]',types:['click'],handler:quickCreateTableEvents.plusNewTable},
             {parent:'#newtables',selector:'li',types:['click'],handler:quickCreateTableEvents.loadNewTableConfig},
-            {parent:'#newTableColumns',selector:'td',types:['blur'],handler:quickCreateTableEvents.editNewTableColumn}];
+            {parent:'#newTableColumns',selector:'td',types:['keyup'],handler:quickCreateTableEvents.editNewTableColumn},
+            {parent:'#contextColumns',selector:'input',types:['ifChecked','ifUnchecked'],handler:quickCreateTableEvents.changeSelectColumnToRight},
+            {parent:'#newTableColumns',selector:'a',types:['click'],handler:quickCreateTableEvents.deleteNewTableColumn},
+            {parent:'#quickCreateTableDialog',selector:'button[name=addTranslateColumn]',types:['click'],handler:quickCreateTableEvents.translateColumns},
+            {parent:'#quickCreateTableDialog',selector:'button[name=currentDDL]',types:['click'],handler:quickCreateTableEvents.currentTableDDL},
+            {parent:'#quickCreateTableDialog',selector:'button[name=allDDL]',types:['click'],handler:quickCreateTableEvents.allTableDDLs},
+            {parent:'#quickCreateTableDialog',selector:'button[name=saveDraft]',types:['click'],handler:quickCreateTableEvents.saveDraft}];
 
         /**
          * 项目构建
@@ -679,20 +815,39 @@ define(['util','dialog','contextMenu','javabrush','xmlbrush','zclip'],function (
                 .setContent($('#quickCreateTableDialog'))
                 .setWidthHeight('100%','90%')
                 .addBtn({type:'button',text:'执行',handler:executeCreateTable})
+                .onOpen(loadDraft)
                 .build();
 
             // 加载主界面搜索的表
             quickCreateTableEvents.search($('#search').val().trim());
 
+            // 加载以前保存的草稿设计信息
+            function loadDraft() {
+                let draft = localStorage.getItem('quickCreateTable');
+                if(draft){
+                    let draftJson = JSON.parse(draft);
+                    quickCreateTableEvents.data = draftJson;
+
+                    // 加载需要创建的表格信息
+                    for(let tableName in draftJson){
+                        // todo 和新建数据表渲染重复代码
+                        $('#newtables').append('<li class="list-group-item" tableName="'+tableName+'">'+tableName+'<i class="fa fa-trash text-gold"></i></li>');
+                    }
+
+                    $('#newtables>li:first').click();
+                }
+
+            }
+
             function executeCreateTable(index) {
-               util.requestData('/sqlclient/executor',{
+               util.requestData(apis.executorDDL,{
                    connName:tablehelp.connName,
                    schemaName:tablehelp.schemaName,
                    ddl:$('#sqlview').text()
                },function () {
                    layer.msg('建表成功');
                    layer.close(index);
-               })
+               });
             }
 
 

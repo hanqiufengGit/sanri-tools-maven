@@ -500,7 +500,8 @@
         <div class="col-xs-6">
             <div class="btn-group btn-group-sm padding-bottom">
                 <button class="btn btn-white" name="newTable"><i class="fa fa-plane"></i> 添加新表 </button>
-                <button class="btn btn-white"><i class="fa fa-building"></i> 查看总 DDL </button>
+                <button class="btn btn-white" name="allDDL"><i class="fa fa-building"></i> 查看总 DDL </button>
+				<button class="btn btn-white" name="saveDraft"><i class="fa fa-building"></i> 设计暂存 </button>
             </div>
 
             <div class="row">
@@ -513,16 +514,16 @@
                         <div class="panel-heading">.</div>
                         <div class="panel-body">
                             <div class="btn-group btn-group-sm padding-bottom ">
-                                <button class="btn btn-white"><i class="fa fa-calculator"></i> 添加翻译列 </button>
-                                <button class="btn btn-white"><i class="fa fa-building"></i> 查看当前表 DDL </button>
+                                <button class="btn btn-white" name="addTranslateColumn"><i class="fa fa-calculator"></i> 添加翻译列 </button>
+                                <button class="btn btn-white" name="currentDDL"><i class="fa fa-building"></i> 查看当前表 DDL </button>
                             </div>
                             <table class="table table-striped table-bordered" id="newTableColumns">
                                 <thead>
-                                <th>顺序</th>
-                                <th>列名</th>
-                                <th>类型</th>
-                                <th>注释</th>
-                                <th>删除</th>
+                                    <th>顺序</th>
+                                    <th col="columnName">列名</th>
+                                    <th col="columnType">类型</th>
+                                    <th col="comment">注释</th>
+                                    <th>删除</th>
                                 </thead>
                                 <tbody></tbody>
                             </table>
@@ -533,6 +534,11 @@
         </div>
     </div>
 
+</div>
+
+<!-- 翻译列对话框 -->
+<div class="open-dialog" id="translateColumnsDialog">
+	<textarea class="form-control" style="height: 250px" placeholder="以换行符(\n)做分隔每一行写入列的中文"></textarea>
 </div>
 
 <!--数据展示对话框-->
