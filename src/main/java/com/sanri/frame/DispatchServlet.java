@@ -6,6 +6,7 @@ import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.sanri.app.BaseServlet;
+import com.sanri.app.postman.CreateTableColumnParam;
 import javassist.ClassClassPath;
 import javassist.ClassPool;
 import javassist.CtClass;
@@ -46,9 +47,7 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
 import java.io.Writer;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import java.lang.reflect.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -767,7 +766,22 @@ public class DispatchServlet extends HttpServlet {
 		if(object instanceof JSONObject){
 			javaObject = JSONObject.toJavaObject((JSONObject) object, valueClazz);
 		}else if(object instanceof JSONArray){
-			javaObject = JSONObject.toJavaObject((JSONArray)object, valueClazz);
+			// 如果是有泛型的 List,Set 对象,需要分别获取泛型对象并处理; 注:只能支持一层 list ,多层 list 不受支持
+			if(valueClazz == List.class){
+//				Type superClass = valueClazz.getGenericInterfaces()[0];
+//				Type actualTypeArgument = ((ParameterizedType) superClass).getActualTypeArguments()[0];
+//				List list = new ArrayList();
+//				Iterator<Object> iterator = ((JSONArray) object).iterator();
+//				while (iterator.hasNext()){
+//					Object subObject = iterator.next();
+//					CreateTableColumnParam createTableColumnParam = JSONObject.toJavaObject((JSONObject) subObject, CreateTableColumnParam.class);
+//					list.add(createTableColumnParam);
+//				}
+//				return list;
+				javaObject = JSONObject.toJavaObject((JSONArray)object, valueClazz);
+			}else{
+				javaObject = JSONObject.toJavaObject((JSONArray)object, valueClazz);
+			}
 		}else{
 			//remove by sanri at 2017/04/23 对于普通参数不需要,对于其它对象,目前来看就文件对象了
 //			javaObject = JSONObject.toJavaObject((JSONObject)JSONObject.toJSON(object), valueClazz);

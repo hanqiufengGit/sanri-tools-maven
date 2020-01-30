@@ -1136,6 +1136,19 @@ public class SqlClientServlet extends BaseServlet{
 				columnNames,types,comments,new String []{createTableParam.getKey()});
 	}
 
+    /**
+     * 多表的建表语句
+     * @param createTableParams
+     * @return
+     */
+	public List<String> tableDDLs(List<JSONObject> createTableParams){
+        List<String> results = new ArrayList<>();
+        for (JSONObject createTableParam : createTableParams) {
+            results.add(createTableDDL(JSONObject.toJavaObject(createTableParam,CreateTableParam.class)));
+        }
+       return results;
+    }
+
 	/**
 	 * 加载数据表之前的关系
 	 * @param connName

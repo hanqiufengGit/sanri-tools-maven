@@ -1,16 +1,14 @@
 package com.sanri.app.servlet;
 
+import com.google.common.base.CaseFormat;
+import com.google.common.base.Converter;
 import com.sanri.app.BaseServlet;
 import com.sanri.app.translate.*;
 import com.sanri.frame.RequestMapping;
 import org.apache.commons.lang3.ArrayUtils;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * 创建人     : sanri
@@ -78,6 +76,23 @@ public class TranslateServlet extends BaseServlet {
             Set<String> translate = baiduEnglishTranslate.directTranslate(word);
             String result = translate.toArray(new String[]{})[0];
             results.add(result);
+        }
+        return results;
+    }
+
+
+    /**
+     * 多列翻译，下划线的字段方式
+     * @return
+     */
+    public List<String> mutiTranslateUnderline(String [] words){
+        List<String> results = new ArrayList<String>();
+        Converter<String, String> converter = CaseFormat.LOWER_CAMEL.converterTo(CaseFormat.LOWER_UNDERSCORE);
+        for (String word : words) {
+            Set<String> translate = baiduEnglishTranslate.directTranslate(word);
+            String translateEn = translate.iterator().next();
+            String convert = converter.convert(translateEn);
+            results.add(convert);
         }
         return results;
     }
