@@ -1,7 +1,7 @@
 /**
  * 为避免 rightmenu.js 过于庞大,把项目构建单独抽出 
  */
-define(['util','dialog','sqlclient/meta','template','steps','icheck','jsonview','javabrush','xmlbrush'],function(util,dialog,metatree,template){
+define(['util','dialog','sqlclient/meta','template','steps','icheck','jsonview','hl/shBrushJava','hl/shBrushXml'],function(util,dialog,metatree,template){
 	var projectBuild = {
 			configs:{},
 			templates:{},

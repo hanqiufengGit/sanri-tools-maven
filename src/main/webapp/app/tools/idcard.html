@@ -66,8 +66,12 @@
 
                             <div class="form-group">
                                 <label class="col-xs-2 control-label"></label>
-                                <button class="btn btn-danger" id="generate">开始生成</button>
-                                <button class="btn btn-white" id="cleanall">清空</button>
+                                <div class="btn-group">
+                                    <button class="btn btn-primary" id="generate">开始生成</button>
+                                    <button class="btn btn-success" id="randomGenerate">随机生成</button>
+                                    <button class="btn btn-warning" id="cleanall">清空</button>
+                                </div>
+
                             </div>
                         </div>
 
@@ -78,16 +82,29 @@
                 </div>
             </div>
             <div class="col-xs-6">
-                <div class="panel panel-default">
+                <div class="panel panel-primary">
                     <div class="panel-heading">身份证验证</div>
                     <div class="panel-body">
                         <div class="alert alert-success">此处检验身份证后会在左边生成城市和生日性别信息</div>
                         <div class="input-group" id="checkIdcard">
                             <input type="text" value="430124199311163606" autocomplete="false" class="form-control" />
                             <span class="input-group-btn">
-                                <button class="btn btn-success" >检验身份证</button>
+                                <button class="btn btn-primary" >检验身份证</button>
                             </span>
                         </div>
+                    </div>
+                </div>
+
+                <div class="panel panel-info">
+                    <div class="panel-heading">身份证最后一位生成</div>
+                    <div class="panel-body">
+                        <div class="input-group" id="lastIdCardNum">
+                            <input type="text" value="43012419931116360" autocomplete="false" class="form-control" />
+                            <span class="input-group-btn">
+                                <button class="btn btn-info" >获取尾数</button>
+                            </span>
+                        </div>
+                        <p class="form-control-static text-info"></p>
                     </div>
                 </div>
 

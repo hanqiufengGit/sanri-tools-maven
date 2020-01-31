@@ -14,6 +14,17 @@ define(['util','generate','icheck'], function (util,generate) {
                 $province.append('<option value="' + data[key].key + '">' + data[key].name + '</option>');
             }
 
+            // 遍历所有的 areaCode 以方便后面做区域随机
+            idcard.areaCodes = [];
+            for(let province in data){
+                let provinceData = data[province].child;
+                for(let city in provinceData){
+                    let cityData = provinceData[city].child;
+                    for(let area in cityData){
+                        idcard.areaCodes.push(area);
+                    }
+                }
+            }
         });
 
         $province.bind('change', function (e) {
@@ -99,6 +110,21 @@ define(['util','generate','icheck'], function (util,generate) {
             radioClass: 'iradio_square-green'
         });
 
+        // 完全随机生成
+        $('#randomGenerate').bind('click',function () {
+            var genCount = $('#infoload').find('input[name=size]').val().trim();
+            var allGenerate = [];
+            for (var i=0;i<genCount;i++){
+                var index = Math.floor(idcard.areaCodes.length * Math.random());
+                var area = idcard.areaCodes[index];
+                var current = generate.idcard(area);
+                allGenerate.push(current);
+            }
+
+            $('#genresult').val(allGenerate.join('\n'));
+        });
+
+        // 按照规则生成
         $('#generate').bind('click', function () {
             var selected = {};
 
@@ -166,6 +192,16 @@ define(['util','generate','icheck'], function (util,generate) {
                 $('input[name=gender][value="1"]').iCheck('check');
             }
 
+        });
+
+        $('#lastIdCardNum').find('button').bind('click',function () {
+            var input = $('#lastIdCardNum').children('input').val().trim();
+            if(!input || input.length != 17){
+                layer.msg('输入 17 位身份证');
+                return ;
+            }
+            var realLast = generate.verifyCode(input);
+            $('#lastIdCardNum').next('p').html(input+'<b>'+realLast+'</b>')
         });
 
         return this;
