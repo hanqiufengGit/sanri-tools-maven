@@ -583,7 +583,11 @@ define(['util','dialog','contextMenu','hl','hl/shBrushJava','hl/shBrushXml','hl/
                         htmlCode.push('<tr columnname="'+columns[i].columnName+'">');
                         htmlCode.push('<td><input type="checkbox" /></td>');
                         htmlCode.push('<td>'+columns[i].columnName+'</td>');
-                        htmlCode.push('<td>'+columns[i].columnType.dataType+'</td>');
+                        if(columns[i].columnType == 'decimal'){
+                            htmlCode.push('<td>'+columns[i].columnType.dataType+'('+columns[i].columnType.length+','+columns[i].columnType.precision+')</td>');
+                        }else{
+                            htmlCode.push('<td>'+columns[i].columnType.dataType+'('+columns[i].columnType.length+')</td>');
+                        }
                         htmlCode.push('<td>'+columns[i].comments+'</td>');
                         htmlCode.push('</tr>');
                     }
@@ -1204,7 +1208,11 @@ define(['util','dialog','contextMenu','hl','hl/shBrushJava','hl/shBrushXml','hl/
                    htmlCode.push('<tr>');
                    htmlCode.push('<td>'+(i+1)+'</td>');
                    htmlCode.push('<td>'+columns[i].columnName+'</td>');
-                   htmlCode.push('<td>'+columns[i].columnType.dataType+'</td>');
+                   if(columns[i].columnType == 'decimal'){
+                       htmlCode.push('<td>'+columns[i].columnType.dataType+'('+columns[i].columnType.length+','+columns[i].columnType.precision+')</td>');
+                   }else{
+                       htmlCode.push('<td>'+columns[i].columnType.dataType+'('+columns[i].columnType.length+')</td>');
+                   }
                    htmlCode.push('<td>'+columns[i].comments+'</td>');
                    htmlCode.push('</tr>');
                }
