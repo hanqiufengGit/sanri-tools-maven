@@ -802,6 +802,7 @@ define(['util','dialog','contextMenu','hl','hl/shBrushJava','hl/shBrushXml','hl/
                         .setContent($('#dataShowDialog'))
                         .setWidthHeight('650px','90%')
                         .build();
+                    $('#dataShowDialog>div').data('code',ddl);
                     $('#dataShowDialog>div').html('<pre class="brush:\'sql\';">'+ddl.replace(/[^\S\r\n]+/g,' ')+'</pre>');
                     SyntaxHighlighter.highlight();
                 });
@@ -823,15 +824,17 @@ define(['util','dialog','contextMenu','hl','hl/shBrushJava','hl/shBrushXml','hl/
                         let ddl = ddls[i].replace(/[^\S\r\n]+/g,' ');
                         htmlCode.push('<pre class="brush:\'sql\';">'+ddl+'</pre>');
                     }
+                    $('#dataShowDialog>div').data('code',ddls.join(''));
                     $('#dataShowDialog>div').html(htmlCode.join(''));
                     SyntaxHighlighter.highlight();
                 });
 
                 function executeCreateTable(index) {
+                    let ddls = $('#dataShowDialog>div').data('code');
                     util.requestData(apis.executorDDL,{
                         connName:tablehelp.connName,
                         schemaName:tablehelp.schemaName,
-                        ddl:$('#dataShowDialog>div').text()
+                        ddl:ddls
                     },function () {
                         layer.msg('建表成功');
                         // 建表成功后删除草稿
