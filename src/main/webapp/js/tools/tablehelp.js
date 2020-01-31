@@ -60,15 +60,53 @@ define(['util','dialog','contextMenu','hl','hl/shBrushJava','hl/shBrushXml','hl/
      * 创建右键菜单
      */
     function createRightMenu() {
+        var tableOperators = {};
+
+        // 清空表操作
+        tableOperators.cleanTable = function(key,opts){
+            let tableName = currentTable(opts);
+            layer.confirm('确定清空数据 '+tableName,function (yes) {
+                if(yes){
+                    util.requestData(apis.executorDDL,{ddl:'TRUNCATE '+tableName,connName:tablehelp.connName,schemaName:tablehelp.schemaName},function () {
+                        layer.msg('成功清除数据,'+tableName);
+                    });
+                }
+            })
+
+        }
+        // 删除表
+        tableOperators.dropTable = function(key,opts){
+            let tableName = currentTable(opts);
+            layer.confirm('确定删除表 '+tableName,function (yes) {
+                if (yes) {
+                    util.requestData(apis.executorDDL,{ddl:'drop table '+tableName,connName:tablehelp.connName,schemaName:tablehelp.schemaName},function () {
+                        layer.msg('表已删除,'+tableName);
+                        // 刷新 schemal
+                        $('#schemas+.input-group-btn>button').click();
+                    });
+                }
+            });
+
+        }
+
+        // 表关系建立
+        tableOperators.tableRelation = function(key,opts){
+            let tableName = currentTable(opts);
+        }
+
         $.contextMenu({
             selector: '#tables li',
             zIndex: 4,
             items:{
                 templateCode:{name:'模板代码...',icon:'copy',callback:templateCode},
                 tablesCode:{name:'tkmybatis 模板生成',icon:'copy',callback:tablesCode},
-                columns:{name:'属性列',icon:'cut',callback:tableColumns},
-                steps:'------',
-                tableInfo:{name:'表格属性',icon:'copy',callback:tableInfo}
+                step1:'------',
+                cleanTable:{name:'删除表',icon:'delete',callback:tableOperators.dropTable},
+                dropTable:{name:'清空表',icon:'fa-circle-o-notch',callback:tableOperators.cleanTable},
+                tableRelation:{name:'表关系编辑',icon:'fa-code-fork',callback:tableOperators.tableRelation},
+                step2:'---------',
+                columns:{name:'属性列',icon:'fa-pie-chart',callback:tableColumns},
+                tableInfo:{name:'表格属性',icon:'fa-tachometer',callback:tableInfo}
             }
         });
 
@@ -830,6 +868,7 @@ define(['util','dialog','contextMenu','hl','hl/shBrushJava','hl/shBrushXml','hl/
             {selector:'#templates',types:['change'],handler:switchTemplate},
             {selector:'#codeschema',types:['click'],handler:codeSchemaDialog},
             {selector:'#copyCode',types:['click'],handler:copyCurrentCode},
+            {selector:'#newCodeSchema',types:['click'],handler:newCodeSchema},
             {parent:'#codeSchemaDialog>ul.list-group',selector:'li',types:['click'],handler:makeCodeFromSchema},
             {selector:'#multiTableSchemaCode',types:['click'],handler:multiTableSchemaCode},
             {parent:'#multitableschemadialog ul.list-group',selector:'li',types:['click'],handler:switchCodeSchema},
@@ -868,6 +907,12 @@ define(['util','dialog','contextMenu','hl','hl/shBrushJava','hl/shBrushXml','hl/
             {parent:'#quickCreateTableDialog',selector:'button[name=allDDL]',types:['click'],handler:quickCreateTableEvents.events.allTableDDLs},
             {parent:'#quickCreateTableDialog',selector:'button[name=saveDraft]',types:['click'],handler:quickCreateTableEvents.events.saveDraft}];
 
+        /**
+         * 添加方案
+         */
+        function newCodeSchema() {
+            layer.msg('未实现')
+        }
         /**
          * 项目构建
          */
