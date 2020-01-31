@@ -840,9 +840,9 @@ public class SqlClientServlet extends BaseServlet{
 	 * 显示建表信息
 	 * @return
 	 */
-	public String showCreateTable(String conn, String db,String table) throws SQLException {
-		ExConnection exConnection = InitJdbcConnections.CONNECTIONS.get(conn);
-		String result =  exConnection.ddL(db,table);
+	public String showCreateTable(String connName, String schema,String table) throws SQLException {
+		ExConnection exConnection = InitJdbcConnections.CONNECTIONS.get(connName);
+		String result =  exConnection.ddL(schema,table);
 		return result;
 	}
 
@@ -1176,5 +1176,4 @@ public class SqlClientServlet extends BaseServlet{
 		tableRelationRepository.serializerRelation();
 		return 0;
 	}
-
 }

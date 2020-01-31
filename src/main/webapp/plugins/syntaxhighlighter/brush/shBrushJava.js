@@ -17,9 +17,8 @@
 ;(function()
 {
 	// CommonJS
-	// modify by sanri require 使用数组的方式加载模块
-//	typeof(require) != 'undefined' ? SyntaxHighlighter = require('shCore').SyntaxHighlighter : null;
-//	typeof(require) != 'undefined' ? SyntaxHighlighter = require(['codehighliter/lib/shCore']).SyntaxHighlighter : null;
+	// typeof(require) != 'undefined' ? SyntaxHighlighter = require(['hl']).SyntaxHighlighter : null;
+	// typeof(require) != 'undefined' ? SyntaxHighlighter = require(['codehighliter/lib/shCore']).SyntaxHighlighter : null;
 
 	function Brush()
 	{
@@ -49,10 +48,14 @@
 		});
 	};
 
-	Brush.prototype	= new SyntaxHighlighter.Highlighter();
-	Brush.aliases	= ['java'];
+	require(['hl'],function () {
+		Brush.prototype	= new SyntaxHighlighter.Highlighter();
 
-	SyntaxHighlighter.brushes.Java = Brush;
+		Brush.aliases	= ['java'];
+
+		SyntaxHighlighter.brushes.Java = Brush;
+	});
+
 
 	// CommonJS
 	typeof(exports) != 'undefined' ? exports.Brush = Brush : null;

@@ -22,9 +22,6 @@ require.config({
        'echarts':'../plugins/echarts/echarts.min',
        'steps':'../plugins/steps/jquery.steps',
        'template':'../plugins/template',
-       'javabrush':'../plugins/syntaxhighlighter/brush/shBrushJava',
-       'xmlbrush':'../plugins/syntaxhighlighter/brush/shBrushXml',
-       'highlighter':'../plugins/syntaxhighlighter/shCore',
        'autocomplete':'../plugins/autocomplete/jquery.autocomplete.min',
        'storage':'jquery.storageapi.min',
        'migrate':'jquery.migrate',					//修复 jquery 升级后废弃的 api
@@ -33,7 +30,7 @@ require.config({
        'diffmatch':'../plugins/textdiff/diff_match_patch',
        'fancybox':'../plugins/fancybox/jquery.fancybox',
        'nouislider':'../plugins/nouislider/jquery.nouislider.min',
-       'ionRangeSlider':'../plugins/ionRangeSlider/ion.rangeSlider.min'
+       'ionRangeSlider':'../plugins/ionRangeSlider/ion.rangeSlider.min',
    },
    shim:{
        'icheck':{
@@ -46,12 +43,6 @@ require.config({
        },
        'bootstrap':{
            deps:['jquery']
-       },
-       'javabrush':{
-      	 deps:['jquery','highlighter']
-       },
-       'xmlbrush':{
-      	 deps:['jquery','highlighter']
        },
 //       'scrolltabs':{deps:['util']},
        'ztree':{deps:['jquery']},
@@ -72,17 +63,12 @@ require.config({
         name: 'cryptojs',
         location: '../plugins/crypto-js',
         main: '../plugins/crypto-js/core'
+    },{
+       name:'hl',
+       location: '../plugins/syntaxhighlighter/brush',
+       main:'../shCore'
     }]
-//   packages: [{
-//	     name: 'codemirror',
-//	     location: '../plugins/codemirror/',
-//	     main: '../codemirror'
-//	 },{
-//     name: "mode_sql",
-//     location: "../plugins/codemirror/mode/sql",
-//     main: '../sql/sql'
-// }]
-   
+
 });
 
 ///**

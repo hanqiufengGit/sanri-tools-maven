@@ -1,4 +1,4 @@
-define(['util','dialog','contextMenu','javabrush','xmlbrush','zclip'],function (util,dialog) {
+define(['util','dialog','contextMenu','hl','hl/shBrushJava','hl/shBrushXml','hl/shBrushSql','zclip'],function (util,dialog) {
     var tablehelp = {
         connName:undefined,
         schemaName:undefined
@@ -23,7 +23,8 @@ define(['util','dialog','contextMenu','javabrush','xmlbrush','zclip'],function (
         multiColumnsTranslate:'/translate/mutiTranslateUnderline',
         ddl:'/sqlclient/createTableDDL',
         tableDDLs:'/sqlclient/tableDDLs',
-        executorDDL:'/sqlclient/executor'
+        executorDDL:'/sqlclient/executor',
+        showCreateTable: '/sqlclient/showCreateTable'
     };
     var modul = 'tableTemplate';
     var codeSchemaModul = 'codeSchema';
@@ -136,11 +137,15 @@ define(['util','dialog','contextMenu','javabrush','xmlbrush','zclip'],function (
             var connName = $('#conns').val();
             var schemaName = $('#schemas').val();
             var tableName = currentTable(opts);
-            layer.alert('<ul class="">' +
-                '<li class="">'+connName+'</li>' +
-                '<li class="">'+schemaName+'</li>' +
-                '<li class="">'+tableName+'</li>' +
-                '</ul>');
+            // 从后台加载 ddl 语句 ，展示 ddl 对话框
+            dialog.create('连接['+connName+']数据库['+schemaName+']数据表['+tableName+'] DDL')
+                .setContent($('#dataShowDialog'))
+                .setWidthHeight('500px','90%')
+                .build();
+            util.requestData(apis.showCreateTable,{connName:connName,schema:schemaName,table:tableName},function (ddl) {
+                $('#dataShowDialog>div').html('<pre class="brush:\'sql\';">'+ddl+'</pre>');
+                SyntaxHighlighter.highlight();
+            });
         }
 
         /**
@@ -751,7 +756,12 @@ define(['util','dialog','contextMenu','javabrush','xmlbrush','zclip'],function (
                 let currentTableName = quickCreateTableEvents.rightTableOperator.currentTableName();
                 let tableData = quickCreateTableEvents.data[currentTableName];
                 util.requestData(apis.ddl,{createTableParam:$.extend({},tableData,{connName:tablehelp.connName})},function (ddl) {
-                    layer.alert(ddl);
+                    dialog.create('建表语句')
+                        .setContent($('#dataShowDialog'))
+                        .setWidthHeight('650px','90%')
+                        .build();
+                    $('#dataShowDialog>div').html('<pre class="brush:\'sql\';">'+ddl.replace(/[^\S\r\n]+/g,' ')+'</pre>');
+                    SyntaxHighlighter.highlight();
                 });
             },
             allTableDDLs:function () {
@@ -763,10 +773,16 @@ define(['util','dialog','contextMenu','javabrush','xmlbrush','zclip'],function (
                 util.requestData(apis.tableDDLs,{createTableParams:postData},function (ddls) {
                     dialog.create('建表语句')
                         .setContent($('#dataShowDialog'))
-                        .setWidthHeight('600px','90%')
+                        .setWidthHeight('650px','90%')
                         .addBtn({type:'button',text:'执行',handler:executeCreateTable})
                         .build();
-                    $('#dataShowDialog>div').html(ddls.join('<br/><br/>'));
+                    let htmlCode = [];
+                    for (let i = 0; i < ddls.length; i++) {
+                        let ddl = ddls[i].replace(/[^\S\r\n]+/g,' ');
+                        htmlCode.push('<pre class="brush:\'sql\';">'+ddl+'</pre>');
+                    }
+                    $('#dataShowDialog>div').html(htmlCode.join(''));
+                    SyntaxHighlighter.highlight();
                 });
 
                 function executeCreateTable(index) {

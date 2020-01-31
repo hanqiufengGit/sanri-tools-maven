@@ -17,7 +17,7 @@
 ;(function()
 {
 	// CommonJS
-//	typeof(require) != 'undefined' ? SyntaxHighlighter = require('shCore').SyntaxHighlighter : null;
+	// typeof(require) != 'undefined' ? SyntaxHighlighter = require(['hl']).SyntaxHighlighter : null;
 
 	function Brush()
 	{
@@ -59,10 +59,13 @@
 		];
 	};
 
-	Brush.prototype	= new SyntaxHighlighter.Highlighter();
-	Brush.aliases	= ['xml', 'xhtml', 'xslt', 'html'];
+	require(['hl'],function () {
+		Brush.prototype	= new SyntaxHighlighter.Highlighter();
+		Brush.aliases	= ['xml', 'xhtml', 'xslt', 'html'];
 
-	SyntaxHighlighter.brushes.Xml = Brush;
+		SyntaxHighlighter.brushes.Xml = Brush;
+	})
+
 
 	// CommonJS
 	typeof(exports) != 'undefined' ? exports.Brush = Brush : null;
