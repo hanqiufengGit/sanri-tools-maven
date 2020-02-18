@@ -1,25 +1,45 @@
 package com.sanri.app.servlet;
 
+import com.sanri.app.postman.ServerInfo;
 import com.sanri.frame.RequestMapping;
+import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import sanri.utils.DateUtil;
+import sanri.utils.NumberUtil;
 
+import javax.mail.internet.InternetAddress;
+import javax.management.MBeanServer;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+import javax.management.Query;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
 import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.Date;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @RequestMapping("/test")
 public class TestServlet {
+
+	public ServerInfo info(HttpServletRequest request,HttpSession session) throws UnknownHostException, MalformedObjectNameException {
+		String serverName = request.getServerName();
+		String hostAddress = InetAddress.getLocalHost().getHostAddress();
+		int serverPort = request.getServerPort();
+		String id = session.getId();
+		String requestURI = request.getRequestURI();
+
+		MBeanServer beanServer = ManagementFactory.getPlatformMBeanServer();
+		Set<ObjectName> objectNames = beanServer.queryNames(new ObjectName("*:type=Connector,*"), Query.match(Query.attr("protocol"), Query.value("HTTP/1.1")));
+		String serverPortString = objectNames.iterator().next().getKeyProperty("port");
+
+		return new ServerInfo(hostAddress, NumberUtils.toInt(serverPortString),requestURI,id);
+	}
 
 	/**
 	 *

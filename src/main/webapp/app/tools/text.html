@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>文本处理工具</title>
+	<link rel="stylesheet" href="../../css/font-awesome.min.css" />
+	<link rel="stylesheet" href="../../css/fa-font-awesome.min.css" />
+	<link rel="stylesheet" href="../../css/bootstrap.min.css" />
+	<link rel="stylesheet" href="../../css/animate.min.css" />
+	<link rel="stylesheet" href="../../css/appbase.css" />
+	<link rel="stylesheet" href="../../css/style.css" />
+	<style>
+		.tab-container>.tab-content>.tab-pane textarea{
+			min-height: 230px;
+			max-height: 450px;
+		}
+	</style>
+</head>
+<body>
+<nav class="navbar navbar-default">
+	<div class="container-fluid">
+		<div class="navbar-header">
+			<a class="navbar-brand" >文本处理工具</a>
+		</div>
+	</div>
+</nav>
+
+<div class="container-fluid">
+	<div id="tabcontainer" class="tab-container">
+		<ul class="nav nav-tabs">
+			<li class="active"><a href="#Unicode" data-toggle="tab">Unicode</a></li>
+			<li ><a href="#Base64" data-toggle="tab">Base64</a></li>
+			<li ><a href="#escape" data-toggle="tab">escape</a></li>
+			<li ><a href="#hex" data-toggle="tab">hex</a></li>
+			<li ><a href="#timestamp" data-toggle="tab">timestamp</a></li>
+			<li ><a href="#json" data-toggle="tab">JSON</a></li>
+			<li ><a href="#md5" data-toggle="tab">MD5</a></li>
+			<li ><a href="#sha1" data-toggle="tab">SHA1</a></li>
+			<li ><a href="#des" data-toggle="tab">DES</a></li>
+			<li ><a href="#digest" data-toggle="tab">DIGEST</a></li>
+			<li ><a href="#distill" data-toggle="tab">正则数据提取</a></li>
+			<li ><a href="#camel" data-toggle="tab">下划线驼峰转化</a></li>
+		</ul>
+
+		<div class="tab-content padding-top">
+			<div id="Unicode" class="tab-pane ">
+				<div class="row">
+					<div class="col-xs-8 padding-bottom">
+						<div class="btn-group btn-group-sm">
+							<button class="btn btn-primary" name="unicodeToChinese">Unicode 转中文</button>
+							<button class="btn btn-info" name="chineseToUnicode">中文转 Unicode</button>
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-xs-5"><textarea autoHeight class="form-control source" placeholder="源数据" ></textarea></div>
+					<div class="col-xs-5"><textarea autoHeight class="form-control target" placeholder="目标数据"></textarea></div>
+				</div>
+			</div>
+			<div id="Base64" class="tab-pane active">
+				<div class="row">
+					<div class="col-xs-8 padding-bottom">
+						<div class="btn-group btn-group-sm">
+							<button class="btn btn-primary" name="unicodeToChinese">编码</button>
+							<button class="btn btn-info" name="chineseToUnicode">解码</button>
+							<button class="btn btn-white file">
+								<input type="file" /> 图片Base64
+							</button>
+
+							<button class="btn btn-warning" name="chineseToUnicode">复制Base64(带前缀)</button>
+							<button class="btn btn-danger" name="chineseToUnicode">复制Base64(无前缀)</button>
+
+
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-md-4 "><textarea autoHeight class="form-control source" placeholder="源数据" ></textarea></div>
+					<div class="col-md-4">
+						<div class="image-preview" id="imagepreview">
+							<a class="image fancybox" href="#imgNode"></a>
+						</div>
+					</div>
+
+					<div class="col-md-4"><textarea autoHeight class="form-control target" placeholder="目标数据"></textarea></div>
+				</div>
+			</div>
+			<div id="escape" class="tab-pane ">
+
+			</div>
+			<div id="md5" class="tab-pane ">
+
+			</div>
+			<div id="json" class="tab-pane ">
+
+			</div>
+			<div id="distill" class="tab-pane ">
+
+			</div>
+			<div id="camel" class="tab-pane ">
+
+			</div>
+		</div>
+	</div>
+</div>
+
+<script type="text/javascript" src="../../js/requirejs2.1.11-min.js"></script>
+<script type="text/javascript" src="../config.js"></script>
+<script type="text/javascript">
+    require([ 'bootstrap','tools/text']);
+</script>
+</body>
+</html>
