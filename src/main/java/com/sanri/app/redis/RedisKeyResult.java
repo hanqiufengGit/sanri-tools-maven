@@ -1,4 +1,4 @@
-package com.sanri.app.postman;
+package com.sanri.app.redis;
 
 public class RedisKeyResult {
     private String key;

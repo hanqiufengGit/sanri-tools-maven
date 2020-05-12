@@ -252,7 +252,10 @@ public class RobotChat {
     }
 
     public static void main(String[] args) {
-        RobotChat robotChat = new RobotChat();
-        robotChat.chat("怎么这么复杂了");
+//        RobotChat robotChat = new RobotChat();
+//        String reponseText = robotChat.chat("怎么这么复杂了");
+//        System.out.println(reponseText);
+
+        System.out.println(Math.pow(5,2));
     }
 }

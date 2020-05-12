@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>夹角计算</title>
+</head>
+<body>
+
+<script>
+
+    // lat,lng为弧度表示的经纬度，r为地球半径，由于是算夹角，r是多少不重要
+    function ball2xyz(lat, lng, r = 6400) {
+        return {
+            x: r * Math.cos(lat) * Math.cos(lng),
+            y: r * Math.cos(lat) * Math.sin(lng),
+            z: r * Math.sin(lat)
+        };
+    }
+    // https://blog.csdn.net/reborn_lee/article/details/82497577
+    // 将地理经纬度转换成笛卡尔坐标系
+    function geo2xyz({ lat, lng }) {
+        let thera = (Math.PI * lat) / 180;
+        let fie = (Math.PI * lng) / 180;
+        return ball2xyz(thera, fie);
+    }
+
+    // 计算3个地理坐标点之间的夹角
+    function angleOflocation(l1, l2, l3) {
+        let p1 = geo2xyz(l1);
+        let p2 = geo2xyz(l2);
+        let p3 = geo2xyz(l3);
+
+        let { x: x1, y: y1, z: z1 } = p1;
+        let { x: x2, y: y2, z: z2 } = p2;
+        let { x: x3, y: y3, z: z3 } = p3;
+
+        // 计算向量 P2P1 和 P2P3 的夹角 https://www.zybang.com/question/3379a30c0dd3041b3ef966803f0bf758.html
+        let _P1P2 = Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2 + (z2 - z1) ** 2);
+        let _P2P3 = Math.sqrt((x3 - x2) ** 2 + (y3 - y2) ** 2 + (z3 - z2) ** 2);
+
+        let P = (x1 - x2) * (x3 - x2) + (y1 - y2) * (y3 - y2) + (z1 - z2) * (z3 - z2); //P2P1*P2P3
+
+        return (Math.acos(P / (_P1P2 * _P2P3)) / Math.PI) * 180;
+    }
+
+    console.log(
+        angleOflocation(
+            { lat: "40.80072", lng: "124.459351" },
+            { lat: "40.64016", lng: "124.314117" },
+            { lat: "40.876438", lng: "124.581062" }
+        )
+    );
+
+    console.log(
+        angleOflocation(
+            { lat: "40.823978", lng: "124.639313" }, // 龙爪沟
+            { lat: "40.71986", lng: "124.78175" }, // 宽甸
+            { lat: "40.484791", lng: "124.81823" } // 永甸
+        )
+    );
+</script>
+
+</body>
+</html>

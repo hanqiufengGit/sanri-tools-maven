@@ -30,6 +30,16 @@ Content-Type: application/json
   "relation": "MANY_MANY"
 }}
 
+### 写入 redis 连接信息
+POST {{baseUrl}}/file/manager/writeConfig
+Content-Type: application/x-www-form-urlencoded
+
+modul=redis&baseName=localhost&content={"connectStrings":"localhost:6379"}
+
+### 获取 redis 节点数据
+GET {{baseUrl}}/redis/redisNodes?connName=company
+
+### 查询某个 key
+GET {{baseUrl}}/redis/scan?connName=company&pattern=*AUTH:sso_user*&limit=1000&cursor=0
 
 ###
-

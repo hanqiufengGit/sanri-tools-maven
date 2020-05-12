@@ -150,6 +150,22 @@ public class ZipUtil {
 
 	@Test
 	public void testUnzip(){
-		unzip(new File("D:\\tmp\\projectCode\\1572417685251/cardtest.zip"),"D:\\tmp\\projectCode\\1572417685251");
+//		unzip(new File("D:\\tmp\\projectCode\\1572417685251/cardtest.zip"),"D:\\tmp\\projectCode\\1572417685251");
+		int a = 0;
+		String b = a+"b";
+		System.out.println(b);
+	}
+
+	@Test
+	public void testsh(){
+		int n=1;
+		label:while (n++ <= 50 ){
+			for (int i = 2; i <n ; i++) {
+				if(n % i == 0){
+					continue label;
+				}
+			}
+			System.out.print(" "+n+" ");
+		}
 	}
 }
