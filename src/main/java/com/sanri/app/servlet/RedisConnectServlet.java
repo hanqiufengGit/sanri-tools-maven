@@ -7,6 +7,7 @@ import com.sanri.app.redis.RedisService;
 import com.sanri.frame.RequestMapping;
 
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.util.List;
 
 /**
@@ -24,8 +25,11 @@ public class RedisConnectServlet extends BaseServlet {
         return redisService.redisNodes(connName);
     }
 
-    public List<RedisKeyResult> scan(String connName, int index, String pattern, int cursor, int limit) throws IOException {
-        return redisService.scan(connName,index,pattern,cursor,limit);
+    public List<RedisKeyResult> scan(String connName, int index, String pattern,int limit) throws IOException {
+        return redisService.scan(connName,index,pattern,limit);
     }
 
+    public Object data(String connName, int index,String key,String serializable,String classloaderName) throws IOException, ClassNotFoundException {
+        return redisService.loadData(connName,index,key,serializable,classloaderName);
+    }
 }

@@ -1,21 +1,36 @@
 package com.sanri.app.redis;
 
 import com.alibaba.fastjson.JSONObject;
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.io.Input;
+import com.sanri.app.classloader.ClassLoaderManager;
+import com.sanri.app.classloader.ExtendClassloader;
+import com.sanri.app.serializer.CustomObjectInputStream;
+import com.sanri.app.serializer.KryoSerializer;
+import com.sanri.app.serializer.StringSerializer;
 import com.sanri.app.servlet.FileManagerServlet;
 import com.sanri.frame.DispatchServlet;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import redis.clients.jedis.*;
 import sanri.utils.NumberUtil;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectInputStream;
+import java.nio.charset.Charset;
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class RedisService {
     private String modul = "redis";
     static Map<String,Jedis> jedisMap = new HashMap<String, Jedis>();
+    private ClassLoaderManager classLoaderManager = new ClassLoaderManager();
+    private Logger logger = LoggerFactory.getLogger(RedisService.class);
 
     /**
      * 获取 jedis 实例
@@ -133,57 +148,110 @@ public class RedisService {
         return null;
     }
 
-    public List<RedisKeyResult> scan(String connName, int index, String pattern, int cursor, int limit) throws IOException {
+    public List<RedisKeyResult> scan(String connName, int index, String pattern, int limit) throws IOException {
         Jedis jedis = jedis(connName);if(index != 0){jedis.select(index);};
         String mode = mode(connName);
 
-        JedisCluster jedisCluster = null;
+        List<RedisKeyResult> redisKeyResults = new ArrayList<>();
+
         if("cluster".equals(mode)){
-            List<RedisNode> redisNodes = redisNodes(connName);
-            Set<HostAndPort> hostAndPorts = redisNodes.stream().map(RedisNode::getHostAndPort).collect(Collectors.toSet());
-            jedisCluster = new JedisCluster(hostAndPorts);
+            JedisCluster jedisCluster = getJedisCluster(connName);
+            Map<String, JedisPool> clusterNodes = jedisCluster.getClusterNodes();
+            Iterator<JedisPool> iterator = clusterNodes.values().iterator();
+            List<String> allKeys = new ArrayList<>();
+            while (iterator.hasNext()){
+                JedisPool jedisPool = iterator.next();
+                Jedis current = jedisPool.getResource();
+                List<String> partKeys = scan(current, index, pattern, limit);allKeys.addAll(partKeys);
+                if(allKeys.size() > limit){break;}
+            }
+            // 处理完成后的结果数据
+            // 处理结果
+            for (String item : allKeys) {
+                String type = jedisCluster.type(item);
+                Long ttl = jedisCluster.ttl(item);
+                Long pttl = jedisCluster.ttl(item);
+                RedisKeyResult redisKeyResult = new RedisKeyResult(item, type, ttl, pttl);
+                RedisType redisType = RedisType.parse(type);
+                switch (redisType){
+                    case string:
+                        redisKeyResult.setLength(jedisCluster.strlen(item));
+                        break;
+                    case Set:
+                    case ZSet:
+                    case List:
+                        redisKeyResult.setLength(jedisCluster.llen(item));
+                        break;
+                    case Hash:
+                        redisKeyResult.setLength(jedisCluster.hlen(item));
+                }
+                redisKeyResults.add(redisKeyResult);
+            }
+
+            jedisCluster.close();
+
+            return redisKeyResults;
         }
 
+        List<String> keys = scan(jedis, index, pattern, limit);
+        // 处理结果
+        for (String item : keys) {
+            String type = jedis.type(item);
+            Long ttl = jedis.ttl(item);
+            Long pttl = jedis.ttl(item);
+            RedisKeyResult redisKeyResult = new RedisKeyResult(item, type, ttl, pttl);
+            RedisType redisType = RedisType.parse(type);
+            switch (redisType){
+                case string:
+                    redisKeyResult.setLength(jedis.strlen(item));
+                    break;
+                case Set:
+                case ZSet:
+                case List:
+                    redisKeyResult.setLength(jedis.llen(item));
+                    break;
+                case Hash:
+                    redisKeyResult.setLength(jedis.hlen(item));
+            }
+            redisKeyResults.add(redisKeyResult);
+        }
+        return redisKeyResults;
+    }
+
+    private JedisCluster getJedisCluster(String connName) throws IOException {
+        List<RedisNode> redisNodes = redisNodes(connName);
+        Set<HostAndPort> hostAndPorts = redisNodes.stream().map(RedisNode::getHostAndPort).collect(Collectors.toSet());
+        return new JedisCluster(hostAndPorts);
+    }
+
+    /**
+     * 扫描一个节点
+     * @param jedis
+     * @param index
+     * @param pattern
+     * @return
+     */
+    private List<String> scan(Jedis jedis,int index,String pattern,int limit ){
         // 搜索参数
         ScanParams scanParams = new ScanParams();
         scanParams.count(limit);
         if(StringUtils.isNotBlank(pattern)) {
             scanParams.match(pattern);
         }
-
+        String cursor = "0" ;
         // 开始搜索
-        ScanResult<String> scanResult = jedisCluster != null ? jedisCluster.scan(cursor+"",scanParams.match("{"+pattern+"}")):jedis.scan(cursor+"", scanParams);
+        ScanResult<String> scanResult = jedis.scan(cursor+"", scanParams);
         List<String> result = scanResult.getResult();
         //如果搜索结果为空,则继续搜索,直到有值或搜索到末尾
-        while (CollectionUtils.isEmpty(result) && cursor != 0){
-            scanResult = jedisCluster != null ? jedisCluster.scan(scanResult.getStringCursor(), scanParams.match("{"+pattern+"}")) : jedis.scan(scanResult.getStringCursor(), scanParams);
-            result = scanResult.getResult();
-            cursor = scanResult.getCursor();
-        }
+        List<String> keyAllReuslts = new ArrayList<>();
+        do {
+            scanResult = jedis.scan(scanResult.getStringCursor(), scanParams);
+            result = scanResult.getResult();keyAllReuslts.addAll(result);
+            cursor = scanResult.getStringCursor();
+        }while (keyAllReuslts.size() < limit && NumberUtils.toLong(cursor) != 0L);
 
-        // 处理结果
-        List<RedisKeyResult> redisKeyResults = new ArrayList<>();
-        for (String item : result) {
-            String type = jedisCluster != null ? jedisCluster.type(item):jedis.type(item);
-            Long ttl = jedisCluster != null ? jedisCluster.ttl(item):jedis.ttl(item);
-            Long pttl = jedisCluster != null ? jedisCluster.pttl(item):jedis.ttl(item);
-            RedisKeyResult redisKeyResult = new RedisKeyResult(item, type, ttl, pttl);
-            RedisType redisType = RedisType.parse(type);
-            switch (redisType){
-                case string:
-                    redisKeyResult.setLength(jedisCluster != null ? jedisCluster.strlen(item):jedis.strlen(item));
-                    break;
-                case Set:
-                case ZSet:
-                case List:
-                    redisKeyResult.setLength(jedisCluster != null ? jedisCluster.llen(item):jedis.llen(item));
-                    break;
-                case Hash:
-                    redisKeyResult.setLength(jedisCluster != null ? jedisCluster.hlen(item):jedis.hlen(item));
-            }
-            redisKeyResults.add(redisKeyResult);
-        }
-        return redisKeyResults;
+        return keyAllReuslts;
+
     }
 
 
@@ -232,5 +300,57 @@ public class RedisService {
         }
     }
 
+    /**
+     * 获取 redis 中 key 的值,使用对象进行反序列化
+     * @param key
+     * @param serializable
+     * @param classloaderName
+     * @return
+     */
+    public Object loadData(String connName,int index,String key,String serializable,String classloaderName) throws IOException, ClassNotFoundException {
+        Jedis jedis = jedis(connName);
+        String mode = mode(connName);
+
+        byte [] valueBytes = null;
+//        byte[] keyBytes = key.getBytes(Charset.forName("utf-8"));
+        StringSerializer stringSerializer = new StringSerializer();
+        byte[] keyBytes = stringSerializer.serialize(key);
+        if("cluster".equals(mode)){
+            JedisCluster jedisCluster = getJedisCluster(connName);
+            valueBytes = jedisCluster.get(keyBytes);
+
+        }else {
+
+            if (index != 0) {
+                jedis.select(index);
+            }
+            valueBytes = jedis.get(keyBytes);
+        }
+
+        if(valueBytes == null){
+            logger.warn("key [{}] 不存在 ",key);
+            return null;
+        }
+
+        Object object = null;
+        ClassLoader extendClassloader = ClassLoader.getSystemClassLoader();
+        if(StringUtils.isNotBlank(classloaderName)){
+            extendClassloader = classLoaderManager.get(classloaderName);
+        }
+        switch (serializable){
+            case "jdk":
+                CustomObjectInputStream objectInputStream = new CustomObjectInputStream(new ByteArrayInputStream(valueBytes),extendClassloader);
+                object = objectInputStream.readObject();
+                break;
+            case "kryo":
+                Kryo kryo = KryoSerializer.kryos.get();
+
+                Input input = new Input(valueBytes);
+                kryo.setClassLoader(extendClassloader);
+                object = kryo.readClassAndObject(input);
+                break;
+        }
+        return object;
+    }
 
 }

@@ -30,16 +30,43 @@ Content-Type: application/json
   "relation": "MANY_MANY"
 }}
 
-### 写入 redis 连接信息
+### 类加载器-上传一个打包类
+POST {{baseUrl}}/classloader/uploadClasses
+Content-Type: multipart/form-data; boundary=37c2bf7cd94d4a4b89c60130b045f7aa
+
+--37c2bf7cd94d4a4b89c60130b045f7aa
+Content-Disposition: form-data; name="fileItem"; filename="test.zip"
+Content-Type: application/octet-stream
+
+--37c2bf7cd94d4a4b89c60130b045f7aa
+Content-Type: application/x-www-form-urlencoded
+
+title=testXXX
+
+< d:/test/test.zip
+
+### 类加载器-列出所有的类加载器
+GET {{baseUrl}}/classloader/classloaders
+
+### 类加载器-列出加载的类
+GET {{baseUrl}}/classloader/loadedClasses?name=abc
+
+### redis-查看所有的连接列表
+GET {{baseUrl}}//file/manager/simpleConfigNames?modul=redis
+
+### redis-加载出数据
+GET {{baseUrl}}/redis/data?connName=localhost&key=sanri&serializable=jdk&classloaderName=abc
+
+### redis-写入 redis 连接信息
 POST {{baseUrl}}/file/manager/writeConfig
 Content-Type: application/x-www-form-urlencoded
 
 modul=redis&baseName=localhost&content={"connectStrings":"localhost:6379"}
 
-### 获取 redis 节点数据
+### redis-获取 redis 节点数据
 GET {{baseUrl}}/redis/redisNodes?connName=company
 
-### 查询某个 key
-GET {{baseUrl}}/redis/scan?connName=company&pattern=*AUTH:sso_user*&limit=1000&cursor=0
+### redis-查询某个 key
+GET {{baseUrl}}/redis/scan?connName=company&pattern=*AUTH:sso_user*&limit=10
 
 ###
