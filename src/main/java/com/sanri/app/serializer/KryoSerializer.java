@@ -7,6 +7,7 @@ import org.I0Itec.zkclient.exception.ZkMarshallingError;
 import org.I0Itec.zkclient.serialize.ZkSerializer;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.objenesis.strategy.StdInstantiatorStrategy;
 
 import java.io.ByteArrayOutputStream;
 
@@ -14,11 +15,14 @@ import java.io.ByteArrayOutputStream;
  * kryo 序列化
  */
 public class KryoSerializer implements ZkSerializer {
-    private static final ThreadLocal<Kryo> kryos = new ThreadLocal<Kryo>();
-
-    static {
-        kryos.set(new Kryo());
-    }
+    public static final ThreadLocal<Kryo> kryos = new ThreadLocal<Kryo>(){
+        protected Kryo initialValue() {
+            Kryo kryo = new Kryo();
+            kryo.setInstantiatorStrategy(new Kryo.DefaultInstantiatorStrategy(
+                    new StdInstantiatorStrategy()));
+            return kryo;
+        };
+    };
 
     private Log logger = LogFactory.getLog(getClass());
 
