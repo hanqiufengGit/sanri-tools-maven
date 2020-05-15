@@ -38,7 +38,7 @@ public class ZkServlet extends BaseServlet {
     private static HessianSerializer hessianSerializer = new HessianSerializer();
     private static HexSerializer hexSerializer = new HexSerializer();
 
-    static Map<String,ZkSerializer> zkSerializerMap = new LinkedHashMap<>();
+    public static Map<String,ZkSerializer> zkSerializerMap = new LinkedHashMap<>();
     public static final String modul = "zookeeper";
 
     static {

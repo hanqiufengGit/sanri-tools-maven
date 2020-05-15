@@ -1,5 +1,6 @@
 package com.sanri.app.redis;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
@@ -9,6 +10,7 @@ import com.sanri.app.serializer.CustomObjectInputStream;
 import com.sanri.app.serializer.KryoSerializer;
 import com.sanri.app.serializer.StringSerializer;
 import com.sanri.app.servlet.FileManagerServlet;
+import com.sanri.app.servlet.ZkServlet;
 import com.sanri.frame.DispatchServlet;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -348,6 +350,11 @@ public class RedisService {
                 Input input = new Input(valueBytes);
                 kryo.setClassLoader(extendClassloader);
                 object = kryo.readClassAndObject(input);
+                break;
+            case "fastJson":
+            case "string":
+            case "hex":
+                object = ZkServlet.zkSerializerMap.get(serializable).deserialize(valueBytes);
                 break;
         }
         return object;
