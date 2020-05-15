@@ -11,6 +11,7 @@ import org.junit.Test;
 
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.math.BigDecimal;
 import java.net.URI;
 import java.nio.charset.Charset;
 import java.text.ParseException;
@@ -153,7 +154,9 @@ public class RandomUtil extends RandomStringUtils {
 	 * 功能:生成限制数字内的数字 0 ~ limit 包括 limit<br/>
 	 * 创建时间:2016-9-24下午6:07:05<br/>
 	 * 作者：sanri<br/>
+	 * 使用 RandomUtils.nextInt() 替代
 	 */
+	@Deprecated
 	public static long randomNumber(long limit) {
 		return Math.round(Math.random() * limit);
 	}
@@ -298,6 +301,35 @@ public class RandomUtil extends RandomStringUtils {
 	 */
 	public static Date date(){
 		return date(new Date(0L),new Date());
+	}
+
+	/**
+	 * 随机状态量
+	 * @param statuses
+	 * @return
+	 */
+	public static int status(int... statuses){
+		int index = RandomUtils.nextInt(0, statuses.length);
+		return statuses[index];
+	}
+	public static String status(String...statuses){
+		int index = RandomUtils.nextInt(0, statuses.length);
+		return statuses[index];
+	}
+
+	/**
+	 * @Description: 在矩形内随机生成经纬度
+	 * @param minLong：最小经度
+	 * @param maxLong： 最大经度
+	 * @param minLat：最小纬度
+	 * @param maxLat：最大纬度
+	 */
+	public static String randomLonLat(double minLong, double maxLong, double minLat, double maxLat) {
+		BigDecimal decimal = new BigDecimal(Math.random() * (maxLong - minLong) + minLong);
+		String lon = decimal.setScale(6, BigDecimal.ROUND_HALF_UP).toString();// 小数后6位
+		decimal = new BigDecimal(Math.random() * (maxLat - minLat) + minLat);
+		String lat = decimal.setScale(6, BigDecimal.ROUND_HALF_UP).toString();
+		return lon+","+lat;
 	}
 
 }
