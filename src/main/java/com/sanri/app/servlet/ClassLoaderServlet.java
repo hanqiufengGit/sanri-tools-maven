@@ -19,10 +19,9 @@ import java.util.Set;
  */
 @RequestMapping("/classloader")
 public class ClassLoaderServlet extends BaseServlet {
-    // redis service 中已经创建过了，先这样吧
-    private ClassLoaderManager classLoaderManager = new ClassLoaderManager();
-    private static String modul = "classloader";
-    static File modulDir  = null;
+    private ClassLoaderManager classLoaderManager = ClassLoaderManager.getInstance();
+    public static String modul = "classloader";
+    public static File modulDir  = null;
     private FileManagerServlet fileManagerServlet = DispatchServlet.getServlet(FileManagerServlet.class);
 
     public Set<String> classloaders(){

@@ -35,6 +35,8 @@
 		.right-box>.content{
 			padding: 10px;
 			font-size: 15px;
+
+			word-break: break-all;
 		}
 	</style>
 </head>
@@ -85,7 +87,21 @@
 
                 <!-- Tab panes -->
                 <div class="tab-content">
-                    <div role="tabpanel" class="tab-pane " id="topology">拓扑结构</div>
+                    <div role="tabpanel" class="tab-pane " id="topology">
+						<table class="table table-bordered table-striped">
+							<thead>
+							<tr>
+								<th>id</th>
+								<th>host:port</th>
+								<th>role</th>
+								<th>master</th>
+							</tr>
+							</thead>
+							<tbody>
+
+							</tbody>
+						</table>
+					</div>
                     <div role="tabpanel" class="tab-pane active" id="data">
                         <div class="row padding-bottom padding-top">
                             <div class="col-xs-12">
@@ -199,6 +215,17 @@
 	{{/each}}
 </script>
 
+<!--topology 信息表格模板 -->
+<script type="text/html" id="topologyTemplate">
+	{{each nodes as node}}
+	<tr key="{{node.id}}" >
+		<td>{{node.id}}</td>
+		<td>{{node.hostAndPort.host}}:{{node.hostAndPort.port}}</td>
+		<td>{{node.role}}</td>
+		<td>{{node.master}}</td>
+	</tr>
+	{{/each}}
+</script>
 
 <script type="text/javascript" src="../../js/requirejs2.1.11-min.js"></script>
 <script type="text/javascript" src="../config.js"></script>

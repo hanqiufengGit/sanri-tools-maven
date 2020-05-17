@@ -69,4 +69,7 @@ GET {{baseUrl}}/redis/redisNodes?connName=company
 ### redis-查询某个 key
 GET {{baseUrl}}/redis/scan?connName=company&pattern=*AUTH:sso_user*&limit=10
 
+### 随机数据-随机列表数据
+GET {{baseUrl}}/random/randomListData?className=com.sanri.test.testredis.dto.NormalObject&classloaderName=Normal-test.zip-loader
+
 ###

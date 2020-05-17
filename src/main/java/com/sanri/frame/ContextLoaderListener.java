@@ -112,6 +112,9 @@ public class ContextLoaderListener implements ServletContextListener{
 //		} catch (IOException | SchedulerException e) {
 //			e.printStackTrace();
 //		}
+
+		// 执行 PostConstruct
+
 	}
 
 }

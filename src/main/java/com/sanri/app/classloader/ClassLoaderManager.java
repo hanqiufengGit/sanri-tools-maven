@@ -1,5 +1,7 @@
 package com.sanri.app.classloader;
 
+import com.sanri.app.BaseServlet;
+import com.sanri.app.servlet.ClassLoaderServlet;
 import com.sanri.app.servlet.FileManagerServlet;
 import com.sanri.frame.DispatchServlet;
 import org.apache.commons.io.FileUtils;
@@ -11,6 +13,7 @@ import org.springframework.cglib.core.ReflectUtils;
 import org.springframework.util.ReflectionUtils;
 import sanri.utils.ZipUtil;
 
+import javax.annotation.PostConstruct;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.net.MalformedURLException;
@@ -22,6 +25,16 @@ import java.util.stream.Collectors;
 
 public class ClassLoaderManager {
     static Map<String,ExtendClassloader> CACHED_CLASSLOADER = new HashMap<>();
+    private ClassLoaderManager(){}
+
+    private static ClassLoaderManager classLoaderManager = null;
+    public synchronized static ClassLoaderManager getInstance(){
+        if(classLoaderManager == null) {
+            classLoaderManager = new ClassLoaderManager();
+            classLoaderManager.initLoadClasses();
+        }
+        return classLoaderManager;
+    }
     /**
      * 加载压缩包里面的所有的类
      * @param zip
@@ -79,5 +92,22 @@ public class ClassLoaderManager {
 
     public ExtendClassloader get(String classloaderName) {
         return CACHED_CLASSLOADER.get(classloaderName);
+    }
+
+    /**
+     * 初始化时加载已经加载过的类
+     */
+    @PostConstruct
+    public void initLoadClasses()  {
+        File classloaderDir = BaseServlet.mkTmpPath(ClassLoaderServlet.modul);
+        File[] files = classloaderDir.listFiles();
+        for (File file : files) {
+            String name = file.getName();
+            try {
+                loadClasses(file,name);
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

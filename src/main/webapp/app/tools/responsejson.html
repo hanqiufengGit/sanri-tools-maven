@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>响应 JSON 数据</title>
+	<link rel="stylesheet" href="../../css/font-awesome.min.css" />
+	<link rel="stylesheet" href="../../css/fa-font-awesome.min.css" />
+	<link rel="stylesheet" href="../../css/bootstrap.min.css" />
+	<link rel="stylesheet" href="../../css/animate.min.css" />
+	<link rel="stylesheet" href="../../css/appbase.css" />
+	<link rel="stylesheet" href="../../css/style.css" />
+
+	<link rel="stylesheet" href="../../plugins/jsoneditor/jsoneditor.min.css" />
+</head>
+<body>
+<nav class="navbar navbar-default">
+	<div class="container-fluid">
+		<div class="navbar-header">
+			<a href="javascript:;" class="navbar-brand">响应 JSON 数据模拟</a>
+		</div>
+	</div>
+</nav>
+
+<div class="container-fluid">
+	<div class="row">
+		<div class="col-xs-5">
+			<div class="panel panel-default">
+				<div class="panel-heading">类加载器选择</div>
+				<div class="panel-body">
+					<div class="row">
+						<div class="col-xs-12">
+							<form class="form-inline " id="config">
+								<div class="form-group">
+									<label class="control-label">类加载器:</label>
+									<select class="form-control margin-right" name="classloaders">
+									</select>
+								</div>
+
+								<div class="file form-control" ><input type="file" name="fileItem"/>上传 DTO</div>
+
+<!--								<button class="btn btn-primary" id="genjson"><i class="fa fa-paw"></i> 生成</button>-->
+							</form>
+						</div>
+
+					</div>
+					<div class="row padding-top">
+						<div class="col-xs-12">
+							<div class="form-group">
+								<label for="" class="control-label">配置项:</label>
+								<label class="checkbox-inline">
+									<input type="checkbox" value="list" />List
+								</label>
+							</div>
+							<div class="panel panel-default">
+								<div class="panel-heading">当前类加载器加载的类</div>
+								<div class="panel-body">
+									<ul class="list-group" id="loadclasses">
+									</ul>
+								</div>
+							</div>
+						</div>
+
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="col-xs-7">
+			<div class="panel panel-default">
+				<div class="panel-heading">json 数据编辑</div>
+				<div class="panel-body">
+					<div class="editjson padding-bottom">
+						<textarea autoHeight class=" form-control textarea"></textarea>
+					</div>
+					<div class="button-group padding-bottom">
+						<button class="btn btn-sm btn-info" id="validJson"><i class="fa fa-legal"></i> 验证 json </button>
+						<button class="btn btn-sm btn-white" id="compactJson"><i class="fa fa-paragraph"></i> 解析到 json 数据 </button>
+					</div>
+					<div class="jsonview" id="jsonview"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script type="text/javascript" src="../../js/requirejs2.1.11-min.js"></script>
+<script type="text/javascript" src="../config.js"></script>
+<script type="text/javascript">
+    require(['bootstrap','tools/responsejson']);
+</script>
+</body>
+</html>

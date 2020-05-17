@@ -324,7 +324,7 @@ public class RandomUtil extends RandomStringUtils {
 	 * @param minLat：最小纬度
 	 * @param maxLat：最大纬度
 	 */
-	public static String randomLonLat(double minLong, double maxLong, double minLat, double maxLat) {
+	public static String randomLongLat(double minLong, double maxLong, double minLat, double maxLat) {
 		BigDecimal decimal = new BigDecimal(Math.random() * (maxLong - minLong) + minLong);
 		String lon = decimal.setScale(6, BigDecimal.ROUND_HALF_UP).toString();// 小数后6位
 		decimal = new BigDecimal(Math.random() * (maxLat - minLat) + minLat);

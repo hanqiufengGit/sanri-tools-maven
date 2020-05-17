@@ -122,6 +122,11 @@ define(['util','dialog','template','jsonview'],function (util,dialog,template) {
             });
             $('#connect>.dropdown-menu').dropdown('toggle');
 
+            // 加载 redis 拓扑结构信息
+            util.requestData(apis.redisNodes,{connName:conn},function (nodes) {
+               let htmlCode = template('topologyTemplate',{nodes:nodes})
+                $('#topology').find('table>tbody').html(htmlCode);
+            });
         }
 
         /**

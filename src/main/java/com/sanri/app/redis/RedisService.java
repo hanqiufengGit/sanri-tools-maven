@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
 public class RedisService {
     private String modul = "redis";
     static Map<String,Jedis> jedisMap = new HashMap<String, Jedis>();
-    private ClassLoaderManager classLoaderManager = new ClassLoaderManager();
+    private ClassLoaderManager classLoaderManager = ClassLoaderManager.getInstance();
     private Logger logger = LoggerFactory.getLogger(RedisService.class);
 
     /**
