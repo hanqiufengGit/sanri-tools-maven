@@ -31,17 +31,36 @@ define(['util','jsoneditor'],function (util,JSONEditor) {
         var events = [
             {parent:'#config',selector:'input[type=file]',types:['change'],handler:uploadClasses},
             {parent:'#config',selector:'select[name=classloaders]',types:['change'],handler:switchClassloader},
-            {parent:'#loadclasses',selector:'li',types:['click'],handler:randomData}];
+            {parent:'#loadclasses',selector:'li',types:['click'],handler:randomData},
+            {selector:'#validJson',types:['click'],handler:validJson},
+            {selector:'#compactJson',types:['click'],handler:compactJson}];
 
         util.regPageEvents(events);
+
+        function validJson() {
+            var json = $('#data').find('textarea').val().trim();
+            responsejson.jsonEditor.setText(json);
+        }
+        function compactJson() {
+            var text = responsejson.jsonEditor.getText();
+            $('#data').find('textarea').val(text);
+        }
 
         /**
          * 随机数据生成
          */
         function randomData() {
             // 获取配置项
-            let isList = true;
-            // let api =
+            let isList = $('#listconfig').prop('checked');
+
+            let api = isList ? apis.randomList : apis.randomObject;
+            let className = $(this).text();
+            let classloaderName = $('#config').find('select[name=classloaders]').val();
+            util.requestData(api,{className:className,classloaderName:classloaderName},function (data) {
+                // console.log(JSON.stringify(data))
+                $('#data').find('textarea').val(JSON.stringify(data));
+                $('#validJson').click();
+            });
         }
 
         /**

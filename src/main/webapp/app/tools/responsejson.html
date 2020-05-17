@@ -48,7 +48,7 @@
 							<div class="form-group">
 								<label for="" class="control-label">配置项:</label>
 								<label class="checkbox-inline">
-									<input type="checkbox" value="list" />List
+									<input type="checkbox" value="list" id="listconfig" />List
 								</label>
 							</div>
 							<div class="panel panel-default">
@@ -67,9 +67,9 @@
 		<div class="col-xs-7">
 			<div class="panel panel-default">
 				<div class="panel-heading">json 数据编辑</div>
-				<div class="panel-body">
+				<div class="panel-body" id="data">
 					<div class="editjson padding-bottom">
-						<textarea autoHeight class=" form-control textarea"></textarea>
+						<textarea autoHeight class=" form-control " style="min-height: 200px"></textarea>
 					</div>
 					<div class="button-group padding-bottom">
 						<button class="btn btn-sm btn-info" id="validJson"><i class="fa fa-legal"></i> 验证 json </button>
