@@ -332,4 +332,21 @@ public class RandomUtil extends RandomStringUtils {
 		return lon+","+lat;
 	}
 
+	/**
+	 * 随机几个图片 url
+	 * @param count
+	 * @return
+	 */
+	public static String photoURL() {
+		// 这个是已经找好的图片地址
+		String [] urls = {
+				"http://img1.imgtn.bdimg.com/it/u=2346282507,2171850944&fm=26&gp=0.jpg",
+				"http://img5.imgtn.bdimg.com/it/u=2945908607,1627227886&fm=26&gp=0.jpg",
+				"http://attach.bbs.miui.com/forum/201310/19/235356fyjkkugokokczyo0.jpg",
+				"http://attachments.gfan.net.cn/forum/201504/14/075409wgwijxiax3i4wihw.jpg",
+				"http://attach.bbs.miui.com/forum/201401/11/145825zn1sxa8anrg11gt1.jpg"
+		};
+		int index = RandomUtils.nextInt(0, urls.length);
+		return urls[index];
+	}
 }

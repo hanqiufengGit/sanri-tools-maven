@@ -50,6 +50,9 @@ define(['util','jsoneditor'],function (util,JSONEditor) {
          * 随机数据生成
          */
         function randomData() {
+            // 选中当前节点
+            $(this).addClass('active').siblings('li').removeClass('active');
+            
             // 获取配置项
             let isList = $('#listconfig').prop('checked');
 

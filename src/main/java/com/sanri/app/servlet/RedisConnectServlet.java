@@ -11,11 +11,11 @@ import java.io.ObjectInputStream;
 import java.util.List;
 
 /**
- * redis 比较重要的监控数据为
- * 查看当前的模式 单机,主从树状结构,集群(每个节点的槽位信息)
- * 查看内存使用
- * 查看连接数,哪些主机占用多少连接
- * 模糊搜索某个 key ,查看 key 的数据,注意集群模式下 key 的搜索
+ * redis 比较重要的监控数据为:
+ * 查看当前的模式 单机,主从树状结构,集群(每个节点的槽位信息)            已实现
+ * 查看内存使用                                                 未实现
+ * 查看连接数,哪些主机占用多少连接                                 未实现
+ * 模糊搜索某个 key ,查看 key 的数据,注意集群模式下 key 的搜索       已实现
  */
 @RequestMapping("/redis")
 public class RedisConnectServlet extends BaseServlet {
