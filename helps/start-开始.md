@@ -13,7 +13,11 @@
 * 代码生成 `CodeGenerateServlet`，`MybatisGeneratorServlet`
 * 取名工具 `TranslateServlet`
 * kafka 数据查看工具 `KafkaServlet`
+* redis 数据监控 `RedisConnectServlet`
+* 响应数据模拟工具 `RandomDataServlet`
 
 项目基于文件系统，由 `FileManagerServlet` 统一管理配置文件信息和临时文件信息 ，这两种文件的路径配置在  `function.open.properties` 文件中
 
 由 `ConfigCenter` 统一解析 `*.properties` 配置文件，这是一颗配置树
+
+2020/05/18 最近添加了一些接口的测试,写在 requests 目录中,读者可以在这里看到我的接口测试过程,后续应该所有的接口都会在这里进行测试
