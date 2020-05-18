@@ -18,15 +18,17 @@
 			top: 0;
 			bottom: 0;
 			right: 0;
-			width: 300px;
+			width: 600px;
+            overflow-y: scroll;
+            height: 100%;
 			z-index: 10;
 			background-color: whitesmoke;
 			transition:all linear 0.5s;
 		}
 		.right-box>.close-box{
-			position: absolute;
+			position: fixed;
 			top: 2px;
-			right: 2px;
+			right: 10px;
 			font-size: 15px;
 			font-weight: lighter;
 			color: #999;
@@ -38,6 +40,10 @@
 
 			word-break: break-all;
 		}
+
+        #data table>tbody>tr>td{
+            word-break: break-word;
+        }
 	</style>
 </head>
 <body>

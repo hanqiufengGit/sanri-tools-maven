@@ -89,7 +89,7 @@ define(['util','dialog','template','jsonview'],function (util,dialog,template) {
             let formData = new FormData();
             let fileName = files[0].name;
             formData.append('fileItem',files[0],fileName);
-            formData.append('title',fileName+'-loader');
+            formData.append('title',fileName.substring(0,fileName.length - 1));
 
             util.postFile(apis.uploadClasses,formData,function () {
                 loadClassloaders();

@@ -314,35 +314,115 @@ public class RedisService {
         String mode = mode(connName);
 
         byte [] valueBytes = null;
-//        byte[] keyBytes = key.getBytes(Charset.forName("utf-8"));
-        StringSerializer stringSerializer = new StringSerializer();
-        byte[] keyBytes = stringSerializer.serialize(key);
+        Map<byte[],byte[]> hashValueBytes = null;
+        List<byte[]> listValueBytes = null;
+
+        byte[] keyBytes = key.getBytes(Charset.forName("utf-8"));
+        RedisType redisType = null;
         if("cluster".equals(mode)){
             JedisCluster jedisCluster = getJedisCluster(connName);
-            valueBytes = jedisCluster.get(keyBytes);
+            String type = jedisCluster.type(key);
+            redisType = RedisType.parse(type);
+            switch (redisType){
+                case string:
+                    valueBytes = jedisCluster.get(keyBytes);
+                    break;
+                case Hash:
+                    // 可能有性能问题,假如一个 key 过大 TODO
+                    hashValueBytes = jedisCluster.hgetAll(keyBytes);
+                    break;
+                case List:
+                    // 可能有性能问题,假如一个 key 过大 TODO
+                    listValueBytes = jedisCluster.lrange(keyBytes,0,jedisCluster.llen(keyBytes));
+                    break;
+            }
 
         }else {
-
             if (index != 0) {
                 jedis.select(index);
             }
-            valueBytes = jedis.get(keyBytes);
+            String type = jedis.type(key);
+            redisType = RedisType.parse(type);
+            switch (redisType){
+                case string:
+                    valueBytes = jedis.get(keyBytes);
+                    break;
+                case Hash:
+                    hashValueBytes = jedis.hgetAll(keyBytes);
+                    break;
+                case List:
+                    listValueBytes = jedis.lrange(keyBytes,0,jedis.llen(keyBytes));
+                    break;
+            }
         }
 
-        if(valueBytes == null){
+        if(valueBytes == null && hashValueBytes == null && listValueBytes == null){
             logger.warn("key [{}] 不存在 ",key);
             return null;
         }
 
-        Object object = null;
         ClassLoader extendClassloader = ClassLoader.getSystemClassLoader();
         if(StringUtils.isNotBlank(classloaderName)){
             extendClassloader = classLoaderManager.get(classloaderName);
         }
-        switch (serializable){
+
+        Object object = null;
+        switch (redisType){
+            case string:
+                if(keyBytes == null){
+                    logger.warn("type:string ,key [{}] 不存在 ",key);
+                    return null;
+                }
+                object = deSerializable(serializable, valueBytes, extendClassloader);
+                return object;
+            case Hash:
+                if(hashValueBytes == null || hashValueBytes.size() == 0){
+                    logger.warn("type:hash ,key [{}] 不存在或没有数据 ",key);
+                    return null;
+                }
+                Map<String,Object> hashObjects = new HashMap<>(hashValueBytes.size());
+                Iterator<Map.Entry<byte[], byte[]>> iterator = hashValueBytes.entrySet().iterator();
+                while (iterator.hasNext()) {
+                    Map.Entry<byte[], byte[]> next = iterator.next();
+                    byte[] hashKey = next.getKey();
+                    byte[] hashValue = next.getValue();
+                    object = deSerializable(serializable, hashValue, extendClassloader);
+                    Object keyObject = ZkServlet.zkSerializerMap.get("jdk").deserialize(hashKey);
+                    hashObjects.put(Objects.toString(keyObject), object);
+                }
+                return hashObjects;
+            case List:
+                if (listValueBytes == null || listValueBytes.size() == 0){
+                    logger.warn("type:list ,key [{}] 不存在或没有数据 ",key);
+                    return null;
+                }
+                List<Object> listObjects = new ArrayList<>(listValueBytes.size());
+                for (byte[] listValueByte : listValueBytes) {
+                    object = deSerializable(serializable, listValueByte, extendClassloader);
+                    listObjects.add(object);
+                }
+               return listObjects;
+        }
+
+        return null;
+    }
+
+    /**
+     * 将一个字节数组反序列化为对象
+     * @param serializable
+     * @param valueBytes
+     * @param extendClassloader
+     * @return
+     * @throws IOException
+     * @throws ClassNotFoundException
+     */
+    private Object deSerializable(String serializable, byte[] valueBytes, ClassLoader extendClassloader) throws IOException, ClassNotFoundException {
+        Object object;
+        switch (serializable) {
             case "jdk":
-                CustomObjectInputStream objectInputStream = new CustomObjectInputStream(new ByteArrayInputStream(valueBytes),extendClassloader);
+                CustomObjectInputStream objectInputStream = new CustomObjectInputStream(new ByteArrayInputStream(valueBytes), extendClassloader);
                 object = objectInputStream.readObject();
+
                 break;
             case "kryo":
                 Kryo kryo = KryoSerializer.kryos.get();
@@ -356,6 +436,8 @@ public class RedisService {
             case "hex":
                 object = ZkServlet.zkSerializerMap.get(serializable).deserialize(valueBytes);
                 break;
+            default:
+                object = null;
         }
         return object;
     }
