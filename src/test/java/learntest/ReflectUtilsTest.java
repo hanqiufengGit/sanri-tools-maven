@@ -7,8 +7,8 @@ import org.springframework.cglib.core.ReflectUtils;
 import org.springframework.util.ReflectionUtils;
 
 import java.beans.PropertyDescriptor;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import java.lang.reflect.*;
+import java.util.List;
 
 public class ReflectUtilsTest {
 
@@ -29,5 +29,22 @@ public class ReflectUtilsTest {
         //主要用于获取class 信息
         PropertyDescriptor[] beanGetters = ReflectUtils.getBeanGetters(clazz);
 
+    }
+
+    @Test
+    public void testClassReflect() throws NoSuchFieldException {
+        Field users = A.class.getDeclaredField("users");
+        Type gType = users.getGenericType();
+        ParameterizedType pType = (ParameterizedType)gType;
+        System.out.println(pType.getActualTypeArguments()[0]);
+    }
+
+    public class User {
+        private String name;
+    }
+
+
+    public class A{
+        private List<User> users;
     }
 }
