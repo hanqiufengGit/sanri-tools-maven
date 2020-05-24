@@ -3,8 +3,10 @@ package com.sanri.frame;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
@@ -38,6 +40,9 @@ public class ContextLoaderListener implements ServletContextListener{
 
 	private Log logger = LogFactory.getLog(ContextLoaderListener.class);
 	ExecutorService executorService = Executors.newFixedThreadPool(10);
+
+	// 初始化执行的实例列表
+	private static final Map<Class<?>,Object> INIT_INSTANCE = new HashMap<>();
 	
 	@Override
 	public void contextDestroyed(ServletContextEvent servletContextEvent) {
@@ -70,6 +75,9 @@ public class ContextLoaderListener implements ServletContextListener{
 					continue;
 				}
 				Object newInstance = clazz.newInstance();
+				// 保存初始化的实例信息
+				INIT_INSTANCE.put(clazz,newInstance);
+
 				List<Method> methodsListWithAnnotation = MethodUtils.getMethodsListWithAnnotation(clazz, PostConstruct.class);
 				for (Method method : methodsListWithAnnotation) {
 					executorService.submit(()->{
@@ -115,6 +123,15 @@ public class ContextLoaderListener implements ServletContextListener{
 
 		// 执行 PostConstruct
 
+	}
+
+	/**
+	 * 获取初始化的实例
+	 * @param clazz
+	 * @return
+	 */
+	public static Object getInitInstance(Class<?> clazz){
+		return INIT_INSTANCE.get(clazz);
 	}
 
 }
