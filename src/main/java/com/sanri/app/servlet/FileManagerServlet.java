@@ -12,7 +12,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
@@ -96,13 +95,13 @@ public class FileManagerServlet extends BaseServlet {
 
     /**
      * 读取配置
-     * @param modul
+     * @param module
      * @param baseName
      * @return
      */
-    public String readConfig(String modul,String baseName) throws IOException {
+    public String readConfig(String module, String baseName) throws IOException {
         if(StringUtils.isBlank(baseName))return "";
-        File modulDir = new File(dataConfigPath, modul);
+        File modulDir = new File(dataConfigPath, module);
         // check modul exists
         if(!modulDir.exists())modulDir.mkdir();
         File file = new File(modulDir, baseName);
