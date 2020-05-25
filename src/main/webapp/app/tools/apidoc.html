@@ -9,15 +9,42 @@
 	<link rel="stylesheet" href="../../css/animate.min.css"/>
 	<link rel="stylesheet" href="../../css/appbase.css"/>
 	<link rel="stylesheet" href="../../css/style.css"/>
+	<style>
+		body { padding-top: 70px; }
+	</style>
 </head>
 <body>
+<nav class="navbar navbar-default navbar-fixed-top" id="navbar">
+	<div class="container-fluid">
+		<div class="navbar-header">
+			<a class="navbar-brand">Swagger-Doc</a>
+		</div>
+<!--		<p class="navbar-text">展示 swagger-ui 当前文档标题</p>-->
+		<div class="navbar-form navbar-left" >
+			<div class="form-group">
+				<div class="input-group">
+					<div class="input-group-btn">
+						<button type="button" class="btn btn-link dropdown-toggle" data-toggle="dropdown"><span>历史记录</span> <span class="caret"></span></button>
+						<ul class="dropdown-menu dropdown-menu-right" name="history">
 
+						</ul>
+					</div><!-- /btn-group -->
+					<input type="text" name="search" style="width: 600px" spellcheck="false" autocomplete="off" class="form-control" placeholder="输入 swagger 地址发起搜索" >
+					<div class="input-group-btn"><button class="btn btn-primary" name="search"><i class="fa fa-search"></i></button></div>
+				</div>
+			</div>
+		</div>
+
+		<button class="btn btn-link navbar-btn" name="word"><i class="fa fa-download"></i> 下载 word 文档</button>
+		<button class="btn btn-link navbar-btn" name="markdown"><i class="fa fa-download"></i> 下载 markdown 文档</button>
+	</div>
+</nav>
 <div class="doc" id="doc"></div>
 
 <script type="text/javascript" src="../../js/requirejs2.1.11-min.js"></script>
 <script type="text/javascript" src="../config.js"></script>
 <script type="text/javascript">
-    require(['jquery', 'tools/apidoc']);
+    require(['bootstrap', 'tools/apidoc']);
 </script>
 </body>
 </html>

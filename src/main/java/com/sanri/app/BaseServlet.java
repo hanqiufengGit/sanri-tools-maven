@@ -299,8 +299,10 @@ public class BaseServlet {
         EXCEL2003("application/vnd.ms-excel", "xls"),
         EXCEL2007("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "xlsx"),
         EXE("application/octet-stream", "exe"),
+        WORD("application/octet-stream","doc"),
 
         TXT("text/plain", "txt"),
+        MARKDOWN("text/plain", "md"),
         JAVA("text/plain", "java"),
         PYTHON("text/plain", "py"),
         JAVASCRIPT("text/plain", "js"),
