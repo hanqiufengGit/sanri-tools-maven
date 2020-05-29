@@ -82,6 +82,9 @@ define(['util'],function (util) {
          let port = urlObj.port ? urlObj.port : (urlObj.protocol === 'http'? 80:443);
          let finalSwaggerV2URL = urlObj.protocol+'//'+urlObj.hostname+':'+port+'/v2/api-docs';
 
+         if(urlObj.pathname.endsWith('api-docs')){
+            finalSwaggerV2URL = url;
+         }
          util.downFile(apis[btnName],{url:finalSwaggerV2URL},10000);
       }
    }
@@ -112,6 +115,9 @@ define(['util'],function (util) {
       let urlObj = new URL(url);
       let port = urlObj.port ? urlObj.port : (urlObj.protocol === 'http'? 80:443);
       let finalSwaggerV2URL = urlObj.protocol+'//'+urlObj.hostname+':'+port+'/v2/api-docs';
+      if(urlObj.pathname.endsWith('api-docs')){
+         finalSwaggerV2URL = url;
+      }
 
       // 加载 api 文档
       var index = layer.load(1, {

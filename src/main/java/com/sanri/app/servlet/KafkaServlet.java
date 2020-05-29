@@ -317,24 +317,31 @@ public class KafkaServlet extends BaseServlet{
 
     public Map<String, Long> logSizes(String clusterName, String topic) throws IOException, ExecutionException, InterruptedException {
         Map<String, Long> results = new HashMap<>();
-        int partitions = topicPartitions(clusterName, topic);
+//        int partitions = topicPartitions(clusterName, topic);
 
         Properties properties = kafkaProperties(clusterName);
         KafkaConsumer<byte[], byte[]> consumer = new KafkaConsumer<>(properties);
 
-        List<TopicPartition> topicPartitions = new ArrayList<>();
-        for (int i = 0; i < partitions; i++) {
-            topicPartitions.add(new TopicPartition(topic,i));
-        }
+        try {
+            List<PartitionInfo> partitionInfos = consumer.partitionsFor(topic);
 
-        Map<TopicPartition, Long> topicPartitionLongMap = consumer.endOffsets(topicPartitions);
-        Iterator<Map.Entry<TopicPartition, Long>> iterator = topicPartitionLongMap.entrySet().iterator();
-        while (iterator.hasNext()){
-            Map.Entry<TopicPartition, Long> entry = iterator.next();
-            TopicPartition topicPartition = entry.getKey();
-            Long logSize = entry.getValue();
+            List<TopicPartition> topicPartitions = new ArrayList<>();
+            for (int i = 0; i < partitionInfos.size(); i++) {
+                topicPartitions.add(new TopicPartition(topic, i));
+            }
 
-            results.put(topicPartition.partition()+"",logSize);
+            Map<TopicPartition, Long> topicPartitionLongMap = consumer.endOffsets(topicPartitions);
+            Iterator<Map.Entry<TopicPartition, Long>> iterator = topicPartitionLongMap.entrySet().iterator();
+            while (iterator.hasNext()) {
+                Map.Entry<TopicPartition, Long> entry = iterator.next();
+                TopicPartition topicPartition = entry.getKey();
+                Long logSize = entry.getValue();
+
+                results.put(topicPartition.partition() + "", logSize);
+            }
+        }finally {
+            if(consumer != null)
+                consumer.close();
         }
 
         return results;
@@ -463,7 +470,7 @@ public class KafkaServlet extends BaseServlet{
             for (PartitionInfo partitionInfo : partitionInfos) {
                 int partition = partitionInfo.partition();
                 TopicPartition topicPartition = new TopicPartition(topic, partition);
-                consumer.assign(Collections.singletonList(topicPartition));
+//                consumer.assign(Collections.singletonList(topicPartition));
                 topicPartitions.add(topicPartition);
             }
             consumer.assign(topicPartitions);
