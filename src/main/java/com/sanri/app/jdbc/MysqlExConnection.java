@@ -75,9 +75,14 @@ public class MysqlExConnection extends ExConnection{
         List<String> databases = mainQueryRunner.query("show databases",resultSetHandler );
         List<Schema> schemas = new ArrayList<Schema>();
         for (String database : databases) {
+            if(database.equalsIgnoreCase("performance_schema") || database.equalsIgnoreCase("information_schema")){
+                // 排除默认库并加到最后
+                continue;
+            }
             schemas.add(new Schema(database));
         }
-
+        schemas.add(new Schema("performance_schema"));
+        schemas.add(new Schema("information_schema"));
         return schemas;
     }
 

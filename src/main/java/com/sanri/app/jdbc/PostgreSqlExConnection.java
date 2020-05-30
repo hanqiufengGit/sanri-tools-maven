@@ -59,10 +59,13 @@ public class PostgreSqlExConnection extends ExConnection {
         List<Schema> schemas = new ArrayList<Schema>();
         List<String> databases = mainQueryRunner.query("SELECT datname FROM pg_database", new TypeListHandler<String>());
         for (String database : databases) {
-            if(database.startsWith("template")){    //排除 template 数据库
+            if(database.startsWith("template") || database.startsWith("postgres")){    //排除 template 数据库; 排除默认库并加到最后面
                 continue;
             }
             schemas.add(new Schema(database));
+        }
+        if(databases.contains("postgres")){
+            schemas.add(new Schema("postgres"));
         }
         return schemas;
     }

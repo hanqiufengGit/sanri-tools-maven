@@ -79,6 +79,13 @@
         .context-menu-item{
             line-height: 1.5 !important;
         }
+
+        table tbody tr.primary-key{
+            /*color: lightgreen;*/
+        }
+        table tbody tr.primary-key td i{
+            color: red;
+        }
     </style>
 </head>
 <body>
@@ -123,6 +130,7 @@
 
     </div>
     <div class="panel panel-default margin-top">
+        <div class="panel-heading">数据表数量: <b id="tableCount"></b></div>
         <div class="panel-body">
             <div class="row">
                 <div class="col-xs-12">

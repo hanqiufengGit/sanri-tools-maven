@@ -298,6 +298,8 @@ define(['util','dialog','contextMenu','hl','hl/shBrushJava','hl/shBrushXml','hl/
     function search(keyword) {
         $('#columns>tbody').empty();
         searchRequest(keyword,function (tables) {
+            $('#tableCount').text(tables.length);
+
             var htmlCode = renderTables(tables);
             $('#tables').empty().html(htmlCode.join(''));
 
@@ -1233,7 +1235,7 @@ define(['util','dialog','contextMenu','hl','hl/shBrushJava','hl/shBrushXml','hl/
                 data.modul = modul;
                 util.requestData(apis.writeConfig,data,function () {
                     layer.close(index);
-                })
+                });
             }
         }
 
@@ -1253,8 +1255,13 @@ define(['util','dialog','contextMenu','hl','hl/shBrushJava','hl/shBrushXml','hl/
             util.requestData(apis.columns,{connName:tablehelp.connName,schemaName:tablehelp.schemaName,tableName:tableName},function (columns) {
                var htmlCode = [];
                for(var i=0;i<columns.length;i++){
-                   htmlCode.push('<tr>');
-                   htmlCode.push('<td>'+(i+1)+'</td>');
+                   if(columns[i].primaryKey){
+                       htmlCode.push('<tr class="primary-key">');
+                       htmlCode.push('<td>'+(i+1)+' <i class="fa fa-key"></i></td>');
+                   }else{
+                       htmlCode.push('<tr >');
+                       htmlCode.push('<td>'+(i+1)+'</td>');
+                   }
                    htmlCode.push('<td>'+columns[i].columnName+'</td>');
                    if(columns[i].columnType == 'decimal'){
                        htmlCode.push('<td>'+columns[i].columnType.dataType+'('+columns[i].columnType.length+','+columns[i].columnType.precision+')</td>');
