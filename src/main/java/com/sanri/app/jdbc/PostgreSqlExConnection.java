@@ -1,17 +1,14 @@
 package com.sanri.app.jdbc;
 
-import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
 import com.sanri.app.jdbc.codegenerate.RenamePolicyMybatisExtend;
-import com.sanri.app.postman.JdbcConnDetail;
+import com.sanri.app.dtos.JdbcConnDetail;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.ResultSetHandler;
 import org.apache.commons.lang3.ObjectUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.postgresql.ds.PGSimpleDataSource;
 import sanri.utils.PropertyEditUtil;
 
 import javax.sql.DataSource;
-import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;

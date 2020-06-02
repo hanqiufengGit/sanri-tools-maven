@@ -1,7 +1,7 @@
 package com.sanri.app.servlet;
 
 import com.sanri.app.BaseServlet;
-import com.sanri.app.postman.ConfigPath;
+import com.sanri.app.dtos.ConfigPath;
 import com.sanri.frame.RequestMapping;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;

@@ -1,19 +1,15 @@
 package com.sanri.app.jdbc;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
 import com.alibaba.fastjson.serializer.PropertyFilter;
 import com.sanri.app.BaseServlet;
-import com.sanri.app.postman.TableRelation;
-import com.sanri.initexec.InitJdbcConnections;
+import com.sanri.app.dtos.TableRelation;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.ArrayUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
 

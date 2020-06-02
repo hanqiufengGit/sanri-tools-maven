@@ -1,4 +1,4 @@
-package com.sanri.app.postman;
+package com.sanri.app.dtos;
 
 import com.google.common.collect.Table;
 

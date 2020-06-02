@@ -1,8 +1,4 @@
-package com.sanri.app.postman;
-
-import sanri.utils.PropertyEditUtil;
-
-import javax.sql.DataSource;
+package com.sanri.app.dtos;
 
 /**
  * 

@@ -1,7 +1,6 @@
-package com.sanri.app.postman;
+package com.sanri.app.dtos;
 
 import com.sanri.app.jdbc.Column;
-import com.sanri.app.jdbc.Table;
 
 public class TableRelation {
     private Column sourceColumn;

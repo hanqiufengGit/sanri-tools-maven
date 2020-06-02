@@ -1,4 +1,4 @@
-package com.sanri.app.postman;
+package com.sanri.app.dtos;
 
 /**
  * 用于向前端展示文件信息

@@ -1,4 +1,4 @@
-package com.sanri.app.postman;
+package com.sanri.app.dtos;
 
 public class CreateTableColumnParam {
     private String columnName;

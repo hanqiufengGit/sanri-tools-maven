@@ -6,7 +6,7 @@ import com.sanri.app.jdbc.ExConnection;
 import com.sanri.app.jdbc.MysqlExConnection;
 import com.sanri.app.jdbc.OracleExConnection;
 import com.sanri.app.jdbc.PostgreSqlExConnection;
-import com.sanri.app.postman.JdbcConnDetail;
+import com.sanri.app.dtos.JdbcConnDetail;
 import oracle.jdbc.pool.OracleDataSource;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;

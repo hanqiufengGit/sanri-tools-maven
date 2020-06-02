@@ -1,17 +1,9 @@
-package com.sanri.app.postman;
+package com.sanri.app.dtos;
 
 import com.sanri.app.jdbc.ExConnection;
 import com.sanri.app.jdbc.PostgreSqlExConnection;
-import com.sanri.app.jdbc.Table;
 import com.sanri.initexec.InitJdbcConnections;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.postgresql.ds.PGSimpleDataSource;
-
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * 基本代码生成

@@ -1,16 +1,13 @@
 package com.sanri.app.jdbc;
 
-import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
 import com.sanri.app.jdbc.codegenerate.RenamePolicyMybatisExtend;
-import com.sanri.app.postman.JdbcConnDetail;
+import com.sanri.app.dtos.JdbcConnDetail;
 import oracle.jdbc.pool.OracleDataSource;
-import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.ResultSetHandler;
 import org.apache.commons.dbutils.handlers.ScalarHandler;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.util.ReflectionUtils;
-import sanri.utils.PropertyEditUtil;
 
 import javax.sql.DataSource;
 import java.lang.reflect.Field;

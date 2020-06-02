@@ -1,8 +1,8 @@
 package com.sanri.app.servlet;
 
 import com.sanri.app.BaseServlet;
-import com.sanri.app.postman.CodeGeneratorConfig;
-import com.sanri.app.postman.GeneratedInfo;
+import com.sanri.app.dtos.CodeGeneratorConfig;
+import com.sanri.app.dtos.GeneratedInfo;
 import com.sanri.frame.RequestMapping;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -18,8 +18,6 @@ import org.apache.http.util.EntityUtils;
 import org.dom4j.*;
 import org.mybatis.generator.api.GeneratedJavaFile;
 import org.mybatis.generator.api.MyBatisGenerator;
-import org.mybatis.generator.api.dom.java.CompilationUnit;
-import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.config.Configuration;
 import org.mybatis.generator.config.xml.ConfigurationParser;
 import org.mybatis.generator.exception.InvalidConfigurationException;

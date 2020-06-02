@@ -7,7 +7,7 @@ import com.sanri.app.jdbc.*;
 import com.sanri.app.jdbc.codegenerate.SqlExecuteResult;
 import com.sanri.app.jdbc.datatrans.DataTransfer;
 import com.sanri.app.jdbc.datatrans.ExportProcess;
-import com.sanri.app.postman.*;
+import com.sanri.app.dtos.*;
 import com.sanri.app.task.BigDataWriteThread;
 import com.sanri.frame.IgnoreSpendTime;
 import com.sanri.frame.RequestMapping;
