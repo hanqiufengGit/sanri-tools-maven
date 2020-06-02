@@ -1,6 +1,5 @@
 package com.sanri.app;
 
-import eu.bitwalker.useragentutils.UserAgent;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
@@ -19,7 +18,6 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -168,25 +166,6 @@ public class BaseServlet {
         return ip;
     }
     
-    /**
-     * 
-     * 作者:sanri <br/>
-     * 时间:2017-7-22下午2:53:20<br/>
-     * 功能:获取客户端信息,有可能客户端不是用浏览器访问而返回空  <br/>
-     * 可以获取客户端操作系统,浏览器类型,浏览器版本等信息
-     * @param request
-     * @return 
-     */
-    protected UserAgent remoteAgentInfo(HttpServletRequest request){
-    	String userAgentString = request.getHeader("User-Agent");
-		if(StringUtils.isBlank(userAgentString)){
-			return null;
-		}
-		userAgentString = userAgentString.toLowerCase();
-		UserAgent userAgent = UserAgent.parseUserAgentString(userAgentString);
-		return userAgent;
-    }
-
 	/**
      * 作者:sanri <br/>
      * 时间:2017-10-31下午4:10:50<br/>

@@ -3,10 +3,15 @@ package minitest;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.sanri.app.jsoup.netsource.PageResult;
+import com.sanri.app.jsoup.netsource.PansosoSpider;
+import com.sanri.app.jsoup.netsource.SourceModel;
 import com.sanri.app.translate.TranslateCharSequence;
+import com.sanri.app.translate.TranslateSupport;
 import org.apache.commons.lang3.time.DateUtils;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
@@ -105,5 +110,53 @@ public class ToolsSysTest {
     public class A{
         private List<String> b = new ArrayList<>();
         private String [] c = null;
+    }
+
+    @Test
+    public void testUnzip(){
+//		unzip(new File("D:\\tmp\\projectCode\\1572417685251/cardtest.zip"),"D:\\tmp\\projectCode\\1572417685251");
+        int a = 0;
+        String b = a+"b";
+        System.out.println(b);
+    }
+
+    @Test
+    public void testsh(){
+        int n=1;
+        label:while (n++ <= 50 ){
+            for (int i = 2; i <n ; i++) {
+                if(n % i == 0){
+                    continue label;
+                }
+            }
+            System.out.print(" "+n+" ");
+        }
+    }
+
+    private PansosoSpider pansosoSpider = new PansosoSpider();
+    @Test
+    public void test() throws IOException {
+        PageResult<SourceModel> springcloud = pansosoSpider.searchResource("springcloud", 1);
+        System.out.println(springcloud);
+
+//        Document document = Jsoup.connect("https://pan.baidu.com/s/1KX9Y_pJrLh83uS0kMKppLg")
+//                .userAgent(userAgent)
+//                .timeout(singlePageOpenTimeout)
+//                .get();
+//        Element $shareNotFound = document.getElementById("share_nofound_des");
+//        if($shareNotFound != null){
+//            System.out.println("链接已经失效");
+//        }
+    }
+    public static final char [] punctuations = {',','!','-','.'};
+
+    @Test
+    public void testPun(){
+        String origin = "drop-addValue-addedServicePlatform";
+        for (char punctuation : punctuations) {
+            origin = origin.replace(punctuation,' ');
+        }
+        String convert2aB = TranslateSupport.convert2aB(origin);
+        System.out.println(convert2aB);
     }
 }

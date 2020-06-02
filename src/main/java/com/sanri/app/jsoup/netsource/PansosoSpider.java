@@ -7,7 +7,6 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -201,20 +200,5 @@ public class PansosoSpider {
             return split[1];
         }
         return text;
-    }
-
-    @Test
-    public void test() throws IOException {
-        PageResult<SourceModel> springcloud = searchResource("springcloud", 1);
-        System.out.println(springcloud);
-
-//        Document document = Jsoup.connect("https://pan.baidu.com/s/1KX9Y_pJrLh83uS0kMKppLg")
-//                .userAgent(userAgent)
-//                .timeout(singlePageOpenTimeout)
-//                .get();
-//        Element $shareNotFound = document.getElementById("share_nofound_des");
-//        if($shareNotFound != null){
-//            System.out.println("链接已经失效");
-//        }
     }
 }

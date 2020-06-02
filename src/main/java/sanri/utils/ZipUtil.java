@@ -1,14 +1,5 @@
 package sanri.utils;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.commons.compress.archivers.ArchiveEntry;
 import org.apache.commons.compress.archivers.zip.Zip64Mode;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
@@ -16,7 +7,10 @@ import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.Test;
+
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 
@@ -148,24 +142,4 @@ public class ZipUtil {
 		}
 	}
 
-	@Test
-	public void testUnzip(){
-//		unzip(new File("D:\\tmp\\projectCode\\1572417685251/cardtest.zip"),"D:\\tmp\\projectCode\\1572417685251");
-		int a = 0;
-		String b = a+"b";
-		System.out.println(b);
-	}
-
-	@Test
-	public void testsh(){
-		int n=1;
-		label:while (n++ <= 50 ){
-			for (int i = 2; i <n ; i++) {
-				if(n % i == 0){
-					continue label;
-				}
-			}
-			System.out.print(" "+n+" ");
-		}
-	}
 }

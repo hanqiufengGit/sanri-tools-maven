@@ -1,7 +1,6 @@
 package com.sanri.app.translate;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.junit.Test;
 
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -60,15 +59,5 @@ public class PunctuationTranslate implements Translate{
 
 
         translateChain.doTranslate(translateCharSequence,translateChain);
-    }
-
-    @Test
-    public void test(){
-        String origin = "drop-addValue-addedServicePlatform";
-        for (char punctuation : punctuations) {
-            origin = origin.replace(punctuation,' ');
-        }
-        String convert2aB = TranslateSupport.convert2aB(origin);
-        System.out.println(convert2aB);
     }
 }

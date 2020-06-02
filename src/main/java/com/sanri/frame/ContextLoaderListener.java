@@ -25,7 +25,6 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.utils.HttpClientUtils;
 
-import com.sanri.app.servlet.PostmanServlet;
 import com.sanri.app.filefetch.SSHService;
 import sanri.utils.PathUtil;
 
@@ -46,16 +45,6 @@ public class ContextLoaderListener implements ServletContextListener{
 	
 	@Override
 	public void contextDestroyed(ServletContextEvent servletContextEvent) {
-		//目前只要销毁 PostmanServlet 中的所有 httpclient,以后需要使用注释来批量释放
-		Iterator<Entry<String, HttpClient>> httpClientIterator = PostmanServlet.clientMap.entrySet().iterator();
-		while(httpClientIterator.hasNext()){
-			Entry<String, HttpClient> httpClientEntry = httpClientIterator.next();
-			String key = httpClientEntry.getKey();
-			logger.info("释放 http 会话:"+key);
-			HttpClient httpClient = httpClientEntry.getValue();
-			HttpClientUtils.closeQuietly(httpClient);
-		}
-
 		//释放所有 linux 连接
 		logger.info("释放 linux 连接:");
 		SSHService.closeAll();

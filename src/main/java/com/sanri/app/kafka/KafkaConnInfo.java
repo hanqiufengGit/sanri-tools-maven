@@ -1,12 +1,8 @@
 package com.sanri.app.kafka;
 
-import io.netty.internal.tcnative.SSL;
-import org.apache.kafka.common.config.SslConfigs;
 import org.springframework.core.io.Resource;
 
 import javax.security.auth.login.AppConfigurationEntry;
-import java.io.IOException;
-import java.util.Map;
 
 public class KafkaConnInfo {
     private String clusterName;

@@ -123,4 +123,5 @@ public class URLUtil {
         String lastPath = StringUtils.substringAfterLast(path, "/");
         return lastPath;
     }
+
 }
