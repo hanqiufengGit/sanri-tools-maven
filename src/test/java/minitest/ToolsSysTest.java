@@ -8,18 +8,67 @@ import com.sanri.app.jsoup.netsource.PansosoSpider;
 import com.sanri.app.jsoup.netsource.SourceModel;
 import com.sanri.app.translate.TranslateCharSequence;
 import com.sanri.app.translate.TranslateSupport;
+import freemarker.template.Version;
+import io.swagger.models.Swagger;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.junit.Test;
+import sanri.utils.HttpUtil;
 
+import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.text.ParseException;
 import java.util.*;
 
 public class ToolsSysTest {
+    @Test
+    public void swagger() throws IOException {
+        String data =  HttpUtil.getData("http://localhost:8080/v2/api-docs",null);
+        Swagger swagger = JSONObject.parseObject(data, Swagger.class);
+        System.out.println(swagger);
+    }
+    @Test
+    public void test2() throws IOException {
+        String data = FileUtils.readFileToString(new File("d:/logs/pert.json"));
+        Swagger swagger = JSONObject.parseObject(data, Swagger.class);
+        System.out.println(swagger);
+    }
+    @Test
+    public void testVersion(){
+        Version version = new Version("1.4.0");
+        System.out.println(version.getMajor());
+        System.out.println(version.getMinor());
+        System.out.println(version.getMicro());
+
+        System.out.println(version.intValue());
+    }
+
+    @Test
+    public void testURI() throws URISyntaxException, MalformedURLException {
+        URI uri = new URI("ftp://ftpadmin:salt202@10.101.70.202:21//scp-st-informationreleaseapp/20190917/1568705443741.txt");
+        String host = uri.getHost();
+        URI pathURI = new URI(uri.getPath());
+//        URI relativize = pathURI.relativize(new URI(".."));
+        URI relativize = new URI("../").relativize(pathURI);
+
+        System.out.println(relativize);
+        URL url = new URL("http", host, relativize.toString());
+        System.out.println(url);
+
+        String path = "/scp-st-informationreleaseapp/20190917/1568705443741.txt";
+//        URI relativize = new URI("/scp-st-informationreleaseapp").relativize(new URI(path));
+//        System.out.println(new URL("https","192.168.1.1","/"+relativize.getPath()));
+
+    }
+
     @Test
     public void testTranslate(){
         TranslateCharSequence translateCharSequence = new TranslateCharSequence("我是中国人");

@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
 import net.sf.jsqlparser.expression.operators.relational.EqualsTo;
@@ -18,8 +19,19 @@ import net.sf.jsqlparser.statement.select.Select;
 import net.sf.jsqlparser.statement.select.SelectBody;
 import net.sf.jsqlparser.statement.select.SetOperationList;
 import net.sf.jsqlparser.statement.select.SubSelect;
+import net.sf.jsqlparser.util.TablesNamesFinder;
+import org.junit.Test;
 
-public class TableRelationUtil {
+public class SqlParserTest2 {
+    @Test
+    public void testSqlParser() throws JSQLParserException {
+        Statement statement = CCJSqlParserUtil.parse("select * from t_bo_dict; ");
+        Select select = (Select) statement;
+        TablesNamesFinder tablesNamesFinder = new TablesNamesFinder();
+        List<String> tableList = tablesNamesFinder.getTableList(select);
+        System.out.println(tableList);
+    }
+
     static Map<String, String> tableMap = new HashMap<>();
 
     public static void main(String[] args) throws Exception {

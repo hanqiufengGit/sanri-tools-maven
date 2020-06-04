@@ -2,14 +2,12 @@ package learntest;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.time.StopWatch;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 import org.junit.Test;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.file.Path;
 import java.util.Iterator;
 
@@ -21,6 +19,16 @@ import java.util.Iterator;
  */
 public class FtpClientUtil {
 
+	public static void main(String[] args) throws IOException {
+		FTPClient ftpClient = new FTPClient();
+		StopWatch stopWatch  = new StopWatch();stopWatch.start();
+		ftpClient.connect("localhost",21);
+		ftpClient.login("appdeploy","Dev123#");
+		boolean b = ftpClient.storeFile("b.png", new FileInputStream("C:\\Users\\091795960\\Desktop/V0147_2G.avi"));
+		System.out.println(b+""+stopWatch.getTime()+" ms");
+		stopWatch.stop();
+
+	}
 	@Test
 	public void testlistFiles() throws IOException {
 		FTPClient ftpClient = new FTPClient();

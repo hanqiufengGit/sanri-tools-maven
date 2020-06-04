@@ -15,7 +15,7 @@
    limitations under the License.
 ==================================================================== */
 
-package learntest;
+package learntest.fromnet;
 
 import java.io.*;
 import java.util.*;

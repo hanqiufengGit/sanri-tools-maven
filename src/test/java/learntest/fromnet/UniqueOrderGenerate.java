@@ -1,4 +1,4 @@
-package learntest;
+package learntest.fromnet;
  
 /**
  * Twitter_Snowflake<br>

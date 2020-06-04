@@ -3,7 +3,7 @@ package minitest;
 import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.lang3.StringEscapeUtils;
 
-public class jsoncon {
+public class EscapeJson {
     public static void main(String[] args) {
         b m = new b("m");
         a a = new a("a", m);

@@ -1,6 +1,5 @@
-package minitest;
+package learntest;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.mybatis.generator.api.MyBatisGenerator;
 import org.mybatis.generator.config.Configuration;
@@ -19,9 +18,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class GeneratorBean {
+public class MybatisGenerator {
     public static void main(String[] args) throws IOException, SQLException, InterruptedException, InvalidConfigurationException, XMLParserException {
-        URL resource = GeneratorBean.class.getResource("/tkmapper.xml");
+        URL resource = MybatisGenerator.class.getResource("/tkmapper.xml");
         String s = IOUtils.toString(resource.openStream(), "utf-8");
         Map<String,Object> map = new HashMap<>();
         map.put("driverClass","com.mysql.jdbc.Driver");
