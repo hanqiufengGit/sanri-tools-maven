@@ -348,4 +348,20 @@ public class RandomUtil extends RandomStringUtils {
 		int index = RandomUtils.nextInt(0, urls.length);
 		return urls[index];
 	}
+
+	/**
+	 * 随机 url
+	 * @return
+	 */
+	public static String url(){
+		String [] urls = {
+				"https://www.baidu.com/",
+				"https://blog.csdn.net/",
+				"https://segmentfault.com/",
+				"https://www.cnblogs.com/",
+				"https://www.jianshu.com/"
+		};
+		int index = RandomUtils.nextInt(0, urls.length);
+		return urls[index];
+	}
 }

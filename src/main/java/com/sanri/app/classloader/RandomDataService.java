@@ -1,8 +1,8 @@
 package com.sanri.app.classloader;
 
-import org.apache.commons.lang.math.RandomUtils;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.slf4j.Logger;
@@ -14,20 +14,22 @@ import sanri.utils.RandomUtil;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 
 /**
  * 随机数据生成
  */
 public class RandomDataService {
-    private Logger logger = LoggerFactory.getLogger(RandomDataService.class);
+    private Logger log = LoggerFactory.getLogger(getClass());
 
     public ClassLoaderManager classLoaderManager = ClassLoaderManager.getInstance();
 
     public Object randomData(String className,ClassLoader classLoader) throws ClassNotFoundException {
         Class<?> clazz = classLoader.loadClass(className);
-        return populateDataComplex(clazz);
+        return populateData(clazz);
     }
 
     public Object randomData(String className,String classloaderName) throws ClassNotFoundException {
@@ -36,113 +38,116 @@ public class RandomDataService {
     }
 
     /**
-     * 对象注入复杂类型数据
+     * 给一个类型注入数据
      * @param clazz
      * @return
      */
-    public Object populateDataComplex(Class<?> clazz) {
+    public Object populateData(Class<?> clazz){
+        if(isPrimitiveExtend(clazz)){
+            return populateDataOrigin(null,clazz);
+        }
+        return populateDataComplex(clazz);
+    }
+
+    /**
+     * 这个方法可以注入简单类型和复杂类型,注入单个类型
+     * @param type
+     * @param columnName
+     * @return
+     */
+    private Object populateData(Type type,String columnName){
+        if(type instanceof Class){
+            Class propertyType = (Class) type;
+            if (isPrimitiveExtend(propertyType)){
+                return populateDataOrigin(columnName,propertyType);
+            }
+            return populateDataComplex(propertyType);
+        }
+        // 接下来这些都是 ParameterizedType
+        if(type instanceof ParameterizedType){
+            ParameterizedType parameterizedType = (ParameterizedType) type;
+            // rawType 认为一定是 class ,其实还是有风险的,先这样吧
+            Class propertyType = (Class) parameterizedType.getRawType();
+            if(propertyType == List.class || propertyType == Set.class){
+                return populateCollectionData(parameterizedType, columnName);
+            }
+            if(propertyType == Map.class){
+                return populateMapData(parameterizedType, columnName);
+            }
+        }
+
+        log.error("不支持的类型:[{}]",type);
+        return null;
+    }
+
+    /**
+     * 注入 map 数据
+     * @param writeMethod
+     * @param columnName
+     * @return
+     */
+    private Map populateMapData(ParameterizedType parameterType, String columnName){
+        Map map = new HashMap();
+
+        Class keyTypeArgument = (Class) parameterType.getActualTypeArguments()[0];
+        Class valueTypeArgument = (Class) parameterType.getActualTypeArguments()[1];
+
+        // 随机创建 2~ 10 个键值对
+        int count = RandomUtils.nextInt(2, 10);
+
+        for (int i = 0; i < count; i++) {
+            Object key = populateData(keyTypeArgument, columnName);
+            Object value = populateData(valueTypeArgument, columnName);
+            map.put(key,value);
+        }
+        return map;
+    }
+
+    /**
+     * 注入复杂对象值,只能注入复杂类型 ; 这个是真正的主入口,注入一个复杂类型对象数据
+     * @param clazz
+     * @return
+     */
+    private Object populateDataComplex(Class<?> clazz) {
         Object object = ReflectUtils.newInstance(clazz);
 
         PropertyDescriptor[] beanSetters = ReflectUtils.getBeanSetters(clazz);
         for (PropertyDescriptor beanSetter : beanSetters) {
             Method writeMethod = beanSetter.getWriteMethod();
             String columnName = beanSetter.getName();
-            Class<?> propertyType = beanSetter.getPropertyType();
-            if(isPrimitiveExtend(propertyType)){
-                Object value = populateDataOrigin(columnName, propertyType);
-                ReflectionUtils.invokeMethod(writeMethod,object,value);
-            }else{
-                // 除了原始类型，其它就是复杂类型 Collection Map Array 或其它复杂对象
-                if(propertyType == List.class){
-                    List list = new ArrayList();
+            Type genericParameterType = writeMethod.getGenericParameterTypes()[0];
+            Object populateData = populateData(genericParameterType, columnName);
 
-                    populateCollectionData(writeMethod, columnName, list);
-                    // 注入 list 数据
-                    ReflectionUtils.invokeMethod(writeMethod,object,list);
-                }else if(propertyType == Set.class){
-                    Set set = new HashSet();
-                    populateCollectionData(writeMethod,columnName,set);
-                    // 注入 set 数据
-                    ReflectionUtils.invokeMethod(writeMethod,object,set);
-                }else if(propertyType == Map.class){
-                    Map map = new HashMap();
-
-                    ParameterizedType parameterType = (ParameterizedType)writeMethod.getGenericParameterTypes()[0];
-
-                    Class keyTypeArgument = (Class) parameterType.getActualTypeArguments()[0];
-                    Class valueTypeArgument = (Class) parameterType.getActualTypeArguments()[1];
-
-                    for (int i = 0; i < 10; i++) {
-                        Object key = null,value = null;
-                        if(isPrimitiveExtend(keyTypeArgument)){
-                            key = populateDataOrigin(columnName,keyTypeArgument);
-                        }else{
-                            key = populateDataComplex(keyTypeArgument);
-                        }
-
-                        if(isPrimitiveExtend(valueTypeArgument)){
-                            value = populateDataOrigin(columnName,valueTypeArgument);
-                        }else{
-                            value = populateDataComplex(valueTypeArgument);
-                        }
-
-                        map.put(key,value);
-                    }
-                }else {
-                    if (propertyType.isArray()){
-                        Object [] array = new Object[10];
-                        Class<?> componentType = propertyType.getComponentType();
-                        if(isPrimitiveExtend(componentType)){
-                            for (int i = 0; i < 10; i++) {
-                                array[i] = populateDataOrigin(columnName,componentType);
-                            }
-                        }else{
-                            for (int i = 0; i < 10; i++) {
-                                array [i] = populateDataComplex(componentType);
-                            }
-                        }
-
-                        ReflectionUtils.invokeMethod(writeMethod, object, array);
-                        continue;
-                    }
-                    String packageName = propertyType.getPackage().getName();
-                    if(packageName.startsWith("java.*")){
-                        logger.error("当前类型[{}]无法注入数据,来自包[{}]",propertyType,packageName);
-                        continue;
-                    }
-                    Object columnValue = populateDataComplex(propertyType);
-                    ReflectionUtils.invokeMethod(writeMethod, object, columnValue);
-                }
-            }
+            ReflectionUtils.invokeMethod(writeMethod, object, populateData);
         }
         return object;
     }
 
-    private void populateCollectionData(Method writeMethod, String columnName, Collection list) {
-        ParameterizedType genericParameterType = (ParameterizedType)writeMethod.getGenericParameterTypes()[0];
-        Class typeArgument = (Class) genericParameterType.getActualTypeArguments()[0];
-        if(isPrimitiveExtend(typeArgument)){
-            for (int i = 0; i < 10; i++) {
-                Object dataOriginType = populateDataOrigin(columnName,typeArgument);
-                list.add(dataOriginType);
-            }
-        }else{
-            // 每个 List 创建 10 条记录
-            for (int i = 0; i < 10; i++) {
-                Object dataComplex = populateDataComplex(typeArgument);
-                list.add(dataComplex);
-            }
-        }
-    }
-
     /**
-     * 判断是否是原始型扩展
-     * 包含 原始型及包装类,String,Date,BigDecimal
-     * @param propertyType
+     * 对于 set , list  等 注入数据
+     * @param writeMethod
+     * @param list
+     * @param columnName
      * @return
      */
-    private boolean isPrimitiveExtend(Class<?> propertyType) {
-        return ClassUtils.isPrimitiveOrWrapper(propertyType) || propertyType == String.class || propertyType == Date.class || propertyType == BigDecimal.class;
+    private Collection populateCollectionData(ParameterizedType genericParameterType, String columnName) {
+        Collection collection = null;
+        Class rawType = (Class) genericParameterType.getRawType();
+        if(rawType == List.class){
+            collection = new ArrayList();
+        }else if(rawType == Set.class){
+            collection = new HashSet();
+        }
+
+        Class typeArgument = (Class) genericParameterType.getActualTypeArguments()[0];
+        // 每个 List 创建 随机 2 ~ 10 条数据
+        int count = RandomUtils.nextInt(2, 10);
+        for (int i = 0; i < count; i++) {
+            Object populateData = populateData(typeArgument, columnName);
+            collection.add(populateData);
+        }
+
+        return collection;
     }
 
     /**
@@ -152,11 +157,10 @@ public class RandomDataService {
      * @return
      */
     private Object populateDataOrigin( String columnName, Class<?> propertyType) {
+        columnName = Objects.toString(columnName,"");
+
         if(propertyType == String.class){
-            int randomLength = RandomUtils.nextInt(20);
-            while (randomLength == 0){
-                randomLength = RandomUtils.nextInt(20);
-            }
+            int randomLength = RandomUtils.nextInt(5,20);
             String value = RandomStringUtils.randomAlphabetic(randomLength);
             String lowerCase = columnName.toLowerCase();
             if(lowerCase.contains("ip")){
@@ -186,7 +190,7 @@ public class RandomDataService {
             if(lowerCase.contains("status") || lowerCase.contains("state")){
                 value = RandomUtil.status("1","2","3");
             }else
-            if(lowerCase.contains("time") || (columnName.contains("date") && !columnName.equals("update"))){
+            if(lowerCase.contains("time") || (lowerCase.contains("date") && !lowerCase.equals("update")) || lowerCase.contains("birthday")){
                 // 这里可以做时间格式转换,获取字段上的配置
                 value =  DateFormatUtils.ISO_DATETIME_FORMAT.format(RandomUtil.date());
             } else
@@ -200,33 +204,113 @@ public class RandomDataService {
             }else if(lowerCase.contains("pic") || lowerCase.contains("photo")){
                 value = RandomUtil.photoURL();
             }else if(lowerCase.contains("num")){
-                value = RandomUtils.nextInt(10) + "";
+                value = RandomUtils.nextInt(10,1000) + "";
             }else if(lowerCase.contains("url")){
-                value = "http://www.baidu.com";
+                value = RandomUtil.url();
             }
             else if(lowerCase.contains("no") || lowerCase.contains("code")){
                 value = RandomStringUtils.randomNumeric(4);
             }
 
-           return value;
+            return value;
         }
         if(propertyType == Date.class){
             return RandomUtil.date();
         }
         if(propertyType == BigDecimal.class){
-            return new BigDecimal(RandomUtils.nextDouble());
+            BigDecimal bigDecimal = new BigDecimal(RandomUtils.nextDouble(100,2000000));
+            bigDecimal = bigDecimal.setScale(2, RoundingMode.HALF_UP);
+            return bigDecimal;
         }
-        if (propertyType == Integer.class || propertyType == int.class || propertyType == Long.class ||  propertyType == long.class){
-            Integer num = RandomUtils.nextInt();
-            if(columnName.contains("age")) {
-                num = RandomUtils.nextInt(150);
+        if (propertyType == Integer.class || propertyType == int.class){
+            Integer num = RandomUtils.nextInt(10,1000);
+            if(columnName.toLowerCase().contains("age")) {
+                num = RandomUtils.nextInt(20,150);
             }
             return num;
-        }else if(propertyType == Float.class || propertyType == float.class || propertyType == Double.class || propertyType == double.class){
-            return RandomUtils.nextFloat();
-        }else if(propertyType == Boolean.class || propertyType == boolean.class){
-            return RandomUtils.nextBoolean();
         }
+        if(propertyType == Long.class ||  propertyType == long.class){
+            return RandomUtils.nextLong(10,10000000);
+        }
+        if(propertyType == Float.class || propertyType == float.class){
+            return RandomUtils.nextFloat(10,1000);
+        }
+        if(propertyType == Double.class || propertyType == double.class){
+            return RandomUtils.nextDouble(10,1000);
+        }
+        if(propertyType == Boolean.class || propertyType == boolean.class){
+            return RandomUtils.nextInt(1,1000) & 2 ;
+        }
+        if(propertyType == Short.class || propertyType == short.class){
+            int nexInt = RandomUtils.nextInt(129, 500);
+            return new Integer(nexInt).shortValue();
+        }
+        if(propertyType == Character.class || propertyType == char.class){
+            return RandomStringUtils.randomAlphanumeric(1).charAt(0);
+        }
+        if(propertyType == Byte.class || propertyType == byte.class){
+            return RandomUtils.nextBytes(1)[0];
+        }
+
+        // 数据的支持不是特别好,请尽量不要使用数组 ,支持 int ,long ,String,date
+        if(propertyType.isArray()){
+            Class<?> componentType = propertyType.getComponentType();
+            int count = RandomUtils.nextInt(2, 10);
+
+            if(componentType.isPrimitive()){
+                // 原始型不能用对象类型来注入,只能单独写; 注入 2 ~ 10 个值
+                if(componentType == int.class){
+                    int [] arr = new int[count];
+                    for (int i = 0; i < count; i++) {
+                        arr[i] = RandomUtils.nextInt(1,1000);
+                    }
+                    return arr;
+                }else if(componentType == long.class){
+                    long [] arr = new long[count];
+                    for (int i = 0; i < count; i++) {
+                        arr[i] = RandomUtils.nextLong(1,100000);
+                    }
+                    return arr;
+                }
+            }else{
+                // 如果数组的组合类型是对象类型,则可以使用生成对象
+//                Object [] arr = new Object[count];      // TODO 这个 Object 数组引用会导致设置数据不进去
+//                for (int i = 0; i < count; i++) {
+//                    Object populateData = populateData(componentType, columnName);
+//                    arr [i] = componentType.cast(populateData);
+//                }
+//                return arr;
+                if(componentType == String.class){
+                    String [] arr = new String[count];
+                    for (int i = 0; i < count; i++) {
+                        arr[i] = (String)populateDataOrigin(columnName,String.class);
+                    }
+                    return arr;
+                }
+                if(componentType == Date.class){
+                    Date [] arr = new Date [count];
+                    for (int i = 0; i < count; i++) {
+                        arr[i] = (Date) populateDataOrigin(columnName,Date.class);
+                    }
+
+                    return arr;
+                }
+
+            }
+        }
+
+        log.error("无法处理的类型[{}]",propertyType);
         return null;
+    }
+
+
+    /**
+     * 判断是否是原始型扩展
+     * 包含 原始型及包装类,String,Date,BigDecimal,Array 数组也当原始型处理,因为数组类型必须要匹配,不能自动拆箱装箱
+     * @param propertyType
+     * @return
+     */
+    private boolean isPrimitiveExtend(Class<?> propertyType) {
+        return ClassUtils.isPrimitiveOrWrapper(propertyType) || propertyType == String.class || propertyType == Date.class || propertyType == BigDecimal.class || propertyType.isArray();
     }
 }
