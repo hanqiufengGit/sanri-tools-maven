@@ -12,6 +12,7 @@ import org.springframework.util.ReflectionUtils;
 import sanri.utils.RandomUtil;
 
 import java.beans.PropertyDescriptor;
+import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -252,51 +253,17 @@ public class RandomDataService {
             return RandomUtils.nextBytes(1)[0];
         }
 
-        // 数据的支持不是特别好,请尽量不要使用数组 ,支持 int ,long ,String,date
+        // 数组只能支持一维数组,不要使用二维数组
         if(propertyType.isArray()){
             Class<?> componentType = propertyType.getComponentType();
             int count = RandomUtils.nextInt(2, 10);
+            Object arr = Array.newInstance(componentType, count);
 
-            if(componentType.isPrimitive()){
-                // 原始型不能用对象类型来注入,只能单独写; 注入 2 ~ 10 个值
-                if(componentType == int.class){
-                    int [] arr = new int[count];
-                    for (int i = 0; i < count; i++) {
-                        arr[i] = RandomUtils.nextInt(1,1000);
-                    }
-                    return arr;
-                }else if(componentType == long.class){
-                    long [] arr = new long[count];
-                    for (int i = 0; i < count; i++) {
-                        arr[i] = RandomUtils.nextLong(1,100000);
-                    }
-                    return arr;
-                }
-            }else{
-                // 如果数组的组合类型是对象类型,则可以使用生成对象
-//                Object [] arr = new Object[count];      // TODO 这个 Object 数组引用会导致设置数据不进去
-//                for (int i = 0; i < count; i++) {
-//                    Object populateData = populateData(componentType, columnName);
-//                    arr [i] = componentType.cast(populateData);
-//                }
-//                return arr;
-                if(componentType == String.class){
-                    String [] arr = new String[count];
-                    for (int i = 0; i < count; i++) {
-                        arr[i] = (String)populateDataOrigin(columnName,String.class);
-                    }
-                    return arr;
-                }
-                if(componentType == Date.class){
-                    Date [] arr = new Date [count];
-                    for (int i = 0; i < count; i++) {
-                        arr[i] = (Date) populateDataOrigin(columnName,Date.class);
-                    }
-
-                    return arr;
-                }
-
+            for (int i = 0; i < count; i++) {
+                Object value = populateData(componentType);
+                Array.set(arr,i,value);
             }
+            return arr;
         }
 
         log.error("无法处理的类型[{}]",propertyType);
