@@ -1,8 +1,7 @@
-package learntest.apache.commons;
+package learntest;
 
 import com.sanri.app.redis.CommandReply;
 import org.apache.commons.lang3.StringUtils;
-import org.checkerframework.dataflow.qual.TerminatesExecution;
 import org.junit.Test;
 import redis.clients.jedis.*;
 
