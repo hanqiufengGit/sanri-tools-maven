@@ -61,8 +61,8 @@ define(['util','diamond/ConfigSeeDialog'],function (util,ConfigSeeDialog) {
          */
         function clickGroup() {
             var $item = $(this);
-            var groupName = $item.attr('group');
-            util.go('dataIds.html',{group:groupName,connName:group.conn}) ;
+            var group = $item.attr('group');
+            util.go('dataIds.html',{group:group,connName:group.conn}) ;
         }
 
         /**

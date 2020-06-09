@@ -62,7 +62,7 @@ public class DBDataServlet extends BaseServlet {
      * @return
      */
     public String content(String connName,String group,String dataId){
-         //添加最近使用
+        //添加最近使用
         int size = latestUse.size();
         if(size >= 10){
             latestUse.poll();
