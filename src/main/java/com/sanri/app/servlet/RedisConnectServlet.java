@@ -1,10 +1,12 @@
 package com.sanri.app.servlet;
 
 import com.sanri.app.BaseServlet;
+import com.sanri.app.redis.DataQueryParam;
 import com.sanri.app.redis.RedisKeyResult;
 import com.sanri.app.redis.RedisNode;
 import com.sanri.app.redis.RedisService;
 import com.sanri.frame.RequestMapping;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -29,7 +31,7 @@ public class RedisConnectServlet extends BaseServlet {
         return redisService.scan(connName,index,pattern,limit);
     }
 
-    public Object data(String connName, int index,String key,String serializable,String classloaderName) throws IOException, ClassNotFoundException {
-        return redisService.loadData(connName,index,key,serializable,classloaderName);
+    public Object data(DataQueryParam dataQueryParam) throws IOException, ClassNotFoundException {
+        return redisService.loadData(dataQueryParam);
     }
 }

@@ -12,6 +12,7 @@ import com.sanri.app.serializer.StringSerializer;
 import com.sanri.app.servlet.FileManagerServlet;
 import com.sanri.app.servlet.ZkServlet;
 import com.sanri.frame.DispatchServlet;
+import org.I0Itec.zkclient.serialize.ZkSerializer;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -309,7 +310,12 @@ public class RedisService {
      * @param classloaderName
      * @return
      */
-    public Object loadData(String connName,int index,String key,String serializable,String classloaderName) throws IOException, ClassNotFoundException {
+    public Object loadData(DataQueryParam dataQueryParam) throws IOException, ClassNotFoundException {
+        String connName = dataQueryParam.getConnName();
+        String key = dataQueryParam.getKey();
+        SerializableChose serializables = dataQueryParam.getSerializables();
+        ZkSerializer keySerializable = ZkServlet.zkSerializerMap.get(serializables.getKey());
+
         Jedis jedis = jedis(connName);
         String mode = mode(connName);
 
@@ -317,7 +323,7 @@ public class RedisService {
         Map<byte[],byte[]> hashValueBytes = null;
         List<byte[]> listValueBytes = null;
 
-        byte[] keyBytes = key.getBytes(Charset.forName("utf-8"));
+        byte[] keyBytes = keySerializable.serialize(key);
         RedisType redisType = null;
         if("cluster".equals(mode)){
             JedisCluster jedisCluster = getJedisCluster(connName);
@@ -338,6 +344,7 @@ public class RedisService {
             }
 
         }else {
+            int index = dataQueryParam.getIndex();
             if (index != 0) {
                 jedis.select(index);
             }
@@ -361,10 +368,14 @@ public class RedisService {
             return null;
         }
 
+        String classloaderName = dataQueryParam.getClassloaderName();
         ClassLoader extendClassloader = ClassLoader.getSystemClassLoader();
         if(StringUtils.isNotBlank(classloaderName)){
             extendClassloader = classLoaderManager.get(classloaderName);
         }
+
+        ZkSerializer hashKeySerializer = ZkServlet.zkSerializerMap.get(serializables.getHashKey());
+        ZkSerializer hashValueSerializer = ZkServlet.zkSerializerMap.get(serializables.getHashValue());
 
         Object object = null;
         switch (redisType){
@@ -373,7 +384,7 @@ public class RedisService {
                     logger.warn("type:string ,key [{}] 不存在 ",key);
                     return null;
                 }
-                object = deSerializable(serializable, valueBytes, extendClassloader);
+                object = deSerializable(serializables.getValue(), valueBytes, extendClassloader);
                 return object;
             case Hash:
                 if(hashValueBytes == null || hashValueBytes.size() == 0){
@@ -386,8 +397,8 @@ public class RedisService {
                     Map.Entry<byte[], byte[]> next = iterator.next();
                     byte[] hashKey = next.getKey();
                     byte[] hashValue = next.getValue();
-                    object = deSerializable(serializable, hashValue, extendClassloader);
-                    Object keyObject = ZkServlet.zkSerializerMap.get("jdk").deserialize(hashKey);
+                    object = deSerializable(serializables.getHashValue(), hashValue, extendClassloader);
+                    Object keyObject = deSerializable(serializables.getHashKey(),hashKey,extendClassloader);
                     hashObjects.put(Objects.toString(keyObject), object);
                 }
                 return hashObjects;
@@ -398,7 +409,7 @@ public class RedisService {
                 }
                 List<Object> listObjects = new ArrayList<>(listValueBytes.size());
                 for (byte[] listValueByte : listValueBytes) {
-                    object = deSerializable(serializable, listValueByte, extendClassloader);
+                    object = deSerializable(serializables.getValue(), listValueByte, extendClassloader);
                     listObjects.add(object);
                 }
                return listObjects;

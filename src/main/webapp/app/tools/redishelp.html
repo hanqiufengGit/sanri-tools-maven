@@ -44,6 +44,7 @@
         #data table>tbody>tr>td{
             word-break: break-word;
         }
+
 	</style>
 </head>
 <body>
@@ -60,23 +61,48 @@
     <div class="panel panel-default ">
         <div class="panel-heading">设置区</div>
         <div class="panel-body">
-            <div class="col-xs-9 ">
-                <div class="input-group input-group-sm">
-                    <div class="input-group-btn" id="connect">
-                        <button class="btn btn-success dropdown-toggle" data-toggle="dropdown">
-                            <span></span> <span class="caret"></span>
-                        </button>
-                        <ul class="dropdown-menu">
-                        </ul>
-                    </div>
-                    <input class="form-control" name="connect" disabled/>
-                </div>
-            </div>
-            <div class="col-xs-3">
-                <div class="button-group ">
-                    <button id="newconnbtn" class="btn btn-primary btn-sm"><i class="fa fa-plus"></i> 新连接</button>
-                </div>
-            </div>
+			<div class="row">
+				<div class="col-xs-9 ">
+					<div class="input-group input-group-sm">
+						<div class="input-group-btn" id="connect">
+							<button class="btn btn-success dropdown-toggle" data-toggle="dropdown">
+								<span></span> <span class="caret"></span>
+							</button>
+							<ul class="dropdown-menu">
+							</ul>
+						</div>
+						<input class="form-control" name="connect" disabled/>
+					</div>
+				</div>
+				<div class="col-xs-3">
+					<div class="button-group ">
+						<button id="newconnbtn" class="btn btn-primary btn-sm"><i class="fa fa-plus"></i> 新连接</button>
+					</div>
+				</div>
+			</div>
+			<div class="row margin-top">
+				<div class="col-xs-12">
+					<div class="form-inline " id="serializableConfig">
+						<div class="form-group form-group-sm">
+							<label for="" class="control-label">key</label>
+							<select class="form-control " name="key"></select>
+						</div>
+						<div class="form-group form-group-sm">
+							<label for="" class="control-label">value</label>
+							<select class="form-control " name="value"></select>
+						</div>
+						<div class="form-group form-group-sm">
+							<label for="" class="control-label">hashKey</label>
+							<select class="form-control " name="hashKey"></select>
+						</div>
+						<div class="form-group form-group-sm">
+							<label for="" class="control-label">hashValue</label>
+							<select class="form-control " name="hashValue"></select>
+						</div>
+					</div>
+				</div>
+			</div>
+
         </div>
     </div>
 </div>
@@ -142,28 +168,20 @@
             </div>
         </div>
         <div class="col-xs-5 padding">
-            <div class="row">
-                <form class="form-inline" id="config">
-					<div class="form-group">
-						<label class="control-label">序列化:</label>
-						<select class="form-control margin-right" name="serializable">
-						</select>
-					</div>
-
-                    <div class="form-group">
-                        <label class="control-label">类加载器:</label>
-                        <select class="form-control margin-right" name="classloaders">
-                        </select>
-                    </div>
-
-                    <div class="file form-control" ><input type="file" name="fileItem"/>上传 DTO</div>
-                </form>
-            </div>
             <div class="row padding-top">
 				<div class="col-xs-12">
 					<div class="panel panel-default">
-						<div class="panel-heading">当前类加载器加载的类</div>
+						<div class="panel-heading">类加载器配置</div>
 						<div class="panel-body">
+							<form class="form-inline" id="config">
+								<div class="form-group">
+									<label class="control-label">类加载器:</label>
+									<select class="form-control margin-right" name="classloaders">
+									</select>
+								</div>
+
+								<div class="file form-control" ><input type="file" name="fileItem"/>上传 DTO</div>
+							</form>
 							<ul class="list-group" id="loadclasses">
 							</ul>
 						</div>
@@ -179,6 +197,7 @@
 	<div class="close-box">
 		<i class="fa fa-close"></i>
 	</div>
+
 	<div class="content"></div>
 </div>
 

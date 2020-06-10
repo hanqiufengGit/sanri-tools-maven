@@ -48,10 +48,22 @@ define(['util','dialog','template','jsonview'],function (util,dialog,template) {
         function loadData() {
             let $tr = $(this);
             let key = $tr.attr('key');
-            let serializable = $('#config').find('select[name=serializable]').val();
+            let $serializables = $('#serializableConfig').find('select');
             let loader = $('#config').find('select[name=classloaders]').val();
 
-            util.requestData(apis.data,{connName:redishelp.conn,index:0,key:key,serializable:serializable,classloaderName:loader},function (data) {
+            let serializables = {};
+            $serializables.each((i,select) => {serializables[select.name] = $(select).val();})
+
+            let query = {
+                dataQueryParam:{
+                    connName:redishelp.conn,index:0,key:key,
+                    classloaderName:loader,
+                    serializables:serializables
+                }
+            }
+            console.log(query);
+
+            util.requestData(apis.data,query,function (data) {
                 $('#rightbox').show();
                 if(typeof data == 'object'){
                     // $('#rightbox>.content').text(JSON.stringify(data));
@@ -166,12 +178,14 @@ define(['util','dialog','template','jsonview'],function (util,dialog,template) {
      */
     function loadSerializes() {
         util.requestData(apis.serializes,function (serializes) {
-            var $serializes =  $('#config').find('select[name=serializable]').empty();
+            var $serializes =  $('#serializableConfig').find('select').empty();
             for(var i=0;i<serializes.length;i++){
                 $serializes.append('<option value="'+serializes[i]+'">'+serializes[i]+'</option>')
             }
-            //选中第一个
-            $serializes.val(serializes[0]);
+            // key 一般使用 string 序列化
+            $('#serializableConfig').find('select[name=key],select[name=hashKey]').val('string');
+            // value 一般会使用 jdk 序列化
+            $('#serializableConfig').find('select[name=value],select[name=hashValue]').val('jdk');
         });
     }
 
