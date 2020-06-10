@@ -91,7 +91,6 @@ public class CheckUpdate {
         }
         stopWatch.stop();
         log.info("版本检查更新总共耗时:{} ms",stopWatch.getTotalTimeMillis());
-        log.debug(stopWatch.prettyPrint());
     }
 
     /**
