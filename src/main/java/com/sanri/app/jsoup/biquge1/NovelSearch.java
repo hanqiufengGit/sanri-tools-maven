@@ -1,13 +1,16 @@
-package com.sanri.app.jsoup;
+package com.sanri.app.jsoup.biquge1;
+
+import com.sanri.app.jsoup.Request;
+import com.sanri.app.jsoup.Select;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 小说新笔趣阁抓取
+ * 小说笔趣阁抓取
  */
 @Request(value = "https://www.xsbiquge.com/search.php?keyword=${keyword}")
-public class NovelWeb {
+public class NovelSearch {
     @Select(".result-list")
     private List<CandidateNovel> candidateNovels = new ArrayList<>();
 

@@ -1,5 +1,7 @@
 package com.sanri.app.jsoup;
 
+import io.swagger.models.HttpMethod;
+
 import java.lang.annotation.*;
 
 @Documented
@@ -11,4 +13,10 @@ public @interface Request {
      * @return
      */
     String value();
+
+    /**
+     * 默认 get 请求
+     * @return
+     */
+    HttpMethod httpMethod() default HttpMethod.GET;
 }

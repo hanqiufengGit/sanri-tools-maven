@@ -1,8 +1,10 @@
 package com.sanri.app.jsoup;
 
+import io.swagger.models.HttpMethod;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.apache.commons.text.StringSubstitutor;
+import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -66,6 +68,8 @@ public class SpiderHelper {
                         String value = "";
                         if("content".equalsIgnoreCase(attr)){
                             value = el.text();
+                        }else if("html".equalsIgnoreCase(attr)){
+                            value = el.html();
                         }else{
                             value = el.attr(attr);
                         }
@@ -87,10 +91,19 @@ public class SpiderHelper {
 
         Request request = AnnotationUtils.getAnnotation(clazz, Request.class);
         String address = stringSubstitutor.replace(request.value());
-        Document document = Jsoup.connect(address)
+        HttpMethod httpMethod = request.httpMethod();
+
+        Connection connection = Jsoup.connect(address)
                 .userAgent(userAgent)
                 .validateTLSCertificates(false)
-                .timeout(10000).get();
+                .timeout(10000);
+
+        Document document = null;
+        if(httpMethod == HttpMethod.GET){
+            document = connection.get();
+        }else if (httpMethod == HttpMethod.POST){
+            document = connection.data(params).post();
+        }
 
         return populate(clazz,document);
     }
