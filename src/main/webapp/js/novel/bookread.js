@@ -13,6 +13,14 @@ define(['util'],function (util) {
         try{
             util.requestData('/novel/content',{link:parseUrl.params.link},function (data) {
                 $('#contentHtml').html(data.content);
+                $('#fun>a:first').attr('link',data.prev);
+                $('#fun>a:last').attr('link',data.next);
+
+                $('#fun>a').bind('click',function () {
+                    let url = new URL(window.location)
+                    url.search = 'link='+$(this).attr('link')+'&title='+bookcontent.params.title
+                    window.location.href = url.toString();
+                });
             });
             layer.close(index);
         }catch (e){
