@@ -3,20 +3,21 @@ package minitest;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.sanri.app.jsoup.netsource.PageResult;
-import com.sanri.app.jsoup.netsource.PansosoSpider;
-import com.sanri.app.dtos.SourceModel;
 import com.sanri.app.translate.TranslateCharSequence;
 import com.sanri.app.translate.TranslateSupport;
 import freemarker.template.Version;
 import io.swagger.models.Swagger;
+import jdk.internal.org.objectweb.asm.tree.ClassNode;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.junit.Test;
+import jdk.internal.org.objectweb.asm.ClassReader;
+
 import sanri.utils.HttpUtil;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -179,21 +180,6 @@ public class ToolsSysTest {
         }
     }
 
-    private PansosoSpider pansosoSpider = new PansosoSpider();
-    @Test
-    public void test() throws IOException {
-        PageResult<SourceModel> springcloud = pansosoSpider.searchResource("springcloud", 1);
-        System.out.println(springcloud);
-
-//        Document document = Jsoup.connect("https://pan.baidu.com/s/1KX9Y_pJrLh83uS0kMKppLg")
-//                .userAgent(userAgent)
-//                .timeout(singlePageOpenTimeout)
-//                .get();
-//        Element $shareNotFound = document.getElementById("share_nofound_des");
-//        if($shareNotFound != null){
-//            System.out.println("链接已经失效");
-//        }
-    }
     public static final char [] punctuations = {',','!','-','.'};
 
     @Test
@@ -204,5 +190,22 @@ public class ToolsSysTest {
         }
         String convert2aB = TranslateSupport.convert2aB(origin);
         System.out.println(convert2aB);
+    }
+
+    @Test
+    public void testRandomData(){
+
+    }
+
+    @Test
+    public void testAsm() throws IOException {
+        InputStream resourceAsStream = ToolsSysTest.class.getResourceAsStream("/com/sanri/app/chat/ChatMessage.class");
+        ClassReader reader = new ClassReader(resourceAsStream);
+        ClassNode cn = new ClassNode();//创建ClassNode,读取的信息会封装到这个类里面
+        reader.accept(cn, 0);//开始读取
+
+        String name = cn.name;
+        System.out.println(name);
+        resourceAsStream.close();
     }
 }

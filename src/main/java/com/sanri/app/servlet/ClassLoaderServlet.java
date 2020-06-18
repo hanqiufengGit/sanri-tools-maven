@@ -22,6 +22,7 @@ public class ClassLoaderServlet extends BaseServlet {
     private ClassLoaderManager classLoaderManager = ClassLoaderManager.getInstance();
     public static String modul = "classloader";
     public static File modulDir  = null;
+    public static File singleClassesDir = null;
     private FileManagerServlet fileManagerServlet = DispatchServlet.getServlet(FileManagerServlet.class);
 
     public Set<String> classloaders(){
@@ -40,22 +41,39 @@ public class ClassLoaderServlet extends BaseServlet {
      */
     public int uploadClasses(String title, FileItem fileItem) throws IOException {
         String baseName = FilenameUtils.getBaseName(fileItem.getName());
+        String extension = FilenameUtils.getExtension(fileItem.getName());
+
         if(StringUtils.isBlank(title)){
             title = baseName;
         }
-        File targetZipFile = new File(modulDir, fileItem.getName());
-        FileOutputStream fileOutputStream = new FileOutputStream(targetZipFile);
+
+        File targetFile = null;
+        if("class".equalsIgnoreCase(extension)){
+            // classloader/singleClasses/xx.class
+            targetFile = new File(singleClassesDir,fileItem.getName());
+        }else if("zip".equalsIgnoreCase(extension)){
+            // classloader/xx.zip
+            targetFile =  new File(modulDir, fileItem.getName());
+        }
+
+        // 复制 class 或 zip 到目标路径
+        FileOutputStream fileOutputStream = new FileOutputStream(targetFile);
         try {
             IOUtils.copy(fileItem.getInputStream(), fileOutputStream);
         }finally {
-            fileOutputStream.flush();fileOutputStream.close();
+           IOUtils.closeQuietly(fileOutputStream);
         }
 
-        classLoaderManager.loadZipClassess(targetZipFile,title);
+        if("zip".equalsIgnoreCase(extension)) {
+            classLoaderManager.loadZipClassess(targetFile, title);
+        }else if("class".equalsIgnoreCase(extension)){
+            classLoaderManager.loadSingleClass(targetFile);
+        }
         return 0;
     }
 
     static {
         modulDir = mkTmpPath(modul);
+        singleClassesDir = mkTmpPath(modul+"/singleClasses");
     }
 }

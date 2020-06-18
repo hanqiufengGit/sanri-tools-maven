@@ -4,17 +4,25 @@ import com.sanri.app.BaseServlet;
 import com.sanri.app.servlet.ClassLoaderServlet;
 import com.sanri.app.servlet.FileManagerServlet;
 import com.sanri.frame.DispatchServlet;
+import jdk.internal.org.objectweb.asm.ClassReader;
+import jdk.internal.org.objectweb.asm.tree.ClassNode;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.cglib.core.ReflectUtils;
 import org.springframework.util.ReflectionUtils;
 import sanri.utils.ZipUtil;
 
 import javax.annotation.PostConstruct;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -26,6 +34,8 @@ import java.util.stream.Collectors;
 public class ClassLoaderManager {
     static Map<String,ExtendClassloader> CACHED_CLASSLOADER = new HashMap<>();
     private ClassLoaderManager(){}
+
+    private Logger log = LoggerFactory.getLogger(getClass());
 
     private static ClassLoaderManager classLoaderManager = null;
     public synchronized static ClassLoaderManager getInstance(){
@@ -109,5 +119,43 @@ public class ClassLoaderManager {
                 e.printStackTrace();
             }
         }
+    }
+
+    /**
+     * 加载单个文件
+     * @param targetClassFile
+     * @param title
+     */
+    public void loadSingleClass(File targetClassFile) throws MalformedURLException {
+        // 使用 asm 工具读取文件包路径
+        FileInputStream fileInputStream = null;
+        File classFileNoSuffix = null;
+        try {
+            fileInputStream = new FileInputStream(targetClassFile);
+            ClassReader reader = new ClassReader(fileInputStream);
+            ClassNode classNode = new ClassNode();//创建ClassNode,读取的信息会封装到这个类里面
+            reader.accept(classNode, 0);//开始读取
+
+            // 创建包路径
+            classFileNoSuffix = new File(targetClassFile.getParentFile(), classNode.name);
+            classFileNoSuffix.getParentFile().mkdirs();
+        } catch (IOException e) {
+            log.error("读取字节码失败[{}]",e);
+        }finally {
+            // 关流
+            IOUtils.closeQuietly(fileInputStream);
+        }
+
+        try {
+
+            // 移动类文件
+            FileUtils.copyFile(targetClassFile,new File(classFileNoSuffix.getParentFile(),targetClassFile.getName()));
+            // 删除源文件
+            FileUtils.deleteQuietly(targetClassFile);
+        } catch (IOException e) {
+            log.error("这个应该不会失败[{}]",e);
+        }
+
+        loadClasses(targetClassFile.getParentFile(),"singleClasses");
     }
 }

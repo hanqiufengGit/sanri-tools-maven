@@ -218,7 +218,7 @@ define(['util','dialog','template','jsonview'],function (util,dialog,template) {
                 for (let i = 0; i < loaders.length; i++) {
                     htmlCode.push('<option value="'+loaders[i]+'">'+loaders[i]+'</option>');
                 }
-                let $loader = $('#config').find('select[name=classloaders]');
+                let $loader = $('#config').find('select[name=classloaders]').empty();
                 $loader.append(htmlCode.join(''));
 
                 $loader.val(loaders[0]).change();
