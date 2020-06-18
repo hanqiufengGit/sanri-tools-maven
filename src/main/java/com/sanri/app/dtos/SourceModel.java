@@ -1,4 +1,4 @@
-package com.sanri.app.jsoup.netsource;
+package com.sanri.app.dtos;
 
 /**
  * 网络资源

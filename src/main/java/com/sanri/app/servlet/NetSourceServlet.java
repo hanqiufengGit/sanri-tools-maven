@@ -3,7 +3,7 @@ package com.sanri.app.servlet;
 import com.sanri.app.BaseServlet;
 import com.sanri.app.jsoup.netsource.PageResult;
 import com.sanri.app.jsoup.netsource.PansosoSpider;
-import com.sanri.app.jsoup.netsource.SourceModel;
+import com.sanri.app.dtos.SourceModel;
 import com.sanri.frame.RequestMapping;
 
 import java.io.IOException;
