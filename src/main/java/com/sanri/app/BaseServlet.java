@@ -7,6 +7,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.Cookie;
@@ -28,7 +30,7 @@ import java.util.concurrent.Executors;
  * 功能:通用 servlet 实现一些通用功能 <br/>
  */
 public class BaseServlet {
-	protected Log logger = LogFactory.getLog(getClass());
+	protected Logger logger = LoggerFactory.getLogger(getClass());
 	private static Log currLogger = LogFactory.getLog(BaseServlet.class);
 	// 数据临时目录
 	protected static File dataTempPath = null;

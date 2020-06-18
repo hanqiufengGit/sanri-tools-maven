@@ -7,10 +7,10 @@ define(['util','template'],function (util,template) {
         });
 
         //加载所有网源
-        util.requestData('/novel/listNetSources',function (netsources) {
+        util.requestData('/novel/implClasses',function (netsources) {
             $('#netsource').empty();
-            for(var key in netsources){
-                $('#netsource').append('<option value="'+key+'">'+key +'-'+netsources[key].url+'</option>')
+            for(let i=0;i<netsources.length;i++){
+                $('#netsource').append('<option value="'+netsources[i]+'">'+netsources[i]+'</option>')
             }
 
             //选取第一个网源
@@ -42,15 +42,14 @@ define(['util','template'],function (util,template) {
 
         function showChapter() {
             var $parentLi = $(this).closest('li');
-            var bookId = $parentLi.attr('bookId');
-            var chapterUrl = $parentLi.attr('chapterUrl');
+            var chapterUrl = $parentLi.attr('link');
             var bookname = $parentLi.attr('bookname');
             var netSource = $parentLi.attr('netSource');
             if(!netSource){
                 netSource = novel.netsource;
             }
 
-            util.tab('/app/novel/chaptercatalog.html',{bookId:bookId,chapterUrl:chapterUrl,netSource:netSource,bookname:bookname});
+            util.tab('/app/novel/chaptercatalog.html',{chapterUrl:chapterUrl,netSource:netSource,bookname:bookname});
         }
         return this;
     };
@@ -63,7 +62,7 @@ define(['util','template'],function (util,template) {
         var index = layer.load(1, {
             shade: [0.1,'#fff']
         });
-        util.requestData('/novel/searchBook', {netSource: novel.netsource, keyword: input}, function (novels) {
+        util.requestData('/novel/search', {implClass: novel.netsource, keyword: input}, function (novels) {
             var $result = $('#result').empty();
             $('#resultCount').text(novels.length);
             for (var i = 0; i < novels.length; i++) {

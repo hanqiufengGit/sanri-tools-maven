@@ -37,6 +37,13 @@ public class NovelChapter {
         public String getLink() {
             return link;
         }
+
+        public void setLink(String link) {
+            this.link = link;
+        }
     }
 
+    public List<Chapter> getChapters() {
+        return chapters;
+    }
 }

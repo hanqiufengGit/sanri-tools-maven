@@ -23,4 +23,12 @@ public class NovelContent {
     public String getNext() {
         return next;
     }
+
+    public void setPrev(String prev) {
+        this.prev = prev;
+    }
+
+    public void setNext(String next) {
+        this.next = next;
+    }
 }
