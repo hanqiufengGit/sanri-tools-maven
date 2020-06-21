@@ -1,6 +1,6 @@
-package learntest.thirdpart;
+package learntest.fromnet;
 
-import org.apache.commons.codec.binary.Base64;
+import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -13,23 +13,17 @@ import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-public class OcrV3Demo {
 
-    private static Logger logger = LoggerFactory.getLogger(OcrV3Demo.class);
+public class FanyiV3DemoInternalTest {
 
-    private static final String YOUDAO_URL = "https://openapi.youdao.com/ocrapi";
+    private static Logger logger = LoggerFactory.getLogger(FanyiV3DemoInternalTest.class);
+
+    private static final String YOUDAO_URL = "http://openapi.youdao.com/api";
 
     private static final String APP_KEY = "28a343197650d05a";
 
@@ -38,31 +32,24 @@ public class OcrV3Demo {
     public static void main(String[] args) throws IOException {
 
         Map<String,String> params = new HashMap<String,String>();
-        String q = loadAsBase64("C:/Users/2/Desktop/a.png");
+        String q = "美女";
         String salt = String.valueOf(System.currentTimeMillis());
-        String detectType = "10012";
-        String imageType = "1";
-        String langType = "zh-en";
-        params.put("detectType", detectType);
-        params.put("imageType", imageType);
-        params.put("langType", langType);
-        params.put("img", q);
-        params.put("docType", "json");
+        params.put("from", "auto");
+        params.put("to", "auto");
         params.put("signType", "v3");
         String curtime = String.valueOf(System.currentTimeMillis() / 1000);
         params.put("curtime", curtime);
         String signStr = APP_KEY + truncate(q) + salt + curtime + APP_SECRET;
         String sign = getDigest(signStr);
         params.put("appKey", APP_KEY);
+        params.put("q", q);
         params.put("salt", salt);
         params.put("sign", sign);
-        String result = requestForHttp(YOUDAO_URL,params);
         /** 处理结果 */
-        System.out.println(result);
+        requestForHttp(YOUDAO_URL,params);
     }
 
-    public static String requestForHttp(String url,Map<String,String> params) throws IOException {
-        String result = "";
+    public static void requestForHttp(String url,Map<String,String> params) throws IOException {
 
         /** 创建HttpClient */
         CloseableHttpClient httpClient = HttpClients.createDefault();
@@ -80,9 +67,13 @@ public class OcrV3Demo {
         httpPost.setEntity(new UrlEncodedFormEntity(paramsList,"UTF-8"));
         CloseableHttpResponse httpResponse = httpClient.execute(httpPost);
         try{
+            Header[] contentType = httpResponse.getHeaders("Content-Type");
+            logger.info("Content-Type:" + contentType[0].getValue());
             HttpEntity httpEntity = httpResponse.getEntity();
-            result = EntityUtils.toString(httpEntity,"UTF-8");
+            String json = EntityUtils.toString(httpEntity,"UTF-8");
             EntityUtils.consume(httpEntity);
+            logger.info(json);
+            System.out.println(json);
         }finally {
             try{
                 if(httpResponse!=null){
@@ -92,7 +83,6 @@ public class OcrV3Demo {
                 logger.info("## release resouce error ##" + e);
             }
         }
-        return result;
     }
 
     /**
@@ -121,31 +111,31 @@ public class OcrV3Demo {
         }
     }
 
-    public static String loadAsBase64(String imgFile)
-  {//将图片文件转化为字节数组字符串，并对其进行Base64编码处理
+    /**
+    *
+    * @param result 音频字节流
+    * @param file 存储路径
+    */
+    private static void byte2File(byte[] result, String file) {
+        File audioFile = new File(file);
+        FileOutputStream fos = null;
+        try{
+            fos = new FileOutputStream(audioFile);
+            fos.write(result);
 
-    File file = new File(imgFile);
-    if(!file.exists()){
-        logger.error("文件不存在");
-        return null;
+        }catch (Exception e){
+            logger.info(e.toString());
+        }finally {
+            if(fos != null){
+                try {
+                    fos.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
     }
-    InputStream in = null;
-    byte[] data = null;
-      //读取图片字节数组
-    try
-    {
-        in = new FileInputStream(imgFile);
-        data = new byte[in.available()];
-        in.read(data);
-        in.close();
-    }
-    catch (IOException e)
-    {
-        e.printStackTrace();
-    }
-      //对字节数组Base64编码
-    return new String(Base64.encodeBase64(data));//返回Base64编码过的字节数组字符串
-  }
 
   public static String truncate(String q) {
         if (q == null) {
