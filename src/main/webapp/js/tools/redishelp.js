@@ -72,10 +72,16 @@ define(['util','dialog','template','jsonview'],function (util,dialog,template) {
         function listAllHashKeys() {
             let query = $('#hashKeyQuery').data('query');
             let $list = $('#hashKeyQuery').find('.list-group').empty();
+            var index = layer.load(1, {
+                shade: [0.1,'#fff']
+            });
             util.requestData(apis.hashKeys,query,function (keys) {
                 for (let i = 0; i < keys.length; i++) {
                     $list.append('<li class="list-group-item" value="'+keys[i]+'">'+keys[i]+'</li>');
                 }
+                layer.close(index);
+            },function () {
+                layer.close(index);
             });
         }
 
@@ -111,6 +117,7 @@ define(['util','dialog','template','jsonview'],function (util,dialog,template) {
                         let hashKey = $('#hashKeyQuery').find('input').val().trim();
                         query.dataQueryParam.extraQueryParam = {hashKey:hashKey};
                         sendQuery(query);
+                        layer.close(index);
                     }})
                     .build();
             }else if(type == 'list'){
@@ -127,6 +134,7 @@ define(['util','dialog','template','jsonview'],function (util,dialog,template) {
                                 let end = $('#rangeQuery').find('input[name=end]').val().trim();
                                 query.dataQueryParam.extraQueryParam = {begin,end};
                                 sendQuery(query);
+                                layer.close(index);
                             }})
                         .build();
                 });
