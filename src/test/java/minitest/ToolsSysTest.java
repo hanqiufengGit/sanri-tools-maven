@@ -125,9 +125,7 @@ public class ToolsSysTest {
 //        }
 //        return false;
     }
-    private int parser(String dayOfWeek){
-        return WeekEnumeration.parserString(dayOfWeek);
-    }
+
 
     private boolean checkDay(JSONObject jsonObject) {
         JSONArray playSpan = jsonObject.getJSONArray("playSpan");
