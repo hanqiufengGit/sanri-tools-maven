@@ -45,6 +45,10 @@
             word-break: break-word;
         }
 
+		#hashKeyQuery .list-group{
+			height: 50vh;
+			overflow-y: scroll;
+		}
 	</style>
 </head>
 <body>
@@ -193,6 +197,7 @@
     </div>
 </div>
 
+<!-- 右侧弹出框 -->
 <div class="right-box" id="rightbox">
 	<div class="close-box">
 		<i class="fa fa-close"></i>
@@ -201,7 +206,34 @@
 	<div class="content"></div>
 </div>
 
-<!--新连接-->
+<!-- hash keys 列表 -->
+<div class="open-dialog" id="hashKeyQuery">
+	<div >
+		<div class="form-group form-group-sm">
+			<input type="text" class="form-control" placeholder="输入 hashKey " />
+		</div>
+	</div>
+	<!-- 如果需要列出所有的key -->
+	<a href="javascript:void(0)" class="btn btn-link text-info">列出所有 hashKey </a>
+	<div class="list-group ">
+
+	</div>
+</div>
+
+<!-- List 范围查询弹出框 -->
+<div class="open-dialog" id="rangeQuery">
+	<div class="col-xs-12">
+		<div class="form-inline ">
+			<div class="form-group form-group-sm">
+				<input type="text" size="5" class="form-control" name="begin" placeholder="最小值">
+				<input type="text" size="5" class="form-control" name="begin" placeholder="最大值">
+			</div>
+		</div>
+
+	</div>
+</div>
+
+<!--新连接弹出框-->
 <div class="open-dialog" id="newconn">
 	<form class="form-horizontal">
 		<div class="form-group">

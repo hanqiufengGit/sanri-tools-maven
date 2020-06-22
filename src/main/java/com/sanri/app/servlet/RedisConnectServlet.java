@@ -1,10 +1,7 @@
 package com.sanri.app.servlet;
 
 import com.sanri.app.BaseServlet;
-import com.sanri.app.redis.DataQueryParam;
-import com.sanri.app.redis.RedisKeyResult;
-import com.sanri.app.redis.RedisNode;
-import com.sanri.app.redis.RedisService;
+import com.sanri.app.redis.*;
 import com.sanri.frame.RequestMapping;
 import org.apache.commons.lang3.StringUtils;
 
@@ -33,5 +30,25 @@ public class RedisConnectServlet extends BaseServlet {
 
     public Object data(DataQueryParam dataQueryParam) throws IOException, ClassNotFoundException {
         return redisService.loadData(dataQueryParam);
+    }
+
+    /**
+     * 查询 List 的数据长度
+     * @param connName
+     * @param index
+     * @param key
+     * @return
+     */
+    public Long listLength(String connName, int index,String key) throws IOException {
+        return redisService.listLength(connName,index,key);
+    }
+
+    /**
+     * 查询 hash 的所有 key 列表
+     * @param hashKeysQueryParam
+     * @return
+     */
+    public List<Object> hashKeys(DataQueryParam dataQueryParam) throws IOException {
+        return redisService.hashKeys(dataQueryParam);
     }
 }

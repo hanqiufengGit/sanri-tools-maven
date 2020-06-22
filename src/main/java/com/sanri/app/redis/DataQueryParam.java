@@ -11,6 +11,8 @@ public class DataQueryParam {
     private String classloaderName;
     private SerializableChose serializables;
 
+    private ExtraQueryParam extraQueryParam;
+
     public String getConnName() {
         return connName;
     }
@@ -49,5 +51,13 @@ public class DataQueryParam {
 
     public void setSerializables(SerializableChose serializables) {
         this.serializables = serializables;
+    }
+
+    public ExtraQueryParam getExtraQueryParam() {
+        return extraQueryParam;
+    }
+
+    public void setExtraQueryParam(ExtraQueryParam extraQueryParam) {
+        this.extraQueryParam = extraQueryParam;
     }
 }

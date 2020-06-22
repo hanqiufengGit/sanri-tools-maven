@@ -257,6 +257,27 @@ public class RedisService {
 
     }
 
+    /**
+     * 查询 List key 数据长度
+     * @param connName
+     * @param index
+     * @param key
+     * @return
+     * @throws IOException
+     */
+    public Long listLength(String connName, int index, String key) throws IOException {
+        Jedis jedis = jedis(connName);if(index != 0){jedis.select(index);};
+        String mode = mode(connName);
+        Long len = 0L ;
+        if("cluster".equals(mode)){
+            JedisCluster jedisCluster = getJedisCluster(connName);
+            len = jedisCluster.llen(key);
+            jedisCluster.close();
+        }else{
+            len = jedis.llen(key);
+        }
+        return len;
+    }
 
     enum RedisType{
         string("string"),Set("set"),ZSet("zset"),Hash("hash"),List("list");
@@ -320,26 +341,43 @@ public class RedisService {
         String mode = mode(connName);
 
         byte [] valueBytes = null;
-        Map<byte[],byte[]> hashValueBytes = null;
+        Map<byte[],byte[]> hashValueBytes = new HashMap<>();
         List<byte[]> listValueBytes = null;
 
         byte[] keyBytes = keySerializable.serialize(key);
         RedisType redisType = null;
+
+        // 额外查询参数, hash 结构和 List 结构为避免数据过大,增加额外查询参数
+        ZkSerializer hashKeySerializer = ZkServlet.zkSerializerMap.get(serializables.getHashKey());
+        ExtraQueryParam extraQueryParam = dataQueryParam.getExtraQueryParam();
         if("cluster".equals(mode)){
             JedisCluster jedisCluster = getJedisCluster(connName);
             String type = jedisCluster.type(key);
             redisType = RedisType.parse(type);
+
             switch (redisType){
                 case string:
                     valueBytes = jedisCluster.get(keyBytes);
                     break;
                 case Hash:
-                    // 可能有性能问题,假如一个 key 过大 TODO
-                    hashValueBytes = jedisCluster.hgetAll(keyBytes);
+                    String hashKey = extraQueryParam.getHashKey();
+                    byte[] cursor = "0".getBytes();
+                    byte[] serialize = hashKeySerializer.serialize(hashKey);
+                    ScanParams scanParams = new ScanParams().match(serialize).count(100);
+                    do {
+                        ScanResult<Map.Entry<byte[], byte[]>> entryScanResult = jedisCluster.hscan(keyBytes, cursor, scanParams);
+                        cursor = entryScanResult.getCursorAsBytes();
+                        List<Map.Entry<byte[], byte[]>> result = entryScanResult.getResult();
+                        for (Map.Entry<byte[], byte[]> entry : result) {
+                            hashValueBytes.put(entry.getKey(),entry.getValue());
+                        }
+                    }while (NumberUtils.toInt(new String(cursor)) != 0);
                     break;
                 case List:
-                    // 可能有性能问题,假如一个 key 过大 TODO
-                    listValueBytes = jedisCluster.lrange(keyBytes,0,jedisCluster.llen(keyBytes));
+                    Long begin = extraQueryParam.getBegin();if(begin == null){begin = 0L;}
+                    Long end = extraQueryParam.getEnd();if(end == null ){end = jedisCluster.llen(keyBytes);}
+
+                    listValueBytes = jedisCluster.lrange(keyBytes,begin,end);
                     break;
             }
 
@@ -355,16 +393,30 @@ public class RedisService {
                     valueBytes = jedis.get(keyBytes);
                     break;
                 case Hash:
-                    hashValueBytes = jedis.hgetAll(keyBytes);
+                    String hashKey = extraQueryParam.getHashKey();
+                    byte[] cursor = "0".getBytes();
+                    byte[] serialize = hashKeySerializer.serialize(hashKey);
+                    ScanParams scanParams = new ScanParams().match(serialize).count(100);
+                    do {
+                        ScanResult<Map.Entry<byte[], byte[]>> entryScanResult = jedis.hscan(keyBytes, cursor, scanParams);
+                        cursor = entryScanResult.getCursorAsBytes();
+                        List<Map.Entry<byte[], byte[]>> result = entryScanResult.getResult();
+                        for (Map.Entry<byte[], byte[]> entry : result) {
+                            hashValueBytes.put(entry.getKey(),entry.getValue());
+                        }
+                    }while (NumberUtils.toInt(new String(cursor)) != 0);
                     break;
                 case List:
-                    listValueBytes = jedis.lrange(keyBytes,0,jedis.llen(keyBytes));
+                    Long begin = extraQueryParam.getBegin();if(begin == null){begin = 0L;}
+                    Long end = extraQueryParam.getEnd();if(end == null ){end = jedis.llen(keyBytes);}
+
+                    listValueBytes = jedis.lrange(keyBytes,begin,end);
                     break;
             }
         }
 
         if(valueBytes == null && hashValueBytes == null && listValueBytes == null){
-            logger.warn("key [{}] 不存在 ",key);
+            logger.warn("key [{}] , extra [{}]不存在 ",key,dataQueryParam.getExtraQueryParam());
             return null;
         }
 
@@ -374,7 +426,6 @@ public class RedisService {
             extendClassloader = classLoaderManager.get(classloaderName);
         }
 
-        ZkSerializer hashKeySerializer = ZkServlet.zkSerializerMap.get(serializables.getHashKey());
         ZkSerializer hashValueSerializer = ZkServlet.zkSerializerMap.get(serializables.getHashValue());
 
         Object object = null;
@@ -451,5 +502,37 @@ public class RedisService {
                 object = null;
         }
         return object;
+    }
+
+    public List<Object> hashKeys(DataQueryParam hashKeysQueryParam) throws IOException {
+        String connName = hashKeysQueryParam.getConnName();
+        Jedis jedis = jedis(connName);
+        String mode = mode(connName);
+
+        String key = hashKeysQueryParam.getKey();
+        SerializableChose serializables = hashKeysQueryParam.getSerializables();
+        ZkSerializer keySerializable = ZkServlet.zkSerializerMap.get(serializables.getKey());
+        byte[] keyBytes = keySerializable.serialize(key);
+
+        Map<byte[], byte[]> map = null;
+        if("cluster".equals(mode)){
+            JedisCluster jedisCluster = getJedisCluster(connName);
+            map = jedisCluster.hgetAll(keyBytes);
+
+            jedisCluster.close();
+        }else{
+            map = jedis.hgetAll(keyBytes);
+        }
+
+        // 获取 hash 结构所有的 key
+        List<Object> objects = new ArrayList<>();
+        ZkSerializer hashKeySerializable = ZkServlet.zkSerializerMap.get(serializables.getHashKey());
+        Iterator<byte[]> iterator = map.keySet().iterator();
+        while (iterator.hasNext()){
+            byte[] hashKeyBytes = iterator.next();
+            Object deserialize = hashKeySerializable.deserialize(hashKeyBytes);
+            objects.add(deserialize);
+        }
+        return objects;
     }
 }

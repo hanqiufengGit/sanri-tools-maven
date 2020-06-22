@@ -12,7 +12,9 @@ define(['util','dialog','template','jsonview'],function (util,dialog,template) {
 
         redisNodes:'/redis/redisNodes',
         scan:'/redis/scan',
-        data:'/redis/data'
+        data:'/redis/data',
+        listLength:'/redis/listLength',
+        hashKeys:'/redis/hashKeys'
     };
 
     var modul = 'redis';
@@ -27,6 +29,23 @@ define(['util','dialog','template','jsonview'],function (util,dialog,template) {
         });
     }
 
+    /**
+     * 发起数据查询,查询某个 key 的值
+     * @param query
+     */
+    function sendQuery(query) {
+        util.requestData(apis.data,query,function (data) {
+            $('#rightbox').show();
+            if(typeof data == 'object'){
+                // $('#rightbox>.content').text(JSON.stringify(data));
+                $('#rightbox>.content').JSONView(JSON.stringify(data));
+            }else{
+                $('#rightbox>.content').text(data);
+            }
+
+        });
+    }
+
     function bindEvent() {
         var events = [{parent:'#connect>.dropdown-menu',selector:'li',types:['click'],handler:switchConn},
             {selector:'#newconnbtn',types:['click'],handler:newconn},
@@ -35,9 +54,30 @@ define(['util','dialog','template','jsonview'],function (util,dialog,template) {
             {parent:'#config',selector:'input[type=file]',types:['change'],handler:uploadClasses},
             {parent:'#config',selector:'select[name=classloaders]',types:['change'],handler:switchClassloader},
             {parent:'#data',selector:'table>tbody>tr',types:['click'],handler:loadData},
-            {selector:'#rightbox>.close-box',types:['click'],handler:closeBox}];
+            {selector:'#rightbox>.close-box',types:['click'],handler:closeBox},
+            {selector:'#hashKeyQuery a',types:['click'],handler:listAllHashKeys},
+            {parent:'#hashKeyQuery .list-group',selector:'>li',types:['click'],handler:autoWriteHashKey}];
 
         util.regPageEvents(events);
+
+        /**
+         * 自动将 hashKey 填充到输入框
+         */
+        function autoWriteHashKey() {
+            $('#hashKeyQuery').find('input').val($(this).attr('value'));
+        }
+        /**
+         * 列出所有的 hashKeys 列表
+         */
+        function listAllHashKeys() {
+            let query = $('#hashKeyQuery').data('query');
+            let $list = $('#hashKeyQuery').find('.list-group').empty();
+            util.requestData(apis.hashKeys,query,function (keys) {
+                for (let i = 0; i < keys.length; i++) {
+                    $list.append('<li class="list-group-item" value="'+keys[i]+'">'+keys[i]+'</li>');
+                }
+            });
+        }
 
         function closeBox() {
             $(this).parent().hide();
@@ -47,13 +87,12 @@ define(['util','dialog','template','jsonview'],function (util,dialog,template) {
          */
         function loadData() {
             let $tr = $(this);
-            let key = $tr.attr('key');
+            let key = $tr.attr('key');let type = $tr.attr('type');
             let $serializables = $('#serializableConfig').find('select');
             let loader = $('#config').find('select[name=classloaders]').val();
 
             let serializables = {};
             $serializables.each((i,select) => {serializables[select.name] = $(select).val();})
-
             let query = {
                 dataQueryParam:{
                     connName:redishelp.conn,index:0,key:key,
@@ -61,18 +100,42 @@ define(['util','dialog','template','jsonview'],function (util,dialog,template) {
                     serializables:serializables
                 }
             }
-            console.log(query);
 
-            util.requestData(apis.data,query,function (data) {
-                $('#rightbox').show();
-                if(typeof data == 'object'){
-                    // $('#rightbox>.content').text(JSON.stringify(data));
-                    $('#rightbox>.content').JSONView(JSON.stringify(data));
-                }else{
-                    $('#rightbox>.content').text(data);
-                }
+            // 如果为 hash 结构或 List 结构,弹出一个框,让其选择 key 或者 范围
+            if(type == 'hash'){
+                $('#hashKeyQuery').data('query',query);
+                dialog.create('使用 hashKey 进行查询')
+                    .setContent($('#hashKeyQuery'))
+                    .setWidthHeight('500px','70%')
+                    .addBtn({type:'yes',text:'确定',handler:function(index, layero){
+                        let hashKey = $('#hashKeyQuery').find('input').val().trim();
+                        query.dataQueryParam.extraQueryParam = {hashKey:hashKey};
+                        sendQuery(query);
+                    }})
+                    .build();
+            }else if(type == 'list'){
+                // 查询当前 List key 的最大范围
+                util.requestData(apis.listLength,{connName:redishelp.conn,index:0,key:key},function (data) {
+                    $('#rangeQuery').find('input[name=begin]').val(0);
+                    $('#rangeQuery').find('input[name=end]').val(data);
 
-            });
+                    dialog.create('输入 List 查询范围 ')
+                        .setContent($('#rangeQuery'))
+                        .setWidthHeight('240px','100px')
+                        .addBtn({type:'yes',text:'确定',handler:function(index, layero){
+                                let begin = $('#rangeQuery').find('input[name=begin]').val().trim();
+                                let end = $('#rangeQuery').find('input[name=end]').val().trim();
+                                query.dataQueryParam.extraQueryParam = {begin,end};
+                                sendQuery(query);
+                            }})
+                        .build();
+                });
+
+            }else if(type == 'string'){
+                sendQuery(query);
+            }else{
+                layer.msg('暂不支持的类型 '+type);
+            }
         }
 
         /**
