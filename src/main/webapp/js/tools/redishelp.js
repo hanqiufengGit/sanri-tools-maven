@@ -4,6 +4,7 @@ define(['util','dialog','template','jsonview'],function (util,dialog,template) {
         connNames:'/file/manager/simpleConfigNames',
         createConn:'/file/manager/writeConfig',
         detail:'/file/manager/readConfig',
+
         serializes:'/zk/serializes',
 
         classloaders:'/classloader/classloaders',
