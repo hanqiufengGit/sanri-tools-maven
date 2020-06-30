@@ -3,6 +3,7 @@ package minitest;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.sanri.app.jdbc.codegenerate.JavaBean;
 import com.sanri.app.translate.TranslateCharSequence;
 import com.sanri.app.translate.TranslateSupport;
 import freemarker.template.Version;
@@ -27,6 +28,28 @@ import java.text.ParseException;
 import java.util.*;
 
 public class ToolsSysTest {
+    @Test
+    public void generateJavaBean(){
+        JavaBean javaBean = new JavaBean();
+        javaBean.setClassName("HelloWord");
+        javaBean.setClassComment("@table hello_word");
+        javaBean.setPackageName("com.sanri");
+        Map<String,String> propertys = new HashMap<String, String>();
+        Map<String,String> propertysComments = new HashMap<String, String>();
+        javaBean.setPropertysComments(propertysComments);
+        javaBean.setPropertys(propertys);
+
+        propertys.put("username", "String");
+        propertys.put("age", "int");
+        propertys.put("time", "java.util.Date");
+        propertysComments.put("username", "用户名,可重复");
+        propertysComments.put("time", "格式 yyyy-MM-dd");
+
+        List<String> build = javaBean.build();
+//		File writerBean = javaBean.writerBean(build, "d:/abcd");
+        System.out.println(build);
+
+    }
     @Test
     public void swagger() throws IOException {
         String data =  HttpUtil.getData("http://localhost:8080/v2/api-docs",null);

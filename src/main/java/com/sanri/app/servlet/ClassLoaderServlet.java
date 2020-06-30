@@ -68,6 +68,8 @@ public class ClassLoaderServlet extends BaseServlet {
             classLoaderManager.loadZipClassess(targetFile, title);
         }else if("class".equalsIgnoreCase(extension)){
             classLoaderManager.loadSingleClass(targetFile);
+        }else if("java".equalsIgnoreCase(extension)){
+
         }
         return 0;
     }

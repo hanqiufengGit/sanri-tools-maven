@@ -174,28 +174,6 @@ public class JavaBean{
 		this.classComment = classComment;
 	}
 
-	
-	public static void main(String[] args) {
-		JavaBean javaBean = new JavaBean();
-		javaBean.setClassName("HelloWord");
-		javaBean.setClassComment("@table hello_word");
-		javaBean.setPackageName("com.sanri");
-		Map<String,String> propertys = new HashMap<String, String>();
-		Map<String,String> propertysComments = new HashMap<String, String>();
-		javaBean.setPropertysComments(propertysComments);
-		javaBean.setPropertys(propertys);
-		
-		propertys.put("username", "String");
-		propertys.put("age", "int");
-		propertys.put("time", "java.util.Date");
-		propertysComments.put("username", "用户名,可重复");
-		propertysComments.put("time", "格式 yyyy-MM-dd");
-		
-		List<String> build = javaBean.build();
-		File writerBean = javaBean.writerBean(build, "d:/abcd");
-		System.out.println(writerBean);
-		
-	}
 	public Table getTable() {
 		return table;
 	}
