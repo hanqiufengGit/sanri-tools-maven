@@ -1,3 +1,1 @@
-mvn install:install-file -DgroupId=com.taobao.diamond -DartifactId=diamond-client -Dversion=2.0.5.5 -Dpackaging=jar -Dfile=diamond-client-2.0.5.5.jar
-mvn install:install-file -DgroupId=com.taobao.diamond -DartifactId=diamond-utils -Dversion=2.0.5.5 -Dpackaging=jar -Dfile=diamond-utils-2.0.5.5.jar
 mvn install:install-file -DgroupId=org.wltea.analyzer -DartifactId=IKAnalyzer -Dversion=2012FF_u1 -Dpackaging=jar -Dfile=IKAnalyzer2012FF_u1.jar
