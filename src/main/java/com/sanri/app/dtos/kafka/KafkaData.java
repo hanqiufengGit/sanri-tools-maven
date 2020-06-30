@@ -1,4 +1,4 @@
-package com.sanri.app.dtos;
+package com.sanri.app.dtos.kafka;
 
 public class KafkaData implements Comparable<KafkaData> {
     protected Long offset;

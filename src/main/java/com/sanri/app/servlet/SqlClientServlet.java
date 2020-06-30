@@ -3,6 +3,7 @@ package com.sanri.app.servlet;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.sanri.app.BaseServlet;
+import com.sanri.app.dtos.jdbc.*;
 import com.sanri.app.jdbc.*;
 import com.sanri.app.jdbc.codegenerate.SqlExecuteResult;
 import com.sanri.app.jdbc.datatrans.DataTransfer;
@@ -1156,7 +1157,7 @@ public class SqlClientServlet extends BaseServlet{
 	 * @param tableName
 	 * @return
 	 */
-	public Set<TableRelation> loadTableRelations(String connName,String schemaName,String tableName){
+	public Set<TableRelation> loadTableRelations(String connName, String schemaName, String tableName){
 		return tableRelationRepository.tableRelations(connName,schemaName,tableName);
 	}
 

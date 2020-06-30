@@ -1,4 +1,4 @@
-package com.sanri.app.dtos;
+package com.sanri.app.dtos.jdbc;
 
 public class TableRelationParam {
     private String connName;

@@ -1,7 +1,6 @@
 package com.sanri.app.servlet;
 
 import com.sanri.app.BaseServlet;
-import com.sanri.app.dtos.JdbcConnDetail;
 import com.sanri.app.jdbc.ExConnection;
 import com.sanri.app.jdbc.TypeListHandler;
 import com.sanri.frame.RequestMapping;
@@ -10,7 +9,6 @@ import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.handlers.ScalarHandler;
 
-import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayDeque;

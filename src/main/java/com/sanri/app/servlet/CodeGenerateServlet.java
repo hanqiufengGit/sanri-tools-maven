@@ -11,7 +11,7 @@ import com.sanri.app.jdbc.codegenerate.JavaPojo;
 import com.sanri.app.jdbc.codegenerate.RenamePolicy;
 import com.sanri.app.jdbc.codegenerate.RenamePolicyDefault;
 import com.sanri.app.jdbc.codegenerate.RenamePolicyaBExtend;
-import com.sanri.app.dtos.JdbcConnDetail;
+import com.sanri.app.dtos.jdbc.JdbcConnDetail;
 import com.sanri.frame.DispatchServlet;
 import com.sanri.frame.RequestMapping;
 import com.sanri.initexec.InitJdbcConnections;

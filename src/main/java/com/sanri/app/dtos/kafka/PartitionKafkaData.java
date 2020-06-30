@@ -1,6 +1,8 @@
-package com.sanri.app.dtos;
+package com.sanri.app.dtos.kafka;
 
-public class PartitionKafkaData extends KafkaData{
+import com.sanri.app.dtos.kafka.KafkaData;
+
+public class PartitionKafkaData extends KafkaData {
     private int partition;
 
     public PartitionKafkaData(Long offset, Object data, long timestamp, int partition) {

@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.alibaba.fastjson.serializer.PropertyFilter;
 import com.sanri.app.BaseServlet;
-import com.sanri.app.dtos.TableRelation;
+import com.sanri.app.dtos.jdbc.TableRelation;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.ArrayUtils;
 

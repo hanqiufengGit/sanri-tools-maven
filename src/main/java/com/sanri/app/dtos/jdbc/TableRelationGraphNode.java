@@ -1,4 +1,4 @@
-package com.sanri.app.dtos;
+package com.sanri.app.dtos.jdbc;
 
 import com.google.common.collect.Table;
 

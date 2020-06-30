@@ -1,4 +1,4 @@
-package com.sanri.app.kafka;
+package com.sanri.app.dtos.kafka;
 
 import org.springframework.core.io.Resource;
 

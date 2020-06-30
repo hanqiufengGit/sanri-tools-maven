@@ -1,8 +1,8 @@
 package com.sanri.app.servlet;
 
 import com.sanri.app.BaseServlet;
-import com.sanri.app.dtos.CodeGeneratorConfig;
-import com.sanri.app.dtos.GeneratedInfo;
+import com.sanri.app.dtos.jdbc.CodeGeneratorConfig;
+import com.sanri.app.dtos.jdbc.GeneratedInfo;
 import com.sanri.frame.RequestMapping;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;

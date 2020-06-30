@@ -1,7 +1,7 @@
 package com.sanri.app.jdbc;
 
 import com.sanri.app.jdbc.codegenerate.RenamePolicyMybatisExtend;
-import com.sanri.app.dtos.JdbcConnDetail;
+import com.sanri.app.dtos.jdbc.JdbcConnDetail;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.ResultSetHandler;
 import org.apache.commons.lang3.ObjectUtils;
