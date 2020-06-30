@@ -147,7 +147,6 @@ public class ClassLoaderManager {
         }
 
         try {
-
             // 移动类文件
             FileUtils.copyFile(targetClassFile,new File(classFileNoSuffix.getParentFile(),targetClassFile.getName()));
             // 删除源文件

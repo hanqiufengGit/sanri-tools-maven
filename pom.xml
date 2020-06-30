@@ -380,6 +380,12 @@
             <artifactId>lucene-analyzers-common</artifactId>
             <version>4.2.0</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.eclipse.jdt</groupId>
+            <artifactId>org.eclipse.jdt.core</artifactId>
+            <version>3.16.0</version>
+        </dependency>
     </dependencies>
 
     <build>

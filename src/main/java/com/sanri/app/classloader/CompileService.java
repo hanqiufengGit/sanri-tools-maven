@@ -1,5 +1,8 @@
 package com.sanri.app.classloader;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.tools.JavaCompiler;
 import javax.tools.SimpleJavaFileObject;
 import javax.tools.StandardJavaFileManager;
@@ -14,6 +17,7 @@ import java.util.Arrays;
  * 最后使用类加载器进行加载
  */
 public class CompileService {
+    private Logger log = LoggerFactory.getLogger(CompileService.class);
     /**
      * 编译 java 类,使用字符串传 java 类过来
      * @param javaCodes
@@ -27,13 +31,13 @@ public class CompileService {
         JavaCompiler.CompilationTask compilerTask = compiler.getTask(null, fileManager, null, null, null, Arrays.asList(stringObject));
         Boolean call = compilerTask.call();
         if(call){
-            System.out.println("编译成功");
+            log.info("[{}] 编译成功",className);
             return Class.forName(className);
         }
         return null;
     }
 
-    class StringObject extends SimpleJavaFileObject {
+    static class StringObject extends SimpleJavaFileObject {
         private String contents = null;
 
         public StringObject(String className, String contents) {
