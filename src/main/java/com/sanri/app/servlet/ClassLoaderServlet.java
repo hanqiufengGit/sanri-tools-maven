@@ -6,15 +6,17 @@ import com.sanri.app.classloader.CompileService;
 import com.sanri.app.jdbc.codegenerate.SimpleJavaBeanBuilder;
 import com.sanri.frame.DispatchServlet;
 import com.sanri.frame.RequestMapping;
+import jdk.internal.org.objectweb.asm.ClassReader;
+import jdk.internal.org.objectweb.asm.tree.ClassNode;
 import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import sanri.utils.ZipUtil;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
+import java.util.Collection;
 import java.util.Set;
 
 /**
@@ -55,7 +57,7 @@ public class ClassLoaderServlet extends BaseServlet {
         if("class".equalsIgnoreCase(extension)){
             // classloader/singleClasses/xx.class
             targetFile = new File(singleClassesDir,fileItem.getName());
-        }else if("zip".equalsIgnoreCase(extension)){
+        }else if("zip".equalsIgnoreCase(extension) || "zip2".equalsIgnoreCase(extension)){
             // classloader/xx.zip
             targetFile =  new File(modulDir, fileItem.getName());
         }
@@ -70,7 +72,8 @@ public class ClassLoaderServlet extends BaseServlet {
             }
         }
 
-        if("zip".equalsIgnoreCase(extension)) {
+        // zip2 表示是已经处理好目录的 class 文件,zip 文件是没有处理好目录的 class 文件列表
+        if("zip2".equalsIgnoreCase(extension)) {
             classLoaderManager.loadZipClassess(targetFile, title);
         }else if("class".equalsIgnoreCase(extension)){
             classLoaderManager.loadSingleClass(targetFile);
@@ -81,8 +84,42 @@ public class ClassLoaderServlet extends BaseServlet {
             logger.info("编译并加载 bean : [{}]",simpleJavaBeanBuilder.getClassName());
             compileService.compile(simpleJavaBeanBuilder);
             classLoaderManager.loadClasses(singleClassesDir,"singleClasses");
+        }else if("zip".equalsIgnoreCase(extension)){
+            // 解压文件到当前目录
+            File file = new File(modulDir, title);
+            ZipUtil.unzip(targetFile,file.getAbsolutePath());
+            targetFile.delete();        // 删除 zip 文件
+            readPackageNameAndMove(file);
+
+            // 加载到类加载器
+            classLoaderManager.loadClasses(file,title);
         }
         return 0;
+    }
+
+    /**
+     * 读取并创建所有类的包路径 ,然后移动文件
+     * @param dir
+     * @throws IOException
+     */
+    public void readPackageNameAndMove(File dir) throws IOException {
+        Collection<File> files = FileUtils.listFiles(dir, new String[]{"class"}, false);
+        for (File file : files) {
+            FileInputStream fileInputStream = new FileInputStream(file);
+            ClassReader reader = new ClassReader(fileInputStream);
+            ClassNode classNode = new ClassNode();//创建ClassNode,读取的信息会封装到这个类里面
+            reader.accept(classNode, 0);//开始读取
+            fileInputStream.close();
+
+            // 创建包路径
+            File classFileNoSuffix = new File(dir, classNode.name+".class");
+            classFileNoSuffix.getParentFile().mkdirs();
+
+            // 移动文件
+            FileUtils.copyFile(file,classFileNoSuffix);
+            // 删除原来文件
+            FileUtils.deleteQuietly(file);
+        }
     }
 
     static {
