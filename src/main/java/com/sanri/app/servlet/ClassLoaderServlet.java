@@ -2,6 +2,8 @@ package com.sanri.app.servlet;
 
 import com.sanri.app.BaseServlet;
 import com.sanri.app.classloader.ClassLoaderManager;
+import com.sanri.app.classloader.CompileService;
+import com.sanri.app.jdbc.codegenerate.SimpleJavaBeanBuilder;
 import com.sanri.frame.DispatchServlet;
 import com.sanri.frame.RequestMapping;
 import org.apache.commons.fileupload.FileItem;
@@ -12,6 +14,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Set;
 
 /**
@@ -24,6 +27,7 @@ public class ClassLoaderServlet extends BaseServlet {
     public static File modulDir  = null;
     public static File singleClassesDir = null;
     private FileManagerServlet fileManagerServlet = DispatchServlet.getServlet(FileManagerServlet.class);
+    private CompileService compileService = new CompileService();
 
     public Set<String> classloaders(){
         return classLoaderManager.classloaders();
@@ -57,11 +61,13 @@ public class ClassLoaderServlet extends BaseServlet {
         }
 
         // 复制 class 或 zip 到目标路径
-        FileOutputStream fileOutputStream = new FileOutputStream(targetFile);
-        try {
-            IOUtils.copy(fileItem.getInputStream(), fileOutputStream);
-        }finally {
-           IOUtils.closeQuietly(fileOutputStream);
+        if(targetFile != null) {
+            FileOutputStream fileOutputStream = new FileOutputStream(targetFile);
+            try {
+                IOUtils.copy(fileItem.getInputStream(), fileOutputStream);
+            } finally {
+                IOUtils.closeQuietly(fileOutputStream);
+            }
         }
 
         if("zip".equalsIgnoreCase(extension)) {
@@ -69,7 +75,12 @@ public class ClassLoaderServlet extends BaseServlet {
         }else if("class".equalsIgnoreCase(extension)){
             classLoaderManager.loadSingleClass(targetFile);
         }else if("java".equalsIgnoreCase(extension)){
-
+            InputStream inputStream = fileItem.getInputStream();
+            String content = IOUtils.toString(inputStream);
+            SimpleJavaBeanBuilder simpleJavaBeanBuilder = compileService.javaBeanAdapter(content);
+            logger.info("编译并加载 bean : [{}]",simpleJavaBeanBuilder.getClassName());
+            compileService.compile(simpleJavaBeanBuilder);
+            classLoaderManager.loadClasses(singleClassesDir,"singleClasses");
         }
         return 0;
     }

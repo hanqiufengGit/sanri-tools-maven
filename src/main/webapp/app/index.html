@@ -42,12 +42,30 @@
 
             height: 130px;
         }
+        .thumbnail .help{
+            color: lightgreen;
+        }
+        .thumbnail .help a{
+            color: lightsteelblue;
+        }
+        .thumbnail .help a:hover{
+            text-decoration: none;
+            color: #333;
+        }
         .caption h3>a{
             display: block;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         .caption p{
             font-size: 15px;
-            padding-top: 20px;
+            padding-top: 15px;
+
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 2;
+            overflow: hidden;
         }
         .tool-item>.thumbnail{
             position: relative;
@@ -116,8 +134,11 @@
                     <a href="{{url}}" target="_blank">{{title}}</a>
                     <small>{{author}}</small>
                 </h3>
-                <p>{{desc}}</p>
+                <p title="{{desc}}">{{desc}}</p>
             </div>
+            {{if help != null}}
+            <p class="help"><a href="{{help}}" target="_blank">使用说明</a></p>
+            {{/if}}
             <b class="totalCalls">{{totalCalls}}</b>
             <span class="lastCallTime">{{lastCallTime | dateFormat:'yyyy-MM-dd HH:mm:ss'}}</span>
         </div>

@@ -20,9 +20,10 @@ import sanri.utils.RegexValidate;
 import com.sanri.app.jdbc.Column;
 import com.sanri.app.jdbc.Table;
 /**
- * 
+ *
  * @author sanri
  * 传入类型时,如果不是 java.lang 类型或基本类型时,需完整类名
+ * @Deprecated
  */
 public class JavaBean{
 	//codes
@@ -38,8 +39,8 @@ public class JavaBean{
 	//content mark
 	private Table table;
 	private Map<String,Column> columns;
-	
-	//the constants 
+
+	//the constants
 	public static final String PLACEHOLDER="\t";
 	public static final String STATEMENT_END=";";
 	public static final String N = "\n";
@@ -53,18 +54,18 @@ public class JavaBean{
 	 * 功能:构建 javabean 代码,并把代码一行一行放到 List<String> 中
 	 * 创建时间:2016-4-15下午9:40:09
 	 * 作者：sanri
-	 * 入参说明:it self 
+	 * 入参说明:it self
 	 *　出参说明：List<String> 一行一行的代码
 	 * @return
 	 */
 	public List<String> build(){
-		
+
 		List<String> classCode = new ArrayList<String>();
 		Set<String> headList = new LinkedHashSet<String>();
 		List<String> body = new ArrayList<String>();
 		List<String> fields = new ArrayList<String>();
 		List<String> methods = new ArrayList<String>();
-		
+
 		headList.add("package "+packageName+STATEMENT_END+N);
 //		headList.add("import java.io.Serializable"+STATEMENT_END); //到基类中实现序列化
 		if(!StringUtils.isBlank(classComment)){
@@ -91,12 +92,12 @@ public class JavaBean{
 				if(!RegexValidate.isEmpty(excludeColumns) && excludeColumns.contains(column)){continue;}
 				String colType = columnEntry.getValue();
 				String colComment = propertysComments.get(column);
-				
+
 				if(!StringUtils.isBlank(colComment)){
 					fields.add(PLACEHOLDER+COMMENTS_LINE+" "+colComment);
 				}
 				//引入其它类型
-				String typeName = colType; 
+				String typeName = colType;
 				if(colType.indexOf(".") != -1){
 					headList.add("import "+colType+STATEMENT_END);
 					typeName = colType.substring(colType.lastIndexOf(".") + 1);
@@ -110,7 +111,7 @@ public class JavaBean{
 		body.add(BODY_END);
 		classCode.addAll(headList);
 		classCode.addAll(body);
-		
+
 		return classCode;
 	}
 	/*
@@ -126,7 +127,7 @@ public class JavaBean{
 		methods.add(PLACEHOLDER+PLACEHOLDER+"return this."+column+STATEMENT_END);
 		methods.add(PLACEHOLDER+"}");
 	}
-	
+
 	/**
 	 * 功能:将代码列表写出到文件<br/>
 	 * 创建时间:2016-9-25下午2:33:27<br/>
@@ -138,17 +139,17 @@ public class JavaBean{
 		File javaFile = new File(outputDir, className+".java");
 		FileWriter fr = null;
 		try {
-			fr = new FileWriter(javaFile); 
+			fr = new FileWriter(javaFile);
 			IOUtils.writeLines(javaClass, N, fr);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}finally{
 			IOUtils.closeQuietly(fr);
 		}
-		
+
 		return javaFile;
 	}
-	
+
 	public File writerBean(List<String> javaClass,String outputPath){
 		File outputDir = new File(outputPath);
 		if(!outputDir.exists())outputDir.mkdirs();

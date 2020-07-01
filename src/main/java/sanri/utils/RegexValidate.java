@@ -3,7 +3,9 @@ package sanri.utils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -75,25 +77,26 @@ public class RegexValidate {
 	 * 时间:2016-9-26下午1:34:40</br>
 	 * 功能:正则提取字符串</br>
 	 */
-	public static String[] match(String value, Pattern pattern) {
+	public static List<String> match(String value, Pattern pattern) {
 		if (value == null)
 			return null;
+
+		List<String> matchs = new ArrayList<>();
 		Matcher matcher = pattern.matcher(value);
-//		if (matcher.matches()) {
-		if(matcher.find()){ //修改 bug at 2016/10/14
+		while (matcher.find()){ //修改 bug at 2016/10/14
 			int count = matcher.groupCount();
 			if(count == 0){
 				//零组表示整个模式。它不包括在此计数中。 但又匹配到了,所以返回整个模式匹配串 修改 bug at 2016/10/14 
-				return new String[]{matcher.group()};
+				matchs.add(matcher.group());
+			}else{
+				for (int i = 0; i < count; i++) {
+					String group = matcher.group(i + 1);
+					matchs.add(group);
+				}
 			}
-			String groups[] = new String[count];
-			for (int j = 0; j < count; j++)
-				groups[j] = matcher.group(j + 1);
-
-			return groups;
 		}
 
-		return null;
+		return matchs;
 	}
 	
 	/**

@@ -1,5 +1,13 @@
 //package learntest;
 //
+//import com.sun.source.tree.ModifiersTree;
+//import com.sun.source.tree.VariableTree;
+//import com.sun.source.util.TreeScanner;
+//
+//import java.util.List;
+//
+//
+//
 //import java.io.File;
 //import java.io.FileInputStream;
 //import java.io.IOException;
@@ -33,10 +41,11 @@
 //
 //public class JDKParser {
 //
-//	static class FieldScanner extends TreeScanner<List<String>,List<String>>{
+//	static class FieldScanner extends TreeScanner<List<String>,List<String>> {
 //		@Override
 //		public List<String> visitVariable(VariableTree node, List<String> fields) {
-//			fields.add(node.toString());
+//            ModifiersTree modifiers = node.getModifiers();
+//            fields.add(node.toString());
 //			return fields;
 //		}
 //	}
@@ -63,8 +72,7 @@
 //	public void testCompile() throws IOException, ClassNotFoundException {
 //		CompileService compileService = new CompileService();
 //		String content = FileUtils.readFileToString(new File("d:/test/FileInfo.java"));
-//		Class<?> compile = compileService.compile("com.sanri.app.dtos.FileInfo", content);
-//		System.out.println(compile);
+//		compileService.compile("com.sanri.app.dtos.FileInfo", content);
 //	}
 //
 //	@Test

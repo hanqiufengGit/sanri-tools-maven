@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static com.sanri.app.jdbc.codegenerate.JavaBean.*;
 
 /**
  * 
@@ -46,6 +45,15 @@ public class JavaPojo  {
 	private RenamePolicy renamePolicy = null;
 
 	private List<String> supports = new ArrayList<String>();
+
+	public static final String PLACEHOLDER="\t";
+	public static final String STATEMENT_END=";";
+	public static final String N = "\n";
+	public static final String COMMENTS_LINE = "//";
+	public static final String COMMENTS_MULTI_LINE_BEGIN = "/**";
+	public static final String COMMENTS_MULTI_LINE_END = " */";
+	public static final String BODY_BEGIN = "{";
+	public static final String BODY_END = "}";
 	
 	//使用 persistent api 时需要导入的几个注解
 	private static final List<String> HIBERNATE_IMPORT = new ArrayList<String>();

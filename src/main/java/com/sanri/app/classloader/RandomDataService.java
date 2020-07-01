@@ -185,10 +185,13 @@ public class RandomDataService {
             if(lowerCase.contains("uuid")){
                 value = UUID.randomUUID().toString().replace("-","");
             }else
+                if(lowerCase.contains("id")){
+                    value = RandomUtils.nextInt(10,10000) + "";
+                }else
             if(lowerCase.contains("job")){
                 value = RandomUtil.job();
             }else
-            if(lowerCase.contains("status") || lowerCase.contains("state")){
+            if(lowerCase.contains("status") || lowerCase.contains("state") || lowerCase.contains("type")){
                 value = RandomUtil.status("1","2","3");
             }else
             if(lowerCase.contains("time") || (lowerCase.contains("date") && !lowerCase.equals("update")) || lowerCase.contains("birthday")){

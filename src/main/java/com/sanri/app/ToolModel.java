@@ -15,6 +15,8 @@ public class ToolModel {
     private int totalCalls;
     private long lastCallTime;
     private String component;
+    // 帮助文档
+    private String help;
     //用于配置在哪些环境可以访问此工具
     private Set<String> envs = new HashSet<>();
 
@@ -118,5 +120,13 @@ public class ToolModel {
 
     public void setComponent(String component) {
         this.component = component;
+    }
+
+    public String getHelp() {
+        return help;
+    }
+
+    public void setHelp(String help) {
+        this.help = help;
     }
 }
