@@ -152,6 +152,17 @@ https://github.com/sanri1993/sanri-tools-maven/releases
 - 待优化:可能考虑在 tablehelp 中加入索引查看与新建功能,不知道这块的需求有多大
 - 待优化:现在上传 DTO 的流程太过复杂,后面考虑上传单个 class 文件,或者直接动态编译 Java 类
 
+#### 2020/?/? 更新
+
+- 首页增加每个工具的使用说明
+- 类加载器上传 dto 优化，可以上传单个 class 或单个 java 源文件; zip 上传优化可以不用关心 class 的层次结构 , zip2 后缀兼容以前的完整路径 
+- 小说抓取代码优化，使用注解来抓取 
+- redis 数据查看优化，hash list 结构数据为避免数据过大，添加 key 和范围查询
+- 优化随机数据生成，使支持任意类型，除了树型结构
+- 增加 swaggerui 文档生成，可以转 word 文档
+- kafka 工具增加删除消费组功能,可以更好的配置 kafka 连接
+
+
 ### 演示效果图
 
 ![首页](http://pic.yupoo.com/sanri1993/81d03f16/30e994b3.png)

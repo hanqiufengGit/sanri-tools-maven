@@ -4,6 +4,7 @@ define(['util','dialog'],function (util,dialog) {
 
     var apis = {
         groups:'/kafka/groups',
+        delGroup:'/kafka/deleteGroup',
         detail:'/kafka/readConfig',
         connNames:'/file/manager/simpleConfigNames',
         setThirdpartTool:'/kafka/setThirdpartTool',
@@ -48,7 +49,7 @@ define(['util','dialog'],function (util,dialog) {
             for (var i=0;i<groups.length;i++){
                 var group = groups[i];
                 util.ajax({url:apis.groupSubscribeTopics,data:{group:group,clusterName:groupsPage.conn},async:false},function(topics){
-                    $('<a class="list-group-item group" group='+group+'> <span>'+group+'</span> <span class="badge list-group-item-success"> '+topics.length+' </span> </a>').appendTo($groups);
+                    $('<a class="list-group-item group" group='+group+'> <span>'+group+'</span> <b class="pull-right text-danger margin-left">删除</b> <span class="badge list-group-item-success"> '+topics.length+' </span> </a>').appendTo($groups);
                 });
             }
             layer.close(index);
@@ -62,10 +63,23 @@ define(['util','dialog'],function (util,dialog) {
             {selector:'#thirdpart',types:['click'],handler:thirdpart},
             {parent:'#connect>.dropdown-menu',selector:'li',types:['click'],handler:switchConn},
             {parent:'#groups>.list-group',selector:'a',types:['click'],handler:subscribeTopicsPage},
+            {parent:'#groups>.list-group',selector:'b',types:['click'],handler:deleteGroup},
             {selector:'#admin',types:['click'],handler:adminPage}];
         util.regPageEvents(events);
 
+        function deleteGroup() {
+            var group = $(this).closest('a').attr('group');
+            layer.confirm('确定删除消费组:'+group,function (r) {
+                if(r){
+                    util.requestData(apis.delGroup,{clusterName:groupsPage.conn,group:group},function () {
+                        layer.msg('删除成功');
+                        $(this).closest('a.list-group-item').remove();
+                    })
+                }
+            });
 
+        }
+        
         function subscribeTopicsPage() {
             var group = $(this).attr('group');
             util.tab('/app/kafka/subscribeTopics.html',{group:group,name:groupsPage.conn});

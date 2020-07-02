@@ -3,9 +3,13 @@ package minitest;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.sanri.app.jdbc.ExConnection;
+import com.sanri.app.jdbc.Schema;
+import com.sanri.app.jdbc.Table;
 import com.sanri.app.jdbc.codegenerate.SimpleJavaBeanBuilder;
 import com.sanri.app.translate.TranslateCharSequence;
 import com.sanri.app.translate.TranslateSupport;
+import com.sanri.initexec.InitJdbcConnections;
 import freemarker.template.Version;
 import io.swagger.models.Swagger;
 import jdk.internal.org.objectweb.asm.ClassReader;
@@ -25,6 +29,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -260,5 +265,21 @@ public class ToolsSysTest {
         String name = cn.name;
         System.out.println(name);
         resourceAsStream.close();
+    }
+
+    @Test
+    public void testLoadTables() throws SQLException {
+        InitJdbcConnections initJdbcConnections = new InitJdbcConnections();
+        initJdbcConnections.execute();
+        ExConnection exConnection = InitJdbcConnections.CONNECTIONS.get("hdsc");
+        List<Table> tables = exConnection.tables("hdsc_db", true);
+        for (Table table : tables) {
+            String tableName = table.getTableName();
+            if(tableName.startsWith("mct")){
+                System.out.println("-- 删除表 "+table.getComments());
+                System.out.println("truncate "+ tableName +";");
+            }
+        }
+
     }
 }

@@ -1,5 +1,6 @@
 package com.sanri.app.servlet;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.sanri.app.BaseServlet;
@@ -11,6 +12,7 @@ import com.sanri.app.dtos.kafka.PartitionKafkaData;
 import com.sanri.frame.RequestMapping;
 import org.I0Itec.zkclient.serialize.ZkSerializer;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.admin.*;
@@ -63,6 +65,7 @@ public class KafkaServlet extends BaseServlet{
         kafkaConnInfo.setZkConnectStrings(zkConnStrings);
         kafkaConnInfo.setClusterName(zkConn);
         String chroot = kafkaConnInfo.getChroot();
+        kafkaConnInfo.setJaasConfig(StringEscapeUtils.escapeJava(kafkaConnInfo.getJaasConfig()));
         fileManagerServlet.writeConfig(modul,zkConn, JSONObject.toJSONString(kafkaConnInfo));
         return 0;
     }
@@ -143,6 +146,18 @@ public class KafkaServlet extends BaseServlet{
             groupNames.add(groupId);
         }
         return groupNames;
+    }
+
+    /**
+     * 删除消费组
+     * @param clusterName
+     * @param group
+     * @return
+     */
+    public int deleteGroup(String clusterName,String group) throws IOException {
+        AdminClient adminClient = loadAdminClient(clusterName);
+        adminClient.deleteConsumerGroups(Collections.singletonList(group));
+        return 0;
     }
 
     /**

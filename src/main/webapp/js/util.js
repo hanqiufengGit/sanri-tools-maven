@@ -308,6 +308,9 @@ define(['layer','formvalidate','autoheight'],function(layer){
             value = this.substring(idx + 1, this.length);
 
             value = vFilter.call(param, key, value) || value;
+            // 解决空格空 + 号问题 ; serializable 会使 + 号变空格
+            value = value.replace(/\+/g,' ');
+            value = decodeURIComponent(value);
 
             if(ret[key]) {
                 if(-1 === ret[key].indexOf(value)) {
