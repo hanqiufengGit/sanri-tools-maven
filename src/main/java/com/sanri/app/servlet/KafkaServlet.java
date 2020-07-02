@@ -1,19 +1,16 @@
 package com.sanri.app.servlet;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.sanri.app.BaseServlet;
-import com.sanri.app.dtos.kafka.KafkaConnInfo;
-import com.sanri.app.dtos.kafka.OffsetShow;
-import com.sanri.app.dtos.kafka.TopicOffset;
-import com.sanri.app.dtos.kafka.KafkaData;
-import com.sanri.app.dtos.kafka.PartitionKafkaData;
+import com.sanri.app.dtos.kafka.*;
+import com.sanri.app.dtos.kafka.MBeanInfo;
 import com.sanri.frame.RequestMapping;
 import org.I0Itec.zkclient.serialize.ZkSerializer;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.admin.*;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -25,9 +22,16 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.*;
 import org.apache.kafka.common.config.SaslConfigs;
 import org.apache.kafka.common.security.auth.SecurityProtocol;
+import org.springframework.core.Constants;
+import org.springframework.util.ReflectionUtils;
 import sanri.utils.NumberUtil;
 
+import javax.management.*;
+import javax.management.remote.JMXConnector;
+import javax.management.remote.JMXConnectorFactory;
+import javax.management.remote.JMXServiceURL;
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
@@ -123,8 +127,14 @@ public class KafkaServlet extends BaseServlet{
      * @return
      * @throws IOException
      */
-    public Collection<String> brokers(String clusterName) throws IOException {
-        return brokers(readConfig(clusterName)).values();
+    public List<String> brokers(String clusterName) throws IOException {
+        List<BrokerInfo> brokerInfos = brokers(readConfig(clusterName));
+        List<String> servers = new ArrayList<>();
+        for (BrokerInfo brokerInfo : brokerInfos) {
+            String server = brokerInfo.getHost() + ":" + brokerInfo.getPort();
+            servers.add(server);
+        }
+        return servers;
     }
 
     /**
@@ -154,9 +164,10 @@ public class KafkaServlet extends BaseServlet{
      * @param group
      * @return
      */
-    public int deleteGroup(String clusterName,String group) throws IOException {
+    public int deleteGroup(String clusterName,String group) throws IOException, ExecutionException, InterruptedException {
         AdminClient adminClient = loadAdminClient(clusterName);
-        adminClient.deleteConsumerGroups(Collections.singletonList(group));
+        DeleteConsumerGroupsResult deleteConsumerGroupsResult = adminClient.deleteConsumerGroups(Collections.singletonList(group));
+        deleteConsumerGroupsResult.all().get();
         return 0;
     }
 
@@ -545,6 +556,94 @@ public class KafkaServlet extends BaseServlet{
         return 0;
     }
 
+    /**
+     * 数据监控
+     * @param clusterName
+     * @param topic
+     */
+    private static final String JMX = "service:jmx:rmi:///jndi/rmi://%s/jmxrmi";
+    public Collection<MBeanInfo> brokerMonitor(String clusterName) throws IOException, MalformedObjectNameException, AttributeNotFoundException, MBeanException, ReflectionException, InstanceNotFoundException {
+        return monitor(clusterName,BrokerTopicMetrics.BrokerMetrics.class,null);
+    }
+
+    /**
+     * topic 监控
+     * @param clusterName
+     * @param topic
+     * @return
+     */
+    public Collection<MBeanInfo> topicMonitor(String clusterName, String topic) throws IOException, MalformedObjectNameException, AttributeNotFoundException, MBeanException, ReflectionException, InstanceNotFoundException{
+       return  monitor(clusterName,BrokerTopicMetrics.TopicMetrics.class,topic);
+    }
+
+    private Collection<MBeanInfo> monitor(String clusterName, Class clazz, String topic) throws IOException, MBeanException, AttributeNotFoundException, InstanceNotFoundException, ReflectionException, MalformedObjectNameException {
+        KafkaConnInfo kafkaConnInfo = readConfig(clusterName);
+        List<BrokerInfo> brokers = brokers(kafkaConnInfo);
+
+        List<MBeanInfo> mBeanInfos = new ArrayList<>();
+        for (BrokerInfo broker : brokers) {
+            String host = broker.getHost();
+            int jxmPort = broker.getJxmPort();
+            String uri = host+":"+jxmPort;
+            if(jxmPort == -1){
+                return null;
+            }
+
+            JMXServiceURL jmxSeriverUrl = new JMXServiceURL(String.format(JMX, uri));
+            JMXConnector connector = JMXConnectorFactory.connect(jmxSeriverUrl);
+            MBeanServerConnection mbeanConnection = connector.getMBeanServerConnection();
+
+            // 遍历所有的 mBean
+            Constants constants = new Constants(clazz);
+            List<String> mBeans = constansValues(constants);
+            for (String mBean : mBeans) {
+                if (clazz == BrokerTopicMetrics.TopicMetrics.class){
+                    mBean = String.format(mBean,topic);
+                }
+                Object fifteenMinuteRate = mbeanConnection.getAttribute(new ObjectName(mBean), BrokerTopicMetrics.MBean.FIFTEEN_MINUTE_RATE);
+                Object fiveMinuteRate = mbeanConnection.getAttribute(new ObjectName(mBean), BrokerTopicMetrics.MBean.FIVE_MINUTE_RATE);
+                Object meanRate = mbeanConnection.getAttribute(new ObjectName(mBean), BrokerTopicMetrics.MBean.MEAN_RATE);
+                Object oneMinuteRate = mbeanConnection.getAttribute(new ObjectName(mBean), BrokerTopicMetrics.MBean.ONE_MINUTE_RATE);
+                MBeanInfo mBeanInfo = new MBeanInfo(mBean,objectDoubleValue(fifteenMinuteRate), objectDoubleValue(fiveMinuteRate), objectDoubleValue(meanRate), objectDoubleValue(oneMinuteRate));
+                mBeanInfos.add(mBeanInfo);
+            }
+        }
+
+        // 数据合并
+        Map<String,MBeanInfo> mergeMap = new HashMap<>();
+        for (MBeanInfo mBeanInfo : mBeanInfos) {
+            String mBean = mBeanInfo.getmBean();
+            MBeanInfo mergeMBeanInfo = mergeMap.get(mBean);
+            if(mergeMBeanInfo == null){
+                mergeMBeanInfo = mBeanInfo;
+                mergeMap.put(mBean,mergeMBeanInfo);
+                continue;
+            }
+            mergeMBeanInfo.addData(mBeanInfo);
+        }
+
+        return mergeMap.values();
+    }
+
+    private double objectDoubleValue(Object value){
+        return  NumberUtils.toDouble(value.toString());
+    }
+
+    private List<String> constansValues(Constants constants) {
+        List<String> mMbeans = new ArrayList<>();
+        try {
+            Method getFieldCache = Constants.class.getDeclaredMethod("getFieldCache");
+            getFieldCache.setAccessible(true);
+            Map<String, Object> invokeMethod = (Map<String, Object>) ReflectionUtils.invokeMethod(getFieldCache, constants);
+            Collection<Object> values = invokeMethod.values();
+
+            for (Object value : values) {
+                mMbeans.add(Objects.toString(value));
+            }
+        } catch (NoSuchMethodException e) {}
+        return mMbeans;
+    }
+
 //    private Collection<DescribeLogDirsResponse.LogDirInfo> logDirsInfosxxx(String clusterName) throws IOException, InterruptedException, ExecutionException {
 //        AdminClient adminClient = loadAdminClient(clusterName);
 //
@@ -559,8 +658,8 @@ public class KafkaServlet extends BaseServlet{
 //    }
 
     static Pattern ipPort = Pattern.compile("(\\d+\\.\\d+\\.\\d+\\.\\d+):(\\d+)");
-    private Map<String,String> brokers(KafkaConnInfo kafkaConnInfo) throws IOException {
-        Map<String,String> brokers = new HashMap<>();
+    private List<BrokerInfo> brokers(KafkaConnInfo kafkaConnInfo) throws IOException {
+        List<BrokerInfo> brokerInfos = new ArrayList<>();
         String clusterName = kafkaConnInfo.getClusterName();
         String chroot = kafkaConnInfo.getChroot();
 
@@ -570,6 +669,7 @@ public class KafkaServlet extends BaseServlet{
             JSONObject brokerJson = JSONObject.parseObject(brokerInfo);
             String host = brokerJson.getString("host");
             int port = brokerJson.getIntValue("port");
+            int jmxPort = brokerJson.getIntValue("jmx_port");
 
             if(StringUtils.isBlank(host)){
                 //如果没有提供 host 和 port 信息，则从 endpoints 中拿取信息
@@ -582,9 +682,9 @@ public class KafkaServlet extends BaseServlet{
                 }
             }
 
-            brokers.put(children,host+":"+port);
+            brokerInfos.add(new BrokerInfo(NumberUtils.toInt(children),host,port,jmxPort));
         }
-        return brokers;
+        return brokerInfos;
     }
 
     AdminClient loadAdminClient(String clusterName) throws IOException {
@@ -605,8 +705,9 @@ public class KafkaServlet extends BaseServlet{
         Properties properties = createDefaultConfig(clusterName);
 
         //从 zk 中拿到 bootstrapServers
-        Collection<String> brokers = brokers(kafkaConnInfo).values();
-        String bootstrapServers = StringUtils.join(brokers,',');
+        List<String> servers = brokers(clusterName);
+
+        String bootstrapServers = StringUtils.join(servers,',');
         properties.put("bootstrap.servers", bootstrapServers);
 
         if(StringUtils.isNotBlank(kafkaConnInfo.getSaslMechanism())) {

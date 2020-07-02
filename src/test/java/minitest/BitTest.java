@@ -1,21 +1,27 @@
 package minitest;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
+import com.sanri.app.dtos.kafka.BrokerTopicMetrics;
+import org.apache.commons.beanutils.MethodUtils;
 import org.junit.Test;
+import org.springframework.cglib.core.ReflectUtils;
+import org.springframework.core.Constants;
+import org.springframework.util.ReflectionUtils;
 
 import java.io.File;
-import java.io.IOException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.lang.reflect.Method;
+import java.util.Map;
 
 public class BitTest {
+    @Test
+    public void test() throws NoSuchMethodException {
+        Constants constants = new Constants(BrokerTopicMetrics.BrokerMetrics.class);
+//        Method getFieldCache = MethodUtils.(Constants.class, "getFieldCache");
+        Method getFieldCache = ReflectUtils.findDeclaredMethod(Constants.class, "getFieldCache", null);
+        getFieldCache.setAccessible(true);
+        Map<String, Object> invokeMethod = (Map<String, Object>) ReflectionUtils.invokeMethod(getFieldCache, constants);
+        System.out.println(invokeMethod);
+    }
+
     @Test
     public void testRightBit(){
         int a = 15;

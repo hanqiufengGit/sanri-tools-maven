@@ -72,4 +72,7 @@ GET {{baseUrl}}/redis/scan?connName=company&pattern=*AUTH:sso_user*&limit=10
 ### 随机数据-随机列表数据
 GET {{baseUrl}}/random/randomListData?className=com.sanri.test.testredis.dto.NormalObject&classloaderName=Normal-test.zip-loader
 
+### kafka 监控
+GET {{baseUrl}}/kafka/brokerMonitor?clusterName=10.101.72.42_2182
+
 ###

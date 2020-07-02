@@ -58,6 +58,7 @@
                 <div class="button-group ">
                     <button id="newconnbtn" class="btn btn-primary btn-sm"><i class="fa fa-plus"></i> 新连接</button>
                     <button id="thirdpart" class="btn btn-success btn-sm"><i class="fa fa-cogs"></i> 设置监控地址</button>
+                    <button id="monitor" class="btn btn-info btn-sm"><i class="fa fa-minus-square-o"></i> 流量监控</button>
                 </div>
             </div>
         </div>
@@ -71,6 +72,7 @@
     </div>
 </div>
 
+<!--设置第三方监控-->
 <div class="open-dialog" id="setthirdpart">
     <form class="form-horizontal">
         <div class="form-group">
@@ -191,6 +193,27 @@
             </div>
         </div>
     </form>
+</div>
+
+<!-- 监控数据 -->
+<div class="open-dialog" id="brokerMonitor">
+    <div class="btn-group btn-group-sm">
+        <button name="refresh" class="btn btn-link"><i class="fa fa-refresh"></i></button>
+    </div>
+    <table class="table table-bordered table-striped">
+        <thead>
+        <tr>
+            <th>key</th>
+            <th>实时比率</th>
+            <th>每分钟</th>
+            <th>每五分钟</th>
+            <th>每十五分钟</th>
+        </tr>
+        </thead>
+        <tbody>
+
+        </tbody>
+    </table>
 </div>
 
 <script type="text/javascript" src="../../js/requirejs2.1.11-min.js"></script>

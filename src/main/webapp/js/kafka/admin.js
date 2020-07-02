@@ -9,7 +9,8 @@ define(['util','dialog','jsoneditor','icheck','jsonview'],function (util,dialog,
         nearbyDatas:'/kafka/nearbyDatas',
         serializes:'/zk/serializes',
         sendKafkaData:'/kafka/sendJsonData',
-        allPartitionDatas:'/kafka/allPartitionDatas'
+        allPartitionDatas:'/kafka/allPartitionDatas',
+        monitor: '/kafka/topicMonitor'
     }
     kafkaAdmin.init = function () {
         bindEvents();
@@ -97,9 +98,40 @@ define(['util','dialog','jsoneditor','icheck','jsonview'],function (util,dialog,
             {selector:'#validJson',types:['click'],handler:validJson},
             {selector:'#compactJson',types:['click'],handler:compactJson},
             {selector:'#sendData',types:['click'],handler:sendKafkaData},
-            {selector:'#allPartitionDatas',types:['click'],handler:allPartitionDatas}];
+            {selector:'#allPartitionDatas',types:['click'],handler:allPartitionDatas},
+            {selector:'#monitor',types:['click'],handler:topicMonitor}];
 
         util.regPageEvents(events);
+
+        /**
+         * 主题流量监控
+         */
+        function topicMonitor() {
+            dialog.create('集群监控')
+                .setContent($('#topicMonitor'))
+                .setWidthHeight('70%', '50%')
+                .build();
+            refreshTopicMonitor();
+        }
+
+        /**
+         * 刷新主题数据监控
+         */
+        function refreshTopicMonitor() {
+            var topic = $('#topicname').data('topic');
+            util.requestData(apis.monitor,{clusterName:kafkaAdmin.conn,topic:topic},function (data) {
+                let htmlCode = [];
+                for (let i=0;i<data.length;i++){
+                    let item = data[i];
+                    item.meanRate = parseFloat(item.meanRate).toFixed(2);
+                    item.oneMinute = parseFloat(item.oneMinute).toFixed(2);
+                    item.fiveMinute = parseFloat(item.fiveMinute).toFixed(2);
+                    item.fifteenMinute = parseFloat(item.fifteenMinute).toFixed(2);
+                    htmlCode.push('<tr><td>'+item.mBean+'</td><td>'+item.meanRate+'</td><td>'+item.oneMinute+'</td><td>'+item.fiveMinute+'</td><td>'+item.fifteenMinute+'</td></tr>')
+                }
+                $('#topicMonitor').find('tbody').html(htmlCode.join(''));
+            });
+        }
 
         // 获取所有分区 kafka 数据列表,常用于调试 kafka 消息
         function allPartitionDatas() {

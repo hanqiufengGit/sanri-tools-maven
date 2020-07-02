@@ -13,7 +13,8 @@ define(['util','dialog'],function (util,dialog) {
         zkConns:'/file/manager/simpleConfigNames',
         brokers:'/kafka/brokers',
         writeJaasFile:'/kafka/writeJaasFile',
-        readConfig:'/file/manager/readConfig'
+        readConfig:'/file/manager/readConfig',
+        monitor:'/kafka/brokerMonitor'
     }
 
     groups.init = function () {
@@ -64,9 +65,40 @@ define(['util','dialog'],function (util,dialog) {
             {parent:'#connect>.dropdown-menu',selector:'li',types:['click'],handler:switchConn},
             {parent:'#groups>.list-group',selector:'a',types:['click'],handler:subscribeTopicsPage},
             {parent:'#groups>.list-group',selector:'b',types:['click'],handler:deleteGroup},
-            {selector:'#admin',types:['click'],handler:adminPage}];
+            {selector:'#admin',types:['click'],handler:adminPage},
+            {selector:'#monitor',types:['click'],handler:brokerMonitor},
+            {selector:'#brokerMonitor button[name=refresh]',types:['click'],handler:refreshBrokerMonitor}];
         util.regPageEvents(events);
 
+        /**
+         * 集群监控
+         */
+        function brokerMonitor() {
+            dialog.create('集群监控')
+                .setContent($('#brokerMonitor'))
+                .setWidthHeight('70%', '50%')
+                .build();
+            refreshBrokerMonitor();
+        }
+
+        function refreshBrokerMonitor() {
+            util.requestData(apis.monitor,{clusterName:groupsPage.conn},function (data) {
+                let htmlCode = [];
+                for (let i=0;i<data.length;i++){
+                    let item = data[i];
+                    item.meanRate = parseFloat(item.meanRate).toFixed(2);
+                    item.oneMinute = parseFloat(item.oneMinute).toFixed(2);
+                    item.fiveMinute = parseFloat(item.fiveMinute).toFixed(2);
+                    item.fifteenMinute = parseFloat(item.fifteenMinute).toFixed(2);
+                    htmlCode.push('<tr><td>'+item.mBean+'</td><td>'+item.meanRate+'</td><td>'+item.oneMinute+'</td><td>'+item.fiveMinute+'</td><td>'+item.fifteenMinute+'</td></tr>')
+                }
+                $('#brokerMonitor').find('tbody').html(htmlCode.join(''));
+            });
+        }
+
+        /**
+         * 删除消费组
+         */
         function deleteGroup() {
             var group = $(this).closest('a').attr('group');
             layer.confirm('确定删除消费组:'+group,function (r) {

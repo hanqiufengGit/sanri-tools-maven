@@ -72,6 +72,7 @@
 
                     <div class="tab-content padding-top">
                         <div class="active tab-pane" id="profile">
+                            <button class="bn btn-link text-primary" id="monitor"><i class="fa fa-ambulance"></i> 监控 </button>
                             <button class="btn btn-link text-forestgreen" title="重量级搜索,勿经常使用" id="allPartitionDatas"><i class="fa fa-play"></i></button> | <button class="btn btn-link" id="refreshlogsize"><i class="fa fa-refresh"></i></button> <time class="refresh"></time>
                             <table class="table table-bordered table-striped table-hover" id="topicdetail">
                                 <thead>
@@ -133,6 +134,28 @@
         </div>
     </div>
 </div>
+
+<!-- 监控数据 -->
+<div class="open-dialog" id="topicMonitor">
+    <div class="btn-group btn-group-sm">
+        <button name="refresh" class="btn btn-link"><i class="fa fa-refresh"></i></button>
+    </div>
+    <table class="table table-bordered table-striped">
+        <thead>
+        <tr>
+            <th>key</th>
+            <th>实时比率</th>
+            <th>每分钟</th>
+            <th>每五分钟</th>
+            <th>每十五分钟</th>
+        </tr>
+        </thead>
+        <tbody>
+
+        </tbody>
+    </table>
+</div>
+
 
 <!--数据展示对话框-->
 <div class="open-dialog" id="showdataDialog">
