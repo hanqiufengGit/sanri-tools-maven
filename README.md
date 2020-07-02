@@ -161,7 +161,7 @@ https://github.com/sanri1993/sanri-tools-maven/releases
 - 优化随机数据生成，使支持任意类型，除了树型结构
 - 增加 swaggerui 文档生成，可以转 word 文档
 - kafka 工具增加删除消费组功能,可以更好的配置 kafka 连接
-
+- kafka 工具增加流量监控功能,可以监控 实时,每分钟,每5分钟,每 15 分钟的数据流量; 使用 mBean ,基于 jmxPort
 
 ### 演示效果图
 
