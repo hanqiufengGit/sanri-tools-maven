@@ -5,6 +5,8 @@ import com.alibaba.fastjson.JSONObject;
 import com.sanri.app.BaseServlet;
 import com.sanri.app.dtos.kafka.*;
 import com.sanri.app.dtos.kafka.MBeanInfo;
+import com.sanri.app.kafka.ClientMessage;
+import com.sanri.app.kafka.KafkaService;
 import com.sanri.frame.RequestMapping;
 import org.I0Itec.zkclient.serialize.ZkSerializer;
 import org.apache.commons.collections.CollectionUtils;
@@ -43,19 +45,11 @@ import static com.sanri.app.servlet.ZkServlet.zkSerializerMap;
 
 @RequestMapping("/kafka")
 public class KafkaServlet extends BaseServlet{
-
-    // 依赖于 zookeeper,filemanager
-    private ZkServlet zkServlet;
-    private FileManagerServlet fileManagerServlet;
-    private static final String modul = "kafka";
-    private static final String relativeBrokerPath = "/brokers/ids";
-
-    private static final Map<String, AdminClient> adminClientMap = new HashMap<>();
+    public KafkaService kafkaService;
 
     //构造注入,目前仅支持注入 servlet
     public KafkaServlet(ZkServlet zkServlet,FileManagerServlet fileManagerServlet){
-        this.zkServlet = zkServlet;
-        this.fileManagerServlet = fileManagerServlet;
+        kafkaService = new KafkaService(zkServlet,fileManagerServlet);
     }
 
     /**
@@ -65,12 +59,7 @@ public class KafkaServlet extends BaseServlet{
      * @throws IOException
      */
     public int writeConfig(String zkConn, KafkaConnInfo kafkaConnInfo) throws IOException {
-        String zkConnStrings = fileManagerServlet.readConfig(ZkServlet.modul, zkConn);
-        kafkaConnInfo.setZkConnectStrings(zkConnStrings);
-        kafkaConnInfo.setClusterName(zkConn);
-        String chroot = kafkaConnInfo.getChroot();
-        kafkaConnInfo.setJaasConfig(StringEscapeUtils.escapeJava(kafkaConnInfo.getJaasConfig()));
-        fileManagerServlet.writeConfig(modul,zkConn, JSONObject.toJSONString(kafkaConnInfo));
+        kafkaService.writeConfig(zkConn,kafkaConnInfo);
         return 0;
     }
 
@@ -81,23 +70,19 @@ public class KafkaServlet extends BaseServlet{
      * @throws IOException
      */
     public KafkaConnInfo readConfig(String clusterName) throws IOException {
-        String kafkaConnInfoJson = fileManagerServlet.readConfig(modul,clusterName);
-        return JSONObject.parseObject(kafkaConnInfoJson,KafkaConnInfo.class);
+       return kafkaService.readConfig(clusterName);
     }
 
     /**
-     * 创建主键
+     * 创建主题
      * @param clusterName
      * @param topic
      * @param partitions
      * @param replication
      * @return
-     * @throws IOException
-     * @throws ExecutionException
-     * @throws InterruptedException
      */
     public int createTopic(String clusterName,String topic,int partitions,int replication) throws IOException, ExecutionException, InterruptedException {
-        AdminClient adminClient = loadAdminClient(clusterName);
+        AdminClient adminClient = kafkaService.loadAdminClient(clusterName);
         NewTopic newTopic = new NewTopic(topic,partitions,(short)replication);
         CreateTopicsResult createTopicsResult = adminClient.createTopics(Collections.singletonList(newTopic));
         KafkaFuture<Void> voidKafkaFuture = createTopicsResult.values().get(topic);
@@ -115,7 +100,7 @@ public class KafkaServlet extends BaseServlet{
      * @throws InterruptedException
      */
     public int deleteTopic(String clusterName,String topic) throws IOException, ExecutionException, InterruptedException {
-        AdminClient adminClient = loadAdminClient(clusterName);
+        AdminClient adminClient = kafkaService.loadAdminClient(clusterName);
         DeleteTopicsResult deleteTopicsResult = adminClient.deleteTopics(Collections.singletonList(topic));
         deleteTopicsResult.all().get();
         return 0;
@@ -128,13 +113,7 @@ public class KafkaServlet extends BaseServlet{
      * @throws IOException
      */
     public List<String> brokers(String clusterName) throws IOException {
-        List<BrokerInfo> brokerInfos = brokers(readConfig(clusterName));
-        List<String> servers = new ArrayList<>();
-        for (BrokerInfo brokerInfo : brokerInfos) {
-            String server = brokerInfo.getHost() + ":" + brokerInfo.getPort();
-            servers.add(server);
-        }
-        return servers;
+       return kafkaService.brokers(clusterName);
     }
 
     /**
@@ -146,7 +125,7 @@ public class KafkaServlet extends BaseServlet{
      * @throws InterruptedException
      */
     public List<String> groups(String clusterName) throws IOException, ExecutionException, InterruptedException {
-        AdminClient adminClient = loadAdminClient(clusterName);
+        AdminClient adminClient = kafkaService.loadAdminClient(clusterName);
         List<String> groupNames = new ArrayList<>();
 
         ListConsumerGroupsResult listConsumerGroupsResult = adminClient.listConsumerGroups();
@@ -165,7 +144,7 @@ public class KafkaServlet extends BaseServlet{
      * @return
      */
     public int deleteGroup(String clusterName,String group) throws IOException, ExecutionException, InterruptedException {
-        AdminClient adminClient = loadAdminClient(clusterName);
+        AdminClient adminClient = kafkaService.loadAdminClient(clusterName);
         DeleteConsumerGroupsResult deleteConsumerGroupsResult = adminClient.deleteConsumerGroups(Collections.singletonList(group));
         deleteConsumerGroupsResult.all().get();
         return 0;
@@ -179,7 +158,7 @@ public class KafkaServlet extends BaseServlet{
     public Map<String, Integer> topics(String clusterName) throws IOException, ExecutionException, InterruptedException {
         Map<String, Integer> result = new HashMap<>();
 
-        AdminClient adminClient = loadAdminClient(clusterName);
+        AdminClient adminClient = kafkaService.loadAdminClient(clusterName);
 
         ListTopicsResult listTopicsResult = adminClient.listTopics();
         Set<String> topics = listTopicsResult.names().get();
@@ -197,7 +176,7 @@ public class KafkaServlet extends BaseServlet{
     }
 
     public int topicPartitions(String clusterName,String topic) throws IOException, ExecutionException, InterruptedException {
-        AdminClient adminClient = loadAdminClient(clusterName);
+        AdminClient adminClient = kafkaService.loadAdminClient(clusterName);
         DescribeTopicsResult describeTopicsResult = adminClient.describeTopics(Collections.singletonList(topic));
         TopicDescription topicDescription = describeTopicsResult.values().get(topic).get();
         return topicDescription.partitions().size();
@@ -211,7 +190,7 @@ public class KafkaServlet extends BaseServlet{
      * @throws IOException
      */
     public Set<String> groupSubscribeTopics(String clusterName, String group) throws IOException, ExecutionException, InterruptedException {
-        AdminClient adminClient = loadAdminClient(clusterName);
+        AdminClient adminClient = kafkaService.loadAdminClient(clusterName);
         Set<String> subscribeTopics = new HashSet<>();
 
         DescribeConsumerGroupsResult describeConsumerGroupsResult = adminClient.describeConsumerGroups(Collections.singletonList(group));
@@ -238,10 +217,10 @@ public class KafkaServlet extends BaseServlet{
      * @throws IOException
      */
     public List<TopicOffset> groupSubscribeTopicsMonitor(String clusterName, String group) throws IOException, ExecutionException, InterruptedException {
-        AdminClient adminClient = loadAdminClient(clusterName);
+        AdminClient adminClient = kafkaService.loadAdminClient(clusterName);
 
         //创建 KafkaConsumer 来获取 offset ,lag,logsize
-        Properties properties = kafkaProperties(clusterName);
+        Properties properties = kafkaService.kafkaProperties(clusterName);
         KafkaConsumer<byte[], byte[]> consumer = new KafkaConsumer<byte[], byte[]>(properties);
 
         List<TopicPartition> topicPartitionsQuery = new ArrayList<>();
@@ -295,8 +274,8 @@ public class KafkaServlet extends BaseServlet{
      */
     public List<OffsetShow> groupTopicMonitor(String clusterName, String group, String topic) throws IOException, ExecutionException, InterruptedException {
         List<OffsetShow> offsetShows = new ArrayList<>();
-        AdminClient adminClient = loadAdminClient(clusterName);
-        Properties properties = kafkaProperties(clusterName);
+        AdminClient adminClient = kafkaService.loadAdminClient(clusterName);
+        Properties properties = kafkaService.kafkaProperties(clusterName);
         KafkaConsumer<byte[], byte[]> consumer = new KafkaConsumer<>(properties);
 
         DescribeTopicsResult describeTopicsResult = adminClient.describeTopics(Collections.singletonList(topic));
@@ -337,7 +316,7 @@ public class KafkaServlet extends BaseServlet{
         Map<String, Long> results = new HashMap<>();
 //        int partitions = topicPartitions(clusterName, topic);
 
-        Properties properties = kafkaProperties(clusterName);
+        Properties properties = kafkaService.kafkaProperties(clusterName);
         KafkaConsumer<byte[], byte[]> consumer = new KafkaConsumer<>(properties);
 
         try {
@@ -374,7 +353,7 @@ public class KafkaServlet extends BaseServlet{
      * @return
      */
     public List<KafkaData> lastDatas(String clusterName,String topic,int partition,String serialize) throws IOException {
-        Properties properties = kafkaProperties(clusterName);
+        Properties properties = kafkaService.kafkaProperties(clusterName);
         KafkaConsumer<byte[], byte[]> consumer = new KafkaConsumer<byte[], byte[]>(properties);
         List<KafkaData> datas = new ArrayList<>();
         try {
@@ -427,7 +406,7 @@ public class KafkaServlet extends BaseServlet{
      * @return offset => data
      */
     public List<KafkaData> nearbyDatas(String clusterName, String topic, int partition, long offset, String serialize) throws IOException {
-        Properties properties = kafkaProperties(clusterName);
+        Properties properties = kafkaService.kafkaProperties(clusterName);
         KafkaConsumer<byte[], byte[]> consumer = new KafkaConsumer<byte[], byte[]>(properties);
         List<KafkaData> datas = new ArrayList<>();
         try {
@@ -478,7 +457,7 @@ public class KafkaServlet extends BaseServlet{
 
     // 查询所有分区数据,根据时间排序
     public List<PartitionKafkaData> allPartitionDatas(String clusterName, String topic, long perPartitionMessages, String serialize) throws IOException {
-        Properties properties = kafkaProperties(clusterName);
+        Properties properties = kafkaService.kafkaProperties(clusterName);
         KafkaConsumer<byte[], byte[]> consumer = new KafkaConsumer<byte[], byte[]>(properties);
         List<PartitionKafkaData> datas = new ArrayList<>();
         try {
@@ -545,7 +524,7 @@ public class KafkaServlet extends BaseServlet{
      * @return
      */
     public int sendJsonData(String clusterName, String topic, String key, String data) throws IOException, ExecutionException, InterruptedException {
-        Properties properties = kafkaProperties(clusterName);
+        Properties properties = kafkaService.kafkaProperties(clusterName);
         properties.put("key.serializer","org.apache.kafka.common.serialization.StringSerializer");
         properties.put("value.serializer","org.apache.kafka.common.serialization.StringSerializer");
         KafkaProducer kafkaProducer = new KafkaProducer(properties);
@@ -561,9 +540,8 @@ public class KafkaServlet extends BaseServlet{
      * @param clusterName
      * @param topic
      */
-    private static final String JMX = "service:jmx:rmi:///jndi/rmi://%s/jmxrmi";
     public Collection<MBeanInfo> brokerMonitor(String clusterName) throws IOException, MalformedObjectNameException, AttributeNotFoundException, MBeanException, ReflectionException, InstanceNotFoundException {
-        return monitor(clusterName,BrokerTopicMetrics.BrokerMetrics.class,null);
+        return kafkaService.monitor(clusterName,BrokerTopicMetrics.BrokerMetrics.class,null);
     }
 
     /**
@@ -573,79 +551,11 @@ public class KafkaServlet extends BaseServlet{
      * @return
      */
     public Collection<MBeanInfo> topicMonitor(String clusterName, String topic) throws IOException, MalformedObjectNameException, AttributeNotFoundException, MBeanException, ReflectionException, InstanceNotFoundException{
-       return  monitor(clusterName,BrokerTopicMetrics.TopicMetrics.class,topic);
-    }
-
-    private Collection<MBeanInfo> monitor(String clusterName, Class clazz, String topic) throws IOException, MBeanException, AttributeNotFoundException, InstanceNotFoundException, ReflectionException, MalformedObjectNameException {
-        KafkaConnInfo kafkaConnInfo = readConfig(clusterName);
-        List<BrokerInfo> brokers = brokers(kafkaConnInfo);
-
-        List<MBeanInfo> mBeanInfos = new ArrayList<>();
-        for (BrokerInfo broker : brokers) {
-            String host = broker.getHost();
-            int jxmPort = broker.getJxmPort();
-            String uri = host+":"+jxmPort;
-            if(jxmPort == -1){
-                return null;
-            }
-
-            JMXServiceURL jmxSeriverUrl = new JMXServiceURL(String.format(JMX, uri));
-            JMXConnector connector = JMXConnectorFactory.connect(jmxSeriverUrl);
-            MBeanServerConnection mbeanConnection = connector.getMBeanServerConnection();
-
-            // 遍历所有的 mBean
-            Constants constants = new Constants(clazz);
-            List<String> mBeans = constansValues(constants);
-            for (String mBean : mBeans) {
-                if (clazz == BrokerTopicMetrics.TopicMetrics.class){
-                    mBean = String.format(mBean,topic);
-                }
-                Object fifteenMinuteRate = mbeanConnection.getAttribute(new ObjectName(mBean), BrokerTopicMetrics.MBean.FIFTEEN_MINUTE_RATE);
-                Object fiveMinuteRate = mbeanConnection.getAttribute(new ObjectName(mBean), BrokerTopicMetrics.MBean.FIVE_MINUTE_RATE);
-                Object meanRate = mbeanConnection.getAttribute(new ObjectName(mBean), BrokerTopicMetrics.MBean.MEAN_RATE);
-                Object oneMinuteRate = mbeanConnection.getAttribute(new ObjectName(mBean), BrokerTopicMetrics.MBean.ONE_MINUTE_RATE);
-                MBeanInfo mBeanInfo = new MBeanInfo(mBean,objectDoubleValue(fifteenMinuteRate), objectDoubleValue(fiveMinuteRate), objectDoubleValue(meanRate), objectDoubleValue(oneMinuteRate));
-                mBeanInfos.add(mBeanInfo);
-            }
-        }
-
-        // 数据合并
-        Map<String,MBeanInfo> mergeMap = new HashMap<>();
-        for (MBeanInfo mBeanInfo : mBeanInfos) {
-            String mBean = mBeanInfo.getmBean();
-            MBeanInfo mergeMBeanInfo = mergeMap.get(mBean);
-            if(mergeMBeanInfo == null){
-                mergeMBeanInfo = mBeanInfo;
-                mergeMap.put(mBean,mergeMBeanInfo);
-                continue;
-            }
-            mergeMBeanInfo.addData(mBeanInfo);
-        }
-
-        return mergeMap.values();
-    }
-
-    private double objectDoubleValue(Object value){
-        return  NumberUtils.toDouble(value.toString());
-    }
-
-    private List<String> constansValues(Constants constants) {
-        List<String> mMbeans = new ArrayList<>();
-        try {
-            Method getFieldCache = Constants.class.getDeclaredMethod("getFieldCache");
-            getFieldCache.setAccessible(true);
-            Map<String, Object> invokeMethod = (Map<String, Object>) ReflectionUtils.invokeMethod(getFieldCache, constants);
-            Collection<Object> values = invokeMethod.values();
-
-            for (Object value : values) {
-                mMbeans.add(Objects.toString(value));
-            }
-        } catch (NoSuchMethodException e) {}
-        return mMbeans;
+       return  kafkaService.monitor(clusterName,BrokerTopicMetrics.TopicMetrics.class,topic);
     }
 
 //    private Collection<DescribeLogDirsResponse.LogDirInfo> logDirsInfosxxx(String clusterName) throws IOException, InterruptedException, ExecutionException {
-//        AdminClient adminClient = loadAdminClient(clusterName);
+//        AdminClient adminClient = kafkaService.loadAdminClient(clusterName);
 //
 //        Map<String, String> brokers = brokers(readConfig(clusterName));
 //        List<String> brokerIds = new ArrayList<>(brokers.keySet());
@@ -657,100 +567,4 @@ public class KafkaServlet extends BaseServlet{
 //        return stringLogDirInfoMap.values();
 //    }
 
-    static Pattern ipPort = Pattern.compile("(\\d+\\.\\d+\\.\\d+\\.\\d+):(\\d+)");
-    private List<BrokerInfo> brokers(KafkaConnInfo kafkaConnInfo) throws IOException {
-        List<BrokerInfo> brokerInfos = new ArrayList<>();
-        String clusterName = kafkaConnInfo.getClusterName();
-        String chroot = kafkaConnInfo.getChroot();
-
-        List<String> childrens = zkServlet.childrens(clusterName, chroot + relativeBrokerPath);
-        for (String children : childrens) {
-            String brokerInfo = Objects.toString(zkServlet.readData(clusterName, chroot + relativeBrokerPath + "/" + children, "string"),"");
-            JSONObject brokerJson = JSONObject.parseObject(brokerInfo);
-            String host = brokerJson.getString("host");
-            int port = brokerJson.getIntValue("port");
-            int jmxPort = brokerJson.getIntValue("jmx_port");
-
-            if(StringUtils.isBlank(host)){
-                //如果没有提供 host 和 port 信息，则从 endpoints 中拿取信息
-                JSONArray endpoints = brokerJson.getJSONArray("endpoints");
-                String endpoint = endpoints.getString(0);
-                Matcher matcher = ipPort.matcher(endpoint);
-                if(matcher.find()) {
-                    host = matcher.group(1);
-                    port = NumberUtil.toInt(matcher.group(2));
-                }
-            }
-
-            brokerInfos.add(new BrokerInfo(NumberUtils.toInt(children),host,port,jmxPort));
-        }
-        return brokerInfos;
-    }
-
-    AdminClient loadAdminClient(String clusterName) throws IOException {
-        AdminClient adminClient = adminClientMap.get(clusterName);
-        if(adminClient == null){
-            Properties properties = kafkaProperties(clusterName);
-
-            adminClient =  KafkaAdminClient.create(properties);
-            adminClientMap.put(clusterName,adminClient);
-        }
-
-        return adminClient;
-    }
-
-    private Properties kafkaProperties(String clusterName) throws IOException {
-        KafkaConnInfo kafkaConnInfo = readConfig(clusterName);
-
-        Properties properties = createDefaultConfig(clusterName);
-
-        //从 zk 中拿到 bootstrapServers
-        List<String> servers = brokers(clusterName);
-
-        String bootstrapServers = StringUtils.join(servers,',');
-        properties.put("bootstrap.servers", bootstrapServers);
-
-        if(StringUtils.isNotBlank(kafkaConnInfo.getSaslMechanism())) {
-            properties.put(SaslConfigs.SASL_MECHANISM, kafkaConnInfo.getSaslMechanism());
-        }
-        if(StringUtils.isNotBlank(kafkaConnInfo.getSecurityProtocol())){
-            properties.put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, kafkaConnInfo.getSecurityProtocol());
-        }
-
-        String securityChoseValue = kafkaConnInfo.getSecurityProtocol();
-        SecurityProtocol securityProtocol = SecurityProtocol.valueOf(securityChoseValue);
-        switch (securityProtocol){
-            case PLAINTEXT:
-                break;
-            case SASL_PLAINTEXT:
-                properties.put("sasl.jaas.config",kafkaConnInfo.getJaasConfig());
-                break;
-            case SASL_SSL:
-                properties.put("sasl.jaas.config",kafkaConnInfo.getJaasConfig());
-            case SSL:
-                throw new IllegalArgumentException("不支持 ssl 操作");
-        }
-
-        return properties;
-    }
-
-
-    private Properties createDefaultConfig(String clusterName) {
-        Properties properties = new Properties();
-        final String consumerGroup = "console-"+clusterName;
-        //每个消费者分配独立的组号
-        properties.put("group.id", consumerGroup);
-        //如果value合法，则自动提交偏移量
-        properties.put("enable.auto.commit", "true");
-        //设置多久一次更新被消费消息的偏移量
-        properties.put("auto.commit.interval.ms", "1000");
-        //设置会话响应的时间，超过这个时间kafka可以选择放弃消费或者消费下一条消息
-        properties.put("session.timeout.ms", "30000");
-        //该参数表示从头开始消费该主题
-        properties.put("auto.offset.reset", "earliest");
-        //注意反序列化方式为ByteArrayDeserializer
-        properties.put("key.deserializer","org.apache.kafka.common.serialization.ByteArrayDeserializer");
-        properties.put("value.deserializer","org.apache.kafka.common.serialization.ByteArrayDeserializer");
-        return properties;
-    }
 }

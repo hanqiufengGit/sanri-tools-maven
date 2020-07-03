@@ -73,7 +73,9 @@
                     <div class="tab-content padding-top">
                         <div class="active tab-pane" id="profile">
                             <button class="bn btn-link text-primary" id="monitor"><i class="fa fa-ambulance"></i> 监控 </button>
-                            <button class="btn btn-link text-forestgreen" title="重量级搜索,勿经常使用" id="allPartitionDatas"><i class="fa fa-play"></i></button> | <button class="btn btn-link" id="refreshlogsize"><i class="fa fa-refresh"></i></button> <time class="refresh"></time>
+                            <button class="btn btn-link text-forestgreen" id="consumer"><i class="fa fa-play"></i> 消费数据</button> |
+                            <button class="btn btn-link text-danger" title="重量级搜索,勿经常使用" id="allPartitionDatas"><i class="fa fa-search"></i></button> |
+                            <button class="btn btn-link" id="refreshlogsize"><i class="fa fa-refresh"></i></button> <time class="refresh"></time>
                             <table class="table table-bordered table-striped table-hover" id="topicdetail">
                                 <thead>
                                 <tr>
@@ -133,6 +135,29 @@
             </div>
         </div>
     </div>
+</div>
+
+<!--消费数据弹框-->
+<div class="open-dialog" id="consumerDialog">
+    <div class="btn-group btn-group-sm">
+        <button class="btn btn-link text-forestgreen" name="play"> <i class="fa fa-play"></i> 开始</button>
+        <button class="btn btn-link text-danger" name="pause"> <i class="fa fa-pause"></i> 暂停</button>
+    </div>
+    <div class="consumer-settions row" id="settings">
+        <div class="col-xs-5">
+            <select  class="form-control" name="serializables"></select>
+        </div>
+        <div class="col-xs-5">
+            <select  class="form-control" name="classloaders"></select>
+        </div>
+
+    </div>
+    <div class="row">
+        <ul class="messages padding">
+
+        </ul>
+    </div>
+
 </div>
 
 <!-- 监控数据 -->

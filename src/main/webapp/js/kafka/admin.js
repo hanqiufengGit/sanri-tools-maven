@@ -10,7 +10,8 @@ define(['util','dialog','jsoneditor','icheck','jsonview'],function (util,dialog,
         serializes:'/zk/serializes',
         sendKafkaData:'/kafka/sendJsonData',
         allPartitionDatas:'/kafka/allPartitionDatas',
-        monitor: '/kafka/topicMonitor'
+        monitor: '/kafka/topicMonitor',
+        classloaders:'/classloader/classloaders'
     }
     kafkaAdmin.init = function () {
         bindEvents();
@@ -27,6 +28,19 @@ define(['util','dialog','jsoneditor','icheck','jsonview'],function (util,dialog,
             $('#serializeTools').empty();
             for (var i = 0; i < serializes.length; i++) {
                 $('#serializeTools').append('<option value="' + serializes[i] + '">' + serializes[i] + '</option>');
+            }
+
+            // kafka 消费工具也加上序列化列表
+            for (var i = 0; i < serializes.length; i++) {
+                $('#settings select[name=serializables]').append('<option value="' + serializes[i] + '">' + serializes[i] + '</option>');
+            }
+        });
+
+        // 加载所有的类加载器
+        util.requestData(apis.classloaders,function (classloaders) {
+            // kafka 消费工具也加上类加载器列表
+            for (var i = 0; i < classloaders.length; i++) {
+                $('#settings select[name=classloaders]').append('<option value="' + classloaders[i] + '">' + classloaders[i] + '</option>');
             }
         });
 
@@ -99,9 +113,68 @@ define(['util','dialog','jsoneditor','icheck','jsonview'],function (util,dialog,
             {selector:'#compactJson',types:['click'],handler:compactJson},
             {selector:'#sendData',types:['click'],handler:sendKafkaData},
             {selector:'#allPartitionDatas',types:['click'],handler:allPartitionDatas},
-            {selector:'#monitor',types:['click'],handler:topicMonitor}];
+            {selector:'#monitor',types:['click'],handler:topicMonitor},
+            {selector:'#consumer',types:['click'],handler:openConsumerDialog},
+            {selector:'#consumerDialog button[name=play]',types:['click'],handler:beginConsumer},
+            {selector:'#consumerDialog button[name=pause]',types:['click'],handler:stopConsumer}];
 
         util.regPageEvents(events);
+
+        function beginConsumer() {
+            var topic = $('#topicname').data('topic');
+            let serializable = $('#settings select[name=serializables]').val();
+            let classloader = $('#settings select[name=classloaders]').val();
+            let sendData = {
+                clusterName:kafkaAdmin.conn,
+                topic:topic,
+                action:'play',
+                serializable:serializable,
+                classloader:classloader
+            }
+            kafkaAdmin.websocket.send(JSON.stringify(sendData));
+        }
+
+        function stopConsumer() {
+            kafkaAdmin.websocket.send(JSON.stringify({action:'pause'}));
+        }
+
+        function openConsumerDialog() {
+            $('#consumerDialog').find('ul.messages').empty();
+
+            dialog.create('主题数据消费')
+                .setContent($('#consumerDialog'))
+                .setWidthHeight('50%', '90%')
+                .onClose(function () {
+                    stopConsumer();
+                    kafkaAdmin.websocket.close();
+                })
+                .build();
+
+            // 打开 websocket
+            var baseAddress = util.root.replace('http:','ws:')
+            let id = Math.round(Math.random() * 1000);
+            let address = baseAddress+'/consumer/'+id;
+
+            kafkaAdmin.websocket = new WebSocket(address);
+            kafkaAdmin.websocket.onerror = function () {
+                layer.msg('连接建立失败 '+address);
+            };
+            kafkaAdmin.websocket.onclose = function () {
+                layer.msg('远程关闭了 socket 连接 ');
+            };
+            kafkaAdmin.websocket.onmessage = listenMessage;
+
+            // 监听 发过来的消息,直接打印在日志上
+            function listenMessage(event) {
+                let data = event.data;
+                if(typeof data == 'string'){
+                    $('#consumerDialog').find('ul.messages').append('<li>'+data+'</li>');
+                }else{
+                    $('#consumerDialog').find('ul.messages').append('<li>'+JSON.stringify(data)+'</li>');
+                }
+
+            }
+        }
 
         /**
          * 主题流量监控

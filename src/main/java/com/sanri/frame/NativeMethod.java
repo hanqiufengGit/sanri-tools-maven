@@ -11,7 +11,7 @@ public class NativeMethod {
 	private Class<?> returnType;
 	private CtMethod ctMethod;
 	private List<MethodParam> methodParams;
-	
+
 	public Class<?> getClazz() {
 		return clazz;
 	}

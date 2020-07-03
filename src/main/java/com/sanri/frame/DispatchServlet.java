@@ -303,7 +303,7 @@ public class DispatchServlet extends HttpServlet {
 				nativeMethod.setReturnType(method.getReturnType());
 				nativeMethod.setCtMethod(ctMethod);
 				nativeMethod.setMethodParams(methodParams);
-				
+
 				RequestMapping pathMapping = (RequestMapping) ctMethod.getAnnotation(RequestMapping.class);
 				if(pathMapping == null){
 					// 直接用方法名进行映射
