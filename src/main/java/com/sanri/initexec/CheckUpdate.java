@@ -76,7 +76,7 @@ public class CheckUpdate {
                 try {
                     overwriteFiles(new File(updatesDir, version.toString()));
                 }catch (IOException e){
-                    log.error("当前版本[{}]更新失败,不打算再继续往下更新,请确诊下载的包是否正确 ",version);
+                    log.error("当前版本[{}]更新失败,不打算再继续往下更新,请确认下载的包是否正确 ",version);
                     break;
                 }
                 lastVersion = version;
