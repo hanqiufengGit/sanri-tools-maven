@@ -3,6 +3,12 @@ package sanri.utils;
 import java.text.DecimalFormat;
 
 public class StringUtilsExtend {
+
+    /**
+     * 将数据大小转换成人可识别的值
+     * @param size
+     * @return
+     */
     public static String readableFileSize(long size) {
         if (size <= 0) return "0";
         final String[] units = new String[]{"B", "KB", "MB", "GB", "TB"};
