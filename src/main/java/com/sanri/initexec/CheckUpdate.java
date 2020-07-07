@@ -3,15 +3,18 @@ package com.sanri.initexec;
 import com.sanri.app.ConfigCenter;
 import freemarker.template.Version;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.LineIterator;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.ResourceUtils;
 import org.springframework.util.StopWatch;
+import sanri.utils.PathUtil;
 
 import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -23,6 +26,21 @@ import java.util.List;
 public class CheckUpdate {
     private Logger log = LoggerFactory.getLogger(CheckUpdate.class);
 
+    /**
+     * 检查更新
+     * 1. 从 classpath:/version 获取当前项目版本
+     * 2. 从配置的更新包路径获取所有的更新包,文件规则如下;
+     *  packagePath
+     *    |- 1.0.5
+     *      |- updateEntry 文本文件,一行一条记录
+     *         U WEB-INF/classes/com/sanri/app/servlet/XXServlet.class
+     *         D WEB-INF/lib/xx.jar
+     *         A app/tools/xx.html
+     *      |- changes 目录,里面的文件相对于根路径
+     *    |- 2.0.3
+     *    |- 0.0.7
+     *  3. 查找在当前版本之后的版本,按顺序从小到大进行更新
+     */
     @PostConstruct
     public void checkUpdate(){
         // 获取当前版本信息
@@ -98,10 +116,66 @@ public class CheckUpdate {
      * @param dir
      */
     private void overwriteFiles(File dir) throws IOException {
-        // 读取文件更新清单
-        String updateEntry = FileUtils.readFileToString(dir,"updateEntry");
+        // 读取文件更新清单,然后根据类型进行操作
+        LineIterator lineIterator = FileUtils.lineIterator(new File(dir, "updateEntry"));
+        File changes = new File(dir, "changes");
 
-        // 映射成更新列表
+        while (lineIterator.hasNext()){
+            String nextLine = lineIterator.nextLine();
+            String[] split = StringUtils.split(nextLine, " ");
+            if(split.length != 2){
+                log.error("无效的操作1 [{}]",nextLine);
+                continue;
+            }
+            char change = split[0].trim().charAt(0);
+            FileModify fileModify = FileModify.parser(change);
+            if(fileModify == null){
+                log.error("无效的操作2 [{}]",nextLine);
+                continue;
+            }
+            String relativePath = split[1].trim();
+            changePathFile(fileModify,relativePath,changes);
+        }
 
+    }
+
+    /**
+     * 修改路径上的文件
+     * @param fileModify
+     * @param relativePath
+     * @param changes
+     */
+    private void changePathFile(FileModify fileModify, String relativePath, File changes) throws IOException {
+        File projectDir = new File(PathUtil.ROOT.resolve("../../"));
+        File dest = new File(projectDir, relativePath);
+        switch (fileModify){
+            case ADD:
+            case MODIFY:
+                dest.getParentFile().mkdirs();
+                File src = new File(changes, relativePath);
+                FileUtils.copyFile(src,dest);
+                break;
+            case DELETE:
+                FileUtils.forceDelete(dest);
+                break;
+        }
+    }
+
+    enum FileModify{
+        ADD('A'),DELETE('D'),MODIFY('M');
+        private char change;
+
+        FileModify(char change) {
+            this.change = change;
+        }
+
+        public static FileModify parser(char change){
+            for (FileModify value : FileModify.values()) {
+                if(value.change == change){
+                    return value;
+                }
+            }
+            return null;
+        }
     }
 }

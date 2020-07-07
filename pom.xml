@@ -19,6 +19,7 @@
         <oracle.version>11.2.0.3</oracle.version>
         <lombok.version>1.16.22</lombok.version>
     </properties>
+
     <!-- common-utils -->
     <dependencies>
         <dependency>
@@ -34,7 +35,7 @@
         <dependency>
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>
-            <version>1.3</version>
+            <version>1.11</version>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>
