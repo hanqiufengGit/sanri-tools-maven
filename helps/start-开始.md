@@ -5,7 +5,7 @@
 如果打开项目有报错，排除包没有下载下来的问题，一般下载完包后就可以直接运行 `mvn jetty:run` 
 
 
-本项目基于 servlet 开发，所有的 servlet 保存在 src/com/sanri/app/servlet 目录，自定义的路径映射框架模访 springmvc 
+本项目基于 servlet 开发，所有的 servlet 保存在 src/com/sanri/app/servlet 目录，自定义的路径映射框架模仿 springmvc 
 
 目前写得比较完善的工具有
 
@@ -15,6 +15,9 @@
 * kafka 数据查看工具 `KafkaServlet`
 * redis 数据监控 `RedisConnectServlet`
 * 响应数据模拟工具 `RandomDataServlet`
+* swaggerui工具 `SwaggerServlet`
+* webservice工具 `WSCallServlet`
+* 身份证工具  没有后端
 
 项目基于文件系统，由 `FileManagerServlet` 统一管理配置文件信息和临时文件信息 ，这两种文件的路径配置在  `function.open.properties` 文件中
 
