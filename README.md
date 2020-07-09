@@ -152,7 +152,7 @@ https://github.com/sanri1993/sanri-tools-maven/releases
 - 待优化:可能考虑在 tablehelp 中加入索引查看与新建功能,不知道这块的需求有多大
 - 待优化:现在上传 DTO 的流程太过复杂,后面考虑上传单个 class 文件,或者直接动态编译 Java 类
 
-#### 2020/?/? 更新
+#### 2020/07/09 更新
 
 - 首页增加每个工具的使用说明
 - 类加载器上传 dto 优化，可以上传单个 class 或单个 java 源文件; zip 上传优化可以不用关心 class 的层次结构 , zip2 后缀兼容以前的完整路径 
@@ -163,6 +163,7 @@ https://github.com/sanri1993/sanri-tools-maven/releases
 - kafka 工具增加删除消费组功能,可以更好的配置 kafka 连接
 - kafka 工具增加流量监控功能,可以监控 实时,每分钟,每5分钟,每 15 分钟的数据流量; 使用 mBean ,基于 jmxPort
 - kafka 工具增加主题实时消费功能,可以选择类加载器和序列化,实现原始数据输出
+- 支持伪在线更新版本,后续将开发真正的在线更新
 
 ### 演示效果图
 

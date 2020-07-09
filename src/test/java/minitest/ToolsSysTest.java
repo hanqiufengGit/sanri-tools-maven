@@ -15,10 +15,12 @@ import io.swagger.models.Swagger;
 import jdk.internal.org.objectweb.asm.ClassReader;
 import jdk.internal.org.objectweb.asm.tree.ClassNode;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.junit.Test;
 import sanri.utils.HttpUtil;
+import sanri.utils.PathUtil;
 import sanri.utils.RegexValidate;
 
 import java.io.File;
@@ -281,5 +283,18 @@ public class ToolsSysTest {
             }
         }
 
+    }
+
+    @Test
+    public void testBaseName(){
+        String str = "src/main/java/sanri/utils/MailUtil.java";
+        System.out.println(FilenameUtils.getBaseName(str));
+    }
+
+    @Test
+    public void testPath(){
+        File projectDir = new File(PathUtil.ROOT.resolve("../../"));
+        System.out.println(projectDir);
+        System.out.println(PathUtil.ROOT);
     }
 }

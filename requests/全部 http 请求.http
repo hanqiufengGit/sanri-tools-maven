@@ -75,4 +75,13 @@ GET {{baseUrl}}/random/randomListData?className=com.sanri.test.testredis.dto.Nor
 ### kafka 监控
 GET {{baseUrl}}/kafka/brokerMonitor?clusterName=10.101.72.42_2182
 
+### 当前版本
+GET {{baseUrl}}/version/current
+
+### 最新版本
+GET {{baseUrl}}/version/latest
+
+### 检查更新
+GET {{baseUrl}}/version/checkUpdate
+
 ###
