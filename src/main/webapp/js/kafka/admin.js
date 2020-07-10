@@ -262,7 +262,7 @@ define(['util','dialog','jsoneditor','icheck','jsonview'],function (util,dialog,
         // 发送数据到 kafka
         function sendKafkaData() {
             var partition = $('#datajson').find('input[name=partition]').val().trim();
-            partition = partition ? partition:undefined;
+            partition = partition ? partition:'0';
             var json = $('#jsondata').val().trim();
             var topic = $('#topicname').data('topic');
             util.requestData(apis.sendKafkaData,{topic:topic,clusterName:kafkaAdmin.conn,key:partition,data:json},function () {

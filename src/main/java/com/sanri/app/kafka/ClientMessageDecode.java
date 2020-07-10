@@ -14,7 +14,7 @@ public class ClientMessageDecode implements Decoder.Text<ClientMessage> {
 
     @Override
     public boolean willDecode(String s) {
-        return false;
+        return true;
     }
 
     @Override
