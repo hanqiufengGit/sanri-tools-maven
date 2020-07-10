@@ -298,16 +298,16 @@ public class KafkaService {
             String clusterName = initClientMessage.getClusterName();
             String topic = initClientMessage.getTopic();
             try {
-//                AdminClient adminClient = loadAdminClient(clusterName);
-//                DescribeTopicsResult describeTopicsResult = adminClient.describeTopics(Collections.singletonList(topic));
-//                TopicDescription topicDescription = describeTopicsResult.values().get(topic).get();
-//                List<TopicPartitionInfo> partitions = topicDescription.partitions();
+                AdminClient adminClient = loadAdminClient(clusterName);
+                DescribeTopicsResult describeTopicsResult = adminClient.describeTopics(Collections.singletonList(topic));
+                TopicDescription topicDescription = describeTopicsResult.values().get(topic).get();
+                List<TopicPartitionInfo> partitions = topicDescription.partitions();
 
                 Properties properties = kafkaProperties(clusterName);
                 KafkaConsumer<byte[], byte[]> consumer = new KafkaConsumer<byte[], byte[]>(properties);
                 try {
                     List<TopicPartition> topicPartitions = new ArrayList<>();
-                    for (int i=0;i<10;i++) {
+                    for (int i=0;i<partitions.size();i++) {
                         TopicPartition topicPartition = new TopicPartition(topic, i);
                         topicPartitions.add(topicPartition);
                     }
@@ -322,11 +322,14 @@ public class KafkaService {
                         Long value = next.getValue();
                         consumer.seek(key,value);
                     }
-                    boolean closeConsumer = lastNoClientTime == 0 || (System.currentTimeMillis() - lastNoClientTime > 60000);
-                    if(closeConsumer){
-                        log.info("关闭消费[{}],没有客户端已经超过 1 分钟 ",topic);
+                    boolean openConsumer = lastNoClientTime == 0 || (System.currentTimeMillis() - lastNoClientTime < 300000);
+                    if(!openConsumer){
+                        log.info("关闭消费[{}],没有客户端已经超过 5 分钟 ",topic);
+
+                        // 通知客户端,已经没有在监听数据了
+
                     }
-                    while (closeConsumer) {      // 当没有客户端并超过 1 分钟时关闭消费
+                    while (openConsumer) {      // 当没有客户端并超过 5 分钟时关闭消费
                         ConsumerRecords<byte[], byte[]> consumerRecords = consumer.poll(Duration.ofMillis(10));       // 100ms 内抓取的数据，不是抓取的数据量
                         Iterable<ConsumerRecord<byte[], byte[]>> records = consumerRecords.records(topic);
                         Iterator<ConsumerRecord<byte[], byte[]>> consumerRecordIterator = records.iterator();
@@ -341,7 +344,7 @@ public class KafkaService {
                     if(consumer != null)
                         consumer.close();
                 }
-            } catch (IOException e) {
+            } catch (IOException | InterruptedException | ExecutionException e) {
                 log.error("未能加载 kafka 客户端 [{}]",e.getMessage(),e);
             }
 

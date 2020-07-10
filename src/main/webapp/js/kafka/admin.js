@@ -132,18 +132,25 @@ define(['util','dialog','jsoneditor','icheck','jsonview'],function (util,dialog,
                 classloader:classloader
             }
             kafkaAdmin.websocket.send(JSON.stringify(sendData));
+            
+            // 打开停止消费按扭; 关闭开始按扭
+            $('#consumerDialog').find('button[name=play]').prop('disabled',true);
+            $('#consumerDialog').find('button[name=pause]').prop('disabled',false);
         }
 
         function stopConsumer() {
             kafkaAdmin.websocket.send(JSON.stringify({action:'pause'}));
+
+            $('#consumerDialog').find('button[name=play]').prop('disabled',false);
+            $('#consumerDialog').find('button[name=pause]').prop('disabled',true);
         }
 
         function openConsumerDialog() {
-            $('#consumerDialog').find('ul.messages').empty();
+            $('#consumerDialog').find('table.messages>tbody').empty();
 
             dialog.create('主题数据消费')
                 .setContent($('#consumerDialog'))
-                .setWidthHeight('50%', '90%')
+                .setWidthHeight('90%', '90%')
                 .onClose(function () {
                     stopConsumer();
                     kafkaAdmin.websocket.close();
@@ -167,10 +174,18 @@ define(['util','dialog','jsoneditor','icheck','jsonview'],function (util,dialog,
             // 监听 发过来的消息,直接打印在日志上
             function listenMessage(event) {
                 let data = event.data;
+                let $tbody = $('#consumerDialog').find('table.messages').find('tbody');
                 if(typeof data == 'string'){
-                    $('#consumerDialog').find('ul.messages').append('<li>'+data+'</li>');
+                    try{
+                        let objData = JSON.parse(data);
+                        $tbody.append('<tr><td>'+objData.offset+'</td><td>'+objData.partition+'</td><td>'+objData.timestamp+'</td><td>'+objData.value+'</td></tr>')
+                    }catch (e) {
+                        $tbody.append('<tr><td colspan="4">'+data+'</td></tr>');
+                    }
+
                 }else{
-                    $('#consumerDialog').find('ul.messages').append('<li>'+JSON.stringify(data)+'</li>');
+                    // $('#consumerDialog').find('ul.messages').append('<li class="list-group-item">'+JSON.stringify(data)+'</li>');
+                    $tbody.append('<tr><td>'+data.offset+'</td><td>'+data.partition+'</td><td>'+data.timestamp+'</td><td>'+data.value+'</td></tr>')
                 }
 
             }

@@ -36,6 +36,9 @@
                 height: 86vh;
                 overflow-y: scroll;
             }
+            #consumerDialog table.messages>td{
+                word-break: break-all;
+            }
     </style>
 </head>
 <body>
@@ -141,7 +144,7 @@
 <div class="open-dialog" id="consumerDialog">
     <div class="btn-group btn-group-sm">
         <button class="btn btn-link text-forestgreen" name="play"> <i class="fa fa-play"></i> 开始</button>
-        <button class="btn btn-link text-danger" name="pause"> <i class="fa fa-pause"></i> 暂停</button>
+        <button class="btn btn-link text-danger" disabled name="pause"> <i class="fa fa-pause"></i> 暂停</button>
     </div>
     <div class="consumer-settions row" id="settings">
         <div class="col-xs-5">
@@ -153,9 +156,19 @@
 
     </div>
     <div class="row">
-        <ul class="messages padding">
+       <table class="messages table table-striped table-bordered table-hover padding">
+           <thead>
+           <tr>
+               <td>offset</td>
+               <td>partition</td>
+               <td>timestamp</td>
+               <td>value</td>
+           </tr>
+           </thead>
+           <tbody>
 
-        </ul>
+           </tbody>
+       </table>
     </div>
 
 </div>
