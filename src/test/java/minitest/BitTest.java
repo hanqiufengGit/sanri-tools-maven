@@ -12,15 +12,6 @@ import java.lang.reflect.Method;
 import java.util.Map;
 
 public class BitTest {
-    @Test
-    public void test() throws NoSuchMethodException {
-        Constants constants = new Constants(BrokerTopicMetrics.BrokerMetrics.class);
-//        Method getFieldCache = MethodUtils.(Constants.class, "getFieldCache");
-        Method getFieldCache = ReflectUtils.findDeclaredMethod(Constants.class, "getFieldCache", null);
-        getFieldCache.setAccessible(true);
-        Map<String, Object> invokeMethod = (Map<String, Object>) ReflectionUtils.invokeMethod(getFieldCache, constants);
-        System.out.println(invokeMethod);
-    }
 
     @Test
     public void testRightBit(){

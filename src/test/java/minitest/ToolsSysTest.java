@@ -3,6 +3,7 @@ package minitest;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.sanri.app.dtos.kafka.BrokerTopicMetrics;
 import com.sanri.app.jdbc.ExConnection;
 import com.sanri.app.jdbc.Table;
 import com.sanri.app.jdbc.codegenerate.SimpleJavaBeanBuilder;
@@ -16,8 +17,12 @@ import jdk.internal.org.objectweb.asm.tree.ClassNode;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.junit.Test;
+import org.springframework.cglib.core.ReflectUtils;
+import org.springframework.core.Constants;
+import org.springframework.util.ReflectionUtils;
 import sanri.utils.HttpUtil;
 import sanri.utils.PathUtil;
 import sanri.utils.RandomUtil;
@@ -28,6 +33,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -297,10 +303,29 @@ public class ToolsSysTest {
 
     @Test
     public void testRandom(){
-        String chinese = RandomUtil.chinese(150, null);
-        System.out.println(chinese);
+        for (int i = 0; i < 10000; i++) {
+            System.out.println(RandomUtil.phone());
+            System.out.println(RandomUtil.username());
+            System.out.println(RandomUtil.address());
+            String idcard = RandomUtil.idcard();
+            System.out.println(idcard);
+            if(idcard.endsWith("x") || idcard.endsWith("X")){
+                System.out.println("--------------");
+            }
+            System.out.println(RandomUtil.job());
+            System.out.println(RandomUtil.email(30));
+            System.out.println(RandomUtil.timstamp());
+            System.out.println(DateFormatUtils.ISO_DATETIME_FORMAT.format(RandomUtil.date()));
+        }
+    }
 
-        System.out.println(RandomUtil.regexRandom("\\d+"));
+    @Test
+    public void test() throws NoSuchMethodException {
+        Constants constants = new Constants(BrokerTopicMetrics.BrokerMetrics.class);
+        Method getFieldCache = ReflectUtils.findDeclaredMethod(Constants.class, "getFieldCache", null);
+        getFieldCache.setAccessible(true);
+        Map<String, Object> invokeMethod = (Map<String, Object>) ReflectionUtils.invokeMethod(getFieldCache, constants);
+        System.out.println(invokeMethod);
     }
 
 }
