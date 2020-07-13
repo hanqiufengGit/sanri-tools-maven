@@ -15,7 +15,7 @@ import java.util.Set;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import sanri.utils.RegexValidate;
+import sanri.utils.regex.RegexValidate;
 
 import com.sanri.app.jdbc.Column;
 import com.sanri.app.jdbc.Table;

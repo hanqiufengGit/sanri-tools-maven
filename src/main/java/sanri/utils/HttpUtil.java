@@ -49,6 +49,7 @@ import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
+import sanri.utils.regex.RegexValidate;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLException;

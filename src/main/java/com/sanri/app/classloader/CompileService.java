@@ -5,7 +5,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sanri.utils.RegexValidate;
+import sanri.utils.regex.RegexValidate;
 
 import javax.tools.JavaCompiler;
 import javax.tools.SimpleJavaFileObject;

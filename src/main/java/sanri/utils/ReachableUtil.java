@@ -1,5 +1,8 @@
 package sanri.utils;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -7,6 +10,7 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 
 public class ReachableUtil {
+    private static Logger log = LoggerFactory.getLogger(ReachableUtil.class);
     /**
      * 是否主机端口可以连接
      * @param host
@@ -18,7 +22,7 @@ public class ReachableUtil {
         try {
             socket.connect(new InetSocketAddress(host, port));
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("isHostConnectable[{}:{}] connect fail : {}",host,port,e.getMessage());
             return false;
         } finally {
             try {

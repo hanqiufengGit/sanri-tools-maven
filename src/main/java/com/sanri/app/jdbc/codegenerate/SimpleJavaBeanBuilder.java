@@ -1,7 +1,6 @@
 package com.sanri.app.jdbc.codegenerate;
 
 import org.apache.commons.lang3.StringUtils;
-import sanri.utils.RegexValidate;
 
 import java.util.*;
 

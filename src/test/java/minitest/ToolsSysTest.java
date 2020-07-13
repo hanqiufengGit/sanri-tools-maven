@@ -4,7 +4,6 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.sanri.app.jdbc.ExConnection;
-import com.sanri.app.jdbc.Schema;
 import com.sanri.app.jdbc.Table;
 import com.sanri.app.jdbc.codegenerate.SimpleJavaBeanBuilder;
 import com.sanri.app.translate.TranslateCharSequence;
@@ -21,7 +20,9 @@ import org.apache.commons.lang3.time.DateUtils;
 import org.junit.Test;
 import sanri.utils.HttpUtil;
 import sanri.utils.PathUtil;
-import sanri.utils.RegexValidate;
+import sanri.utils.RandomUtil;
+import sanri.utils.URLUtil;
+import sanri.utils.regex.RegexValidate;
 
 import java.io.File;
 import java.io.IOException;
@@ -34,7 +35,6 @@ import java.net.URL;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.*;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ToolsSysTest {
@@ -252,10 +252,6 @@ public class ToolsSysTest {
         System.out.println(convert2aB);
     }
 
-    @Test
-    public void testRandomData(){
-
-    }
 
     @Test
     public void testAsm() throws IOException {
@@ -286,9 +282,10 @@ public class ToolsSysTest {
     }
 
     @Test
-    public void testBaseName(){
+    public void testBaseName() throws URISyntaxException {
         String str = "src/main/java/sanri/utils/MailUtil.java";
         System.out.println(FilenameUtils.getBaseName(str));
+        System.out.println(URLUtil.pathLast(str));
     }
 
     @Test
@@ -297,4 +294,13 @@ public class ToolsSysTest {
         System.out.println(projectDir);
         System.out.println(PathUtil.ROOT);
     }
+
+    @Test
+    public void testRandom(){
+        String chinese = RandomUtil.chinese(150, null);
+        System.out.println(chinese);
+
+        System.out.println(RandomUtil.regexRandom("\\d+"));
+    }
+
 }

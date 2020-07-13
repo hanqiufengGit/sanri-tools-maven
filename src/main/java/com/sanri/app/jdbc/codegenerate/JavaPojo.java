@@ -5,7 +5,7 @@ import com.sanri.app.jdbc.MysqlExConnection;
 import com.sanri.app.jdbc.Table;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import sanri.utils.RegexValidate;
+import sanri.utils.regex.RegexValidate;
 
 import java.io.File;
 import java.io.FileWriter;
