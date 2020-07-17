@@ -38,11 +38,12 @@ public class RandomUtil  {
     public static final String[] PHONE_SEGMENT = "133,149,153,173,177,180,181,189,199,130,131,132,145,155,156,166,171,175,176,185,186,166,135,136,137,138,139,147,150,151,152,157,158,159,172,178,182,183,184,187,188,198,170".split(",");
     public static String [] ADDRESS_LIST;
     public static String [] JOBS;
+    static Random random = new Random();
 	static{
 		InputStreamReader reader = null;
 		Charset charset = Charset.forName("utf-8");
 		try {
-			URI resource = RandomUtil.class.getResource(".").toURI();
+			URI resource = RandomUtil.class.getResource("/").toURI();
 			URI addressURI = resource.resolve(new URI("data/address.string"));
 			URI citylistURI = resource.resolve(new URI("data/city.min.json"));
 			URI idcodeURI = resource.resolve(new URI("data/idcodearea.json"));
@@ -105,7 +106,7 @@ public class RandomUtil  {
 	 * @return<br/>
 	 */
 	public static String username(){
-		boolean sex = org.apache.commons.lang.math.RandomUtils.nextBoolean();
+		boolean sex = random.nextBoolean();
 		int secondNameLength = RandomUtils.nextInt(1,3);
 		String firstName = RandomStringUtils.random(1, FIRST_NAME);
 		String srcChars = sex ? BOY : GIRL;
@@ -227,23 +228,23 @@ public class RandomUtil  {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static String address(){
 		List<Map> provinceList = (List<Map>) CITY_LIST.get("citylist");
-		int provinceIndex = org.apache.commons.lang.math.RandomUtils.nextInt(provinceList.size());
+		int provinceIndex =  RandomUtils.nextInt(0,provinceList.size());
 		Map provinceEntry = provinceList.get(provinceIndex);
 		String province = String.valueOf(provinceEntry.get("p"));
 
 		List<Map> cityList = (List<Map>) provinceEntry.get("c");
-		int cityIndex = org.apache.commons.lang.math.RandomUtils.nextInt(cityList.size());
+		int cityIndex =  RandomUtils.nextInt(0,cityList.size());
 		Map cityEntry = cityList.get(cityIndex);
 		String city = String.valueOf(cityEntry.get("n"));
 
 		List<Map> areaList = (List<Map>) cityEntry.get("a");
 		String area = "";
 		if(areaList != null){
-			int index = org.apache.commons.lang.math.RandomUtils.nextInt(areaList.size());
+			int index =  RandomUtils.nextInt(0,areaList.size());
 			Map areaEntry = areaList.get(index);
 			area = String.valueOf(areaEntry.get("s"));
 		}
-		int addressIndex = org.apache.commons.lang.math.RandomUtils.nextInt(ADDRESS_LIST.length);
+		int addressIndex =  RandomUtils.nextInt(0,ADDRESS_LIST.length);
 		return province + city + area + ADDRESS_LIST[addressIndex];
 	}
 	/**
@@ -253,7 +254,7 @@ public class RandomUtil  {
 	 * 作者：sanri<br/>
 	 */
 	public static String email(int length){
-		int randomIndex = org.apache.commons.lang.math.RandomUtils.nextInt(EMAIL_SUFFIX.length);
+		int randomIndex = RandomUtils.nextInt(0, EMAIL_SUFFIX.length);
 		return RandomStringUtils.randomAlphanumeric(length)+EMAIL_SUFFIX[randomIndex];
 	}
 
@@ -262,7 +263,7 @@ public class RandomUtil  {
 	 * @return
 	 */
 	public static String job(){
-		int randomIndex = org.apache.commons.lang.math.RandomUtils.nextInt(JOBS.length);
+		int randomIndex = RandomUtils.nextInt(0, JOBS.length);
 		return JOBS[randomIndex];
 	}
 	/**
@@ -285,7 +286,7 @@ public class RandomUtil  {
 	 * @return
 	 */
 	public static String phone(){
-		int randomIndex = org.apache.commons.lang.math.RandomUtils.nextInt(PHONE_SEGMENT.length);
+		int randomIndex = RandomUtils.nextInt(0,PHONE_SEGMENT.length);
 		String segment = PHONE_SEGMENT[randomIndex];
 		return phone(segment);
 	}
