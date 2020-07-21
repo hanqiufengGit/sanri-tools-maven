@@ -4,6 +4,8 @@ import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.RandomUtils;
 import org.apache.http.Consts;
 
 import javax.crypto.BadPaddingException;
@@ -89,8 +91,9 @@ public final class SignUtil {
 			throw new IllegalArgumentException("无法生成长度小于 "+length+" 的唯一字符串,最小["+nowTimestamp.length()+"]");
 		}
 		if(length > nowTimestamp.length()){
-			String randomString = RandomUtil.randomNumeric((int)(length - nowTimestamp.length()));
-			return nowTimestamp + randomString;
+//			String randomString = RandomUtil.randomNumeric((int)(length - nowTimestamp.length()));
+			int randomLength = RandomUtils.nextInt(0, (int) (length - nowTimestamp.length()));
+			return nowTimestamp + RandomStringUtils.randomAlphanumeric(randomLength);
 		}
 		return nowTimestamp;
 	}
