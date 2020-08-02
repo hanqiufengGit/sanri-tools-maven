@@ -4,7 +4,7 @@ sanri-tools-maven 是一个开源的用于企业开发的工具包，重点想�
 
 根据表和模板生成相应代码；一些身份证，企业代码，车架号的验证与生成； kafka ,zookeeper 的数据监控等
 
-博客地址: https://blog.csdn.net/sanri1993/article/details/98664034
+博客地址: https://www.cnblogs.com/sanri1993/p/13303630.html
 
 ---
 
@@ -116,9 +116,9 @@ https://github.com/sanri1993/sanri-tools-maven/releases
 * 如需关注项目最新动态，请Watch、Star项目，同时也是对项目最好的支持
 * 微信扫码并关注我，获得项目最新动态及更新提醒
 
-![欢迎加入我的技术群](http://pic.yupoo.com/sanri1993/7e6b6fe8/b40d4a8c.jpg)
+![欢迎加入我的技术群](https://images.gitee.com/uploads/images/2020/0802/183913_c89fb735_409739.jpeg)
 
-![我的微信](http://pic.yupoo.com/sanri1993/7e6b6fe8/b40d4a8c.jpg)
+![我的微信](https://images.gitee.com/uploads/images/2020/0802/183913_c89fb735_409739.jpeg)
 
 
 
@@ -168,26 +168,26 @@ https://github.com/sanri1993/sanri-tools-maven/releases
 
 ### 演示效果图
 
-![首页](http://pic.yupoo.com/sanri1993/81d03f16/30e994b3.png)
+![首页](https://images.gitee.com/uploads/images/2020/0802/183913_ed63c782_409739.png)
 
-![数据表工具](http://pic.yupoo.com/sanri1993/209d5663/99e29b4b.png)
+![数据表工具](https://images.gitee.com/uploads/images/2020/0802/183913_5f3e433b_409739.png)
 
-![模板代码生成](http://pic.yupoo.com/sanri1993/f3b022dd/22d80483.png)
+![模板代码生成](https://images.gitee.com/uploads/images/2020/0802/183913_9575d5bb_409739.png)
 
-![kafka 消费组列表](http://pic.yupoo.com/sanri1993/7c2f3fc5/fe5c9295.png)
+![kafka 消费组列表](https://images.gitee.com/uploads/images/2020/0802/183913_1531ca2e_409739.png)
 
-![kafka 消息组消费的主题](http://pic.yupoo.com/sanri1993/87773619/81c9177e.png)
+![kafka 消息组消费的主题](https://images.gitee.com/uploads/images/2020/0802/183913_8b5a412e_409739.png)
 
-![kafka 消费组消费主题分区监控](http://pic.yupoo.com/sanri1993/8430b3a4/64991a8c.png)
+![kafka 消费组消费主题分区监控](https://images.gitee.com/uploads/images/2020/0802/183914_246662b6_409739.png)
 
-![kafka 主题管理](http://pic.yupoo.com/sanri1993/d2c0764a/c38b3da9.png)
+![kafka 主题管理](https://images.gitee.com/uploads/images/2020/0802/183914_2ab7e87d_409739.png)
 
-![kafka 分区数据查看](http://pic.yupoo.com/sanri1993/6b8e9dde/87e26451.png)
+![kafka 分区数据查看](https://images.gitee.com/uploads/images/2020/0802/183914_1154146f_409739.png)
 
-![kafka json 数据查看](http://pic.yupoo.com/sanri1993/53e12480/0ac54c1d.png)
+![kafka json 数据查看](https://images.gitee.com/uploads/images/2020/0802/183914_a8ed0d1e_409739.png)
 
-![kafka 模拟数据发送](http://pic.yupoo.com/sanri1993/474271f9/16bc1259.png)
+![kafka 模拟数据发送](https://images.gitee.com/uploads/images/2020/0802/183914_9d3fa961_409739.png)
 
-![redis 数据监控](http://pic.yupoo.com/sanri1993/57c7bdfe/ceb0b8b3.png)
+![redis 数据监控](https://images.gitee.com/uploads/images/2020/0802/183914_80e3418a_409739.png)
 
-![响应数据模拟](http://pic.yupoo.com/sanri1993/3f48b174/93797df0.png)
+![响应数据模拟](https://images.gitee.com/uploads/images/2020/0802/183914_6917a898_409739.png)
