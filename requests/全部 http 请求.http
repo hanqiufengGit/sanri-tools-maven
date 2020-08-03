@@ -90,4 +90,15 @@ Content-Type: application/json
 
 {"topic":"EGSC_SCP_MCT_BIZ_AUDIT","clusterName":"10.101.72.42_2182","key":"0","data":"{\"eventHeader\":{\"eventId\":\"94327687ead04379a0827d645ffaa83e\",\"eventTime\":\"2020-07-10T14:50:23\",\"eventType\":\"00IR01\",\"notifyPopWindow\":true,\"notifySms\":false,\"promoter\":\"wangcz\",\"systemId\":\"00IR\"},\"messageId\":\"262f7c2a46fe4o99bc7f73b3aabc277d\",\"payload\":{\"eventDevice\":{\"ctrlDevices\":[\"1017201870F8E79010CE|控制盒飞利浦\"],\"subDevices\":[]},\"option\":{\"scheduleId\":\"9918fb16159f45b58f55e834595608f3\",\"scheduleName\":\"弹窗测试\"}}}"}
 
+### 测试 escape 数据
+POST {{baseUrl}}/test/escapeData
+Content-Type: application/json
+
+{
+  "data": {
+    "jaasConfig": "xxx \"hd\" \"kafka\" ",
+    "clusterName": "abc"
+  }
+}
+
 ###

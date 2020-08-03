@@ -376,7 +376,7 @@ define(['util','dialog','jsoneditor','icheck','jsonview'],function (util,dialog,
                 var partitions = Object.keys(logSizes);
                 $('#topicname').data('partitions', partitions);
 
-                var $btnGroup = '<div class="btn-group btn-group-sm"><button class="btn btn-sm btn-success" name="nearbyData">附近数据</button><button class="btn btn-sm btn-warning" name="lastdata">尾部数据</button></div>';
+                var $btnGroup = '<div class="btn-group btn-group-sm"><button class="btn btn-sm btn-warning" name="lastdata">尾部数据</button></div>';
                 for (var key in logSizes) {
                     var change = lastLogSize ? '+'+(logSizes[key] - lastLogSize[key]):logSizes[key];
                     htmlCode.push('<tr partition="'+key+'"><td>' + key + '</td><td>' + logSizes[key] + '</td><td>'+change+'</td><td>'+$btnGroup+'</td></tr>')

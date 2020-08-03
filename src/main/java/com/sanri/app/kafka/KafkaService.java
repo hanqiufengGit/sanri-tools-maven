@@ -74,7 +74,7 @@ public class KafkaService {
         kafkaConnInfo.setZkConnectStrings(zkConnStrings);
         kafkaConnInfo.setClusterName(zkConn);
         String chroot = kafkaConnInfo.getChroot();
-        kafkaConnInfo.setJaasConfig(StringEscapeUtils.escapeJava(kafkaConnInfo.getJaasConfig()));
+        kafkaConnInfo.setJaasConfig(kafkaConnInfo.getJaasConfig());
         fileManagerServlet.writeConfig(modul,zkConn, JSONObject.toJSONString(kafkaConnInfo));
     }
 
@@ -247,6 +247,7 @@ public class KafkaService {
         } catch (NoSuchMethodException e) {}
         return mMbeans;
     }
+
     private ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(1, 5, 0, TimeUnit.MILLISECONDS, new ArrayBlockingQueue<>(10), new ThreadFactory() {
         @Override
         public Thread newThread(Runnable r) {

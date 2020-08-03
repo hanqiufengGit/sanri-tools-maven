@@ -16,6 +16,7 @@ import jdk.internal.org.objectweb.asm.ClassReader;
 import jdk.internal.org.objectweb.asm.tree.ClassNode;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.lang3.time.DateUtils;
@@ -328,4 +329,26 @@ public class ToolsSysTest {
         System.out.println(invokeMethod);
     }
 
+    @Test
+    public void testTruncate(){
+        String random = RandomStringUtils.randomAlphabetic(21);
+        System.out.println(random);
+        String truncate = truncate(random);
+        System.out.println(truncate);
+    }
+
+    public static String truncate(String q) {
+        if (q == null) {
+            return null;
+        }
+        int len = q.length();
+        String result;
+        return len <= 20 ? q : (q.substring(0, 10) + len + q.substring(len - 10, len));
+    }
+
+    @Test
+    public void testxxx(){
+        List<String> strings = JSONArray.parseArray(JSON.toJSONString(null), String.class);
+
+    }
 }

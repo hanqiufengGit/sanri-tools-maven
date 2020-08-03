@@ -1,7 +1,11 @@
 package com.sanri.app.servlet;
 
+import com.alibaba.fastjson.JSON;
+import com.sanri.app.BaseServlet;
 import com.sanri.app.dtos.ServerInfo;
+import com.sanri.app.dtos.kafka.KafkaConnInfo;
 import com.sanri.frame.RequestMapping;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -14,6 +18,7 @@ import javax.management.Query;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.io.File;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.net.Inet4Address;
@@ -23,7 +28,7 @@ import java.net.UnknownHostException;
 import java.util.*;
 
 @RequestMapping("/test")
-public class TestServlet {
+public class TestServlet extends BaseServlet {
 
 	public ServerInfo info(HttpServletRequest request,HttpSession session) throws UnknownHostException, MalformedObjectNameException {
 		String serverName = request.getServerName();
@@ -190,5 +195,10 @@ public class TestServlet {
 		StringBuffer requestURL = request.getRequestURL();
 		String encodeURL = response.encodeURL(requestURI);
 		response.sendRedirect(encodeURL);
+	}
+
+	public void escapeData(KafkaConnInfo data) throws IOException {
+		System.out.println(data);
+		FileUtils.writeStringToFile(new File("d:/test/aa.txt"), JSON.toJSONString(data));
 	}
 }

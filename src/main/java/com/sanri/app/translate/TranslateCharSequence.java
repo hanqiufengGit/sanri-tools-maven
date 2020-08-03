@@ -29,6 +29,7 @@ public class TranslateCharSequence {
     //每个词是否需要后续处理
     private Map<String,Boolean> charTranslate = new HashMap<String, Boolean>();
 
+    // 词直接英语翻译结果
     private Set<String> directTranslates = new HashSet<String>() ;
 
     // 整个词串是否需要后续处理
