@@ -1,10 +1,15 @@
 package com.sanri.tools.modules.redis.service;
 
 import com.sanri.tools.modules.core.exception.ToolException;
+import com.sanri.tools.modules.redis.dtos.KeyScanResult;
 import com.sanri.tools.modules.redis.dtos.TreeKey;
 import com.sanri.tools.modules.redis.dtos.in.ConnParam;
+import com.sanri.tools.modules.redis.dtos.in.SerializerParam;
 import com.sanri.tools.modules.redis.service.dtos.RedisConnection;
 import com.sanri.tools.modules.redis.service.dtos.RedisNode;
+import com.sanri.tools.modules.redis.service.dtos.RedisType;
+import com.sanri.tools.modules.serializer.service.Serializer;
+import com.sanri.tools.modules.serializer.service.SerializerChoseService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
@@ -21,9 +26,23 @@ import java.util.*;
 public class RedisTreeKeyService {
     @Autowired
     private RedisService redisService;
+    @Autowired
+    private SerializerChoseService serializerChoseService;
 
     // 1 万条以下的数据可以使用
-    public static final long supportKeys = 10000;
+    public static final long supportKeys = 20000;
+
+    public KeyScanResult.KeyResult keyInfo(ConnParam connParam, String key, SerializerParam serializerParam) throws IOException {
+        final RedisConnection redisConnection = redisService.redisConnection(connParam);
+        Serializer serializer = serializerChoseService.choseSerializer(serializerParam.getKeySerializer());
+        final byte[] keyBytes = serializer.serialize(key);
+        final RedisType type = redisConnection.type(keyBytes);
+        final Long ttl = redisConnection.ttl(keyBytes);
+        final Long pttl = redisConnection.pttl(keyBytes);
+        final long length = redisConnection.length(keyBytes);
+        final KeyScanResult.KeyResult keyResult = new KeyScanResult.KeyResult(key, type.getValue(), ttl, pttl, length);
+        return keyResult;
+    }
 
     /**
      *

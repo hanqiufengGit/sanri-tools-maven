@@ -427,7 +427,7 @@ public class RedisService implements ApplicationListener<UpdateConnectEvent> {
      * @param keyBytes
      * @return
      */
-    long keyLength(Jedis client, byte[] keyBytes) {
+    public long keyLength(Jedis client, byte[] keyBytes) {
         String type = client.type(keyBytes);
         RedisType redisType = RedisType.parse(type);
         if (redisType == null){
