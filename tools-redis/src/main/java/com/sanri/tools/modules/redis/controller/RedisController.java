@@ -38,6 +38,11 @@ public class RedisController {
         return redisTreeKeyService.keyInfo(connParam,key,serializerParam);
     }
 
+    @GetMapping("/key/del/pattern")
+    public long delKeyPattern(@Validated ConnParam connParam,String keyPattern) throws IOException {
+        return redisTreeKeyService.dropKeyPattern(connParam, keyPattern);
+    }
+
     @GetMapping("/key/scan")
     public KeyScanResult scan(@Validated ConnParam connParam, KeyScanParam keyScanParam, SerializerParam serializerParam) throws IOException, ClassNotFoundException {
         return redisService.scan(connParam,keyScanParam,serializerParam);
